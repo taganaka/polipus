@@ -13,7 +13,7 @@ module Polipus
       def add page
         obj = page.to_hash
         obj['uuid'] = uuid(page)
-        obj['body'] = hash_page['body'] = Zlib::Inflate.inflate(page['body'].to_s) if page['body']
+        obj['body'] = Zlib::Deflate.deflate(obj['body']) if obj['body']
         BINARY_FIELDS.each do |field|
           obj[field] = BSON::Binary.new(obj[field]) unless obj[field].nil?
         end
@@ -57,7 +57,7 @@ module Polipus
           BINARY_FIELDS.each do |field|
             hash[field] = hash[field].to_s
           end
-          hash['body'] = Zlib::Deflate.deflate(hash['body']) if hash['body']
+          hash['body'] = Zlib::Inflate.inflate(hash['body']) if hash['body']
           Page.from_hash(hash)
         end
 
