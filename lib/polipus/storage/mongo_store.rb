@@ -8,12 +8,13 @@ module Polipus
         @mongo      = options[:mongo]
         @collection = options[:collection]
         @mongo[@collection].ensure_index(:uuid, :unique => true, :drop_dups => true, :background => true)
+        @compress_body = options[:compress_body] ||= true
       end
 
       def add page
         obj = page.to_hash
         obj['uuid'] = uuid(page)
-        obj['body'] = Zlib::Deflate.deflate(obj['body']) if obj['body']
+        obj['body'] = Zlib::Deflate.deflate(obj['body']) if @compress_body && obj['body']
         BINARY_FIELDS.each do |field|
           obj[field] = BSON::Binary.new(obj[field]) unless obj[field].nil?
         end
@@ -57,8 +58,12 @@ module Polipus
           BINARY_FIELDS.each do |field|
             hash[field] = hash[field].to_s
           end
-          hash['body'] = Zlib::Inflate.inflate(hash['body']) if hash['body']
-          Page.from_hash(hash)
+          begin
+            hash['body'] = Zlib::Inflate.inflate(hash['body']) if @compress_body && hash['body'] && !hash['body'].empty?
+            return Page.from_hash(hash)
+          rescue
+          end
+          nil
         end
 
     end
