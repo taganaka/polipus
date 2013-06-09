@@ -1,3 +1,5 @@
+require "redis"
+require "redis/connection/hiredis"
 require "redis-queue"
 require "polipus/version"
 require "polipus/http"
@@ -36,7 +38,7 @@ module Polipus
       # proxy server port number
       :proxy_port => false,
       # HTTP read timeout in seconds
-      :read_timeout => nil,
+      :read_timeout => 30,
       # An URL tracker instance. default is Bloomfilter based on redis
       :url_tracker => nil,
       # A Redis options {} that will be passed directly to Redis.new
@@ -50,6 +52,9 @@ module Polipus
     OPTS.keys.each do |key|
       define_method "#{key}=" do |value|
         @options[key.to_sym] = value
+      end
+      define_method "#{key}" do
+        @options[key.to_sym]
       end
     end
 
@@ -66,11 +71,11 @@ module Polipus
       @logger       = @options[:logger] ||= Logger.new(STDOUT)
       @follow_links_like = []
       @skip_links_like   = []
+      @on_page_downloaded = []
 
       @urls.each{ |url| url.path = '/' if url.path.empty? }
 
       if @options[:reset]
-        puts "reset"
         @url_tracker.clear
         @storage.clear
         queue_factory.clear
@@ -90,10 +95,10 @@ module Polipus
 
       @options[:workers].times do |worker_number|
         @workers_pool << Thread.new do
-          @logger.info {"Start worker #{worker_number}"}
+          @logger.debug {"Start worker #{worker_number}"}
           http  = @http_pool[worker_number]   ||= HTTP.new(@options)
           queue = @queues_pool[worker_number] ||= queue_factory
-          queue.process do |message|
+          queue.process(false, @options[:read_timeout]) do |message|
 
             next if message.nil?
 
@@ -102,17 +107,24 @@ module Polipus
             @logger.info {"[worker ##{worker_number}] Fetching page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth}"}
             page = http.fetch_page(url, page.referer, page.depth)
             @storage.add page
+            @logger.info {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
+            # Execute on_page_downloaded blocks
+            @on_page_downloaded.each {|e| e.call(page)}
 
-            page.links.each do |url_to_visit|
-              next unless should_be_visited?(url_to_visit)
-              enqueue url_to_visit, page, queue
+
+            if @options[:depth_limit] == false || @options[:depth_limit] > page.depth 
+              page.links.each do |url_to_visit|
+                next unless should_be_visited?(url_to_visit)
+                enqueue url_to_visit, page, queue
+              end
+            else
+              @logger.info {"[worker ##{worker_number}] Depth limit reached #{page.depth}"}
             end
 
-            @logger.debug {"Queue size: #{queue.size}"}
+            @logger.info {"[worker ##{worker_number}] Queue size: #{queue.size}"}
             true
           end
         end
-        #sleep 10 if worker_number == 0
       end
       @workers_pool.each {|w| w.join}
     end
@@ -124,6 +136,11 @@ module Polipus
 
     def skip_links_like(*patterns)
       @skip_links_like = @skip_links_like += patterns.uniq.compact
+      self
+    end
+
+    def on_page_downloaded(&block)
+      @on_page_downloaded << block
       self
     end
 
