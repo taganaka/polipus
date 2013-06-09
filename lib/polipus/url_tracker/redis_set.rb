@@ -4,8 +4,8 @@ module Polipus
     class RedisSet
       
       def initialize(options = {})
-        @redis = options[:redis] || Redis.current
-        @set_name = options[:set_name]
+        @redis    = options[:redis] || Redis.current
+        @set_name = options[:key_name]
       end
 
       def visited?(url)
