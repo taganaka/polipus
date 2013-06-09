@@ -1,6 +1,6 @@
-require 'net/https'
-require 'polipus/page'
-
+require "net/https"
+require "polipus/page"
+require "zlib"
 module Polipus
   class HTTP
     # Maximum number of redirects to follow on each get_response
@@ -28,6 +28,11 @@ module Polipus
         url = URI(url) unless url.is_a?(URI)
         pages = []
         get(url, referer) do |response, code, location, redirect_to, response_time|
+          body = response.body.dup
+          if response.to_hash.fetch('content-encoding', [])[0] == 'gzip'
+            gzip = Zlib::GzipReader.new(StringIO.new(body))    
+            body = gzip.read
+          end
           pages << Page.new(location, :body => response.body.dup,
                                       :code => code,
                                       :headers => response.to_hash,
