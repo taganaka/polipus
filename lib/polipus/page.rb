@@ -15,8 +15,6 @@ module Polipus
     attr_reader :error
     # Integer response code of the page
     attr_accessor :code
-    # Boolean indicating whether or not this page has been visited in PageStore#shortest_paths!
-    attr_accessor :visited
     # Depth of this page from the root of the crawl. This is not necessarily the
     # shortest path; use PageStore#shortest_paths! to find that value.
     attr_accessor :depth
@@ -24,10 +22,6 @@ module Polipus
     attr_accessor :referer
     # Response time of the request for this page in milliseconds
     attr_accessor :response_time
-
-    def self.storage=(storage_adapter)
-      @@storage_adapter = storage_adapter
-    end
 
     #
     # Create a new page
@@ -166,7 +160,6 @@ module Polipus
        'body' => @body,
        'links' => links.map(&:to_s), 
        'code' => @code,
-       'visited' => @visited,
        'depth' => @depth,
        'referer' => @referer.to_s,
        'redirect_to' => @redirect_to.to_s,
@@ -184,7 +177,6 @@ module Polipus
        '@body' => hash['body'],
        '@links' => hash['links'].map { |link| URI(link) },
        '@code' => hash['code'].to_i,
-       '@visited' => hash['visited'],
        '@depth' => hash['depth'].to_i,
        '@referer' => hash['referer'],
        '@redirect_to' => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
