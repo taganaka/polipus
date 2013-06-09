@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "polipus"
+require "polipus/version"
 
 Gem::Specification.new do |s|
   s.name        = "polipus"
@@ -21,11 +21,11 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "redis-bloomfilter", "~> 0.0.1"
-  s.add_dependency "redis-queue", "~> 0.0.3"
-  s.add_dependency "nokogiri", "~> 1.6.0"
-  s.add_dependency "hiredis", "~> 0.4.5"
-  s.add_dependency "redis", "~> 3.0.4"
-
+  s.add_dependency "redis-queue",       "~> 0.0.3"
+  s.add_dependency "nokogiri",          "~> 1.6.0"
+  s.add_dependency "hiredis",           "~> 0.4.5"
+  s.add_dependency "redis",             "~> 3.0.4"
+  s.add_dependency "mongo",             "~> 1.8.6"
   s.add_development_dependency "rspec"
 
 end
