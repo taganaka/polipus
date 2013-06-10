@@ -26,6 +26,8 @@ Gem::Specification.new do |s|
   s.add_dependency "hiredis",           "~> 0.4.5"
   s.add_dependency "redis",             "~> 3.0.4"
   s.add_dependency "mongo",             "~> 1.8.6"
+  s.add_dependency "bson_ext",          "~> 1.8.6"
+  s.add_dependency "json",              "~> 1.8.0"
   s.add_development_dependency "rspec"
   s.add_development_dependency "vcr", "~> 2.5.0"
   s.add_development_dependency "webmock"
