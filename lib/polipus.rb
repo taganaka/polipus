@@ -5,18 +5,12 @@ require "polipus/version"
 require "polipus/http"
 require "polipus/storage"
 require "polipus/url_tracker"
+require "polipus/plugin"
 require "logger"
 require "json"
 
-trap(:INT) { exit } #I hate ctrl+c's error
 module Polipus
   
-  # @@queue.clear(true)
-  # @@url_tracker.clear
-  # @@storage.clear
-  #http://annunci.ebay.it/annunci/auto/novara-annunci-novara/lancia-k-diesel-come-nuova/45834766
-  #http://annunci.ebay.it/motori/auto/?p=2
-  #@@focus_on = /^\/wordpress\//i
   def Polipus.crawler(job_name = 'polipus', urls = [], options = {}, &block)
     PolipusCrawler.crawl(job_name, urls, options, &block)
   end
@@ -44,9 +38,7 @@ module Polipus
       # A Redis options {} that will be passed directly to Redis.new
       :redis_options => {},
       # An instance of logger
-      :logger => nil,
-      # Reset the current work: Dangerous!
-      :reset => false,
+      :logger => nil
     }
 
     OPTS.keys.each do |key|
@@ -68,19 +60,14 @@ module Polipus
       @workers_pool = []
       @queues_pool  = []
       @urls         = [urls].flatten.map{ |url| url.is_a?(URI) ? url : URI(url) }
-      @logger       = @options[:logger] ||= Logger.new(STDOUT)
+      @logger       = @options[:logger] ||= Logger.new(nil)
       @follow_links_like = []
       @skip_links_like   = []
       @on_page_downloaded = []
 
       @urls.each{ |url| url.path = '/' if url.path.empty? }
 
-      if @options[:reset]
-        @url_tracker.clear
-        @storage.clear
-        queue_factory.clear
-      end
-
+      execute_plugin 'on_initialize'
       yield self if block_given?
     end
 
@@ -93,6 +80,7 @@ module Polipus
 
       return if q.empty?
 
+      execute_plugin 'on_crawl_start'
       @options[:workers].times do |worker_number|
         @workers_pool << Thread.new do
           @logger.debug {"Start worker #{worker_number}"}
@@ -102,15 +90,21 @@ module Polipus
 
             next if message.nil?
 
+            execute_plugin 'on_message_received'
+
             page = Page.from_json message
             url = page.url.to_s
             @logger.info {"[worker ##{worker_number}] Fetching page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth}"}
+
+            execute_plugin 'on_before_download'
             page = http.fetch_page(url, page.referer, page.depth)
+            execute_plugin 'on_after_download'
+
             @storage.add page
             @logger.info {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
+
             # Execute on_page_downloaded blocks
             @on_page_downloaded.each {|e| e.call(page)}
-
 
             if @options[:depth_limit] == false || @options[:depth_limit] > page.depth 
               page.links.each do |url_to_visit|
@@ -122,11 +116,13 @@ module Polipus
             end
 
             @logger.info {"[worker ##{worker_number}] Queue size: #{queue.size}"}
+            execute_plugin 'on_message_processed'
             true
           end
         end
       end
       @workers_pool.each {|w| w.join}
+      execute_plugin 'on_crawl_end'
     end
   
     def follow_links_like(*patterns)
@@ -170,6 +166,16 @@ module Polipus
 
       def queue_factory
         Redis::Queue.new("polipus_queue_#{@job_name}","bp_polipus_queue_#{@job_name}", :redis => Redis.new(@options[:redis_options]))
+      end
+
+      def execute_plugin method
+        Polipus::Plugin.plugins.each do |k,p|
+          if p.respond_to? method
+            @logger.info("Running plugin method #{method} on #{k}")
+            ret_val = p.send(method, self)
+            instance_eval(&ret_val) if ret_val.kind_of? Proc
+          end
+        end
       end
   
   end
