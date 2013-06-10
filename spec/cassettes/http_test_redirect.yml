@@ -1,0 +1,71 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://greenbytes.de/tech/tc/httpredirects/t300bodyandloc.asis
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 300
+      message: Multiple Choices
+    headers:
+      Date:
+      - Mon, 10 Jun 2013 08:58:25 GMT
+      Server:
+      - Apache/2.2.22 (Ubuntu)
+      Cache-Control:
+      - no-cache
+      Location:
+      - http://greenbytes.de/tech/tc/httpredirects/300.txt
+      Content-Length:
+      - '27'
+    body:
+      encoding: US-ASCII
+      string: ! '300 Redirect Response Body
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Jun 2013 08:58:25 GMT
+- request:
+    method: get
+    uri: http://greenbytes.de/tech/tc/httpredirects/300.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 10 Jun 2013 08:58:25 GMT
+      Server:
+      - Apache/2.2.22 (Ubuntu)
+      Last-Modified:
+      - Tue, 08 Jan 2013 17:31:05 GMT
+      Etag:
+      - ! '"b8306c-31-4d2ca4f7df2ca"'
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '49'
+      Content-Type:
+      - text/plain
+    body:
+      encoding: US-ASCII
+      string: ! "You have reached the target\r\nof a 300 redirect.\r\n"
+    http_version: 
+  recorded_at: Mon, 10 Jun 2013 08:58:25 GMT
+recorded_with: VCR 2.5.0
