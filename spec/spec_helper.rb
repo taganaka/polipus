@@ -15,7 +15,13 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 end
+require "vcr"
 require "polipus"
+
+VCR.configure do |c|
+  c.cassette_library_dir = "#{File.dirname(__FILE__)}/cassettes"
+  c.hook_into :webmock
+end
 
 def page_factory url, params = {}
   Polipus::Page.new url, params
