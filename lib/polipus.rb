@@ -104,7 +104,7 @@ module Polipus
             @logger.info {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
 
             # Execute on_page_downloaded blocks
-            @on_page_downloaded.each {|e| e.call(page)}
+            @on_page_downloaded.each {|e| e.call(page)} unless page.nil?
 
             if @options[:depth_limit] == false || @options[:depth_limit] > page.depth 
               page.links.each do |url_to_visit|
