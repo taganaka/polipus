@@ -43,4 +43,14 @@ describe Polipus::Storage::MongoStore do
     @storage.get(p).should be_nil
     @storage.count.should be 0
   end
+
+  it 'should store a page removing a query string from the uuid generation' do
+    p = page_factory 'http://www.asd.com/?asd=lol', :code => 200, :body => '<html></html>'
+    p_no_query = page_factory 'http://www.asd.com/?asdas=dasda&adsda=1', :code => 200, :body => '<html></html>'
+    @storage.include_query_string_in_uuid = false
+    @storage.add p
+    @storage.exists?(p_no_query).should be_true
+    @storage.remove p
+  end
+
 end

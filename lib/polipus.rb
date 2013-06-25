@@ -38,7 +38,8 @@ module Polipus
       # A Redis options {} that will be passed directly to Redis.new
       :redis_options => {},
       # An instance of logger
-      :logger => nil
+      :logger => nil,
+      :include_query_string_in_saved_page => true
     }
 
     OPTS.keys.each do |key|
@@ -160,7 +161,8 @@ module Polipus
       def enqueue url_to_visit, current_page, queue
         page_to_visit = Page.new(url_to_visit.to_s, :referer => current_page.url.to_s, :depth => current_page.depth + 1)
         queue << page_to_visit.to_json
-        @url_tracker.visit url_to_visit.to_s
+        to_track = @options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/,'')
+        @url_tracker.visit to_track
         @logger.debug {"Added [#{url_to_visit.to_s}] to the queue"}
       end
 
