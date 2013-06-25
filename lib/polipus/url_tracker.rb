@@ -11,6 +11,7 @@ module Polipus
     end
 
     def self.redis_set(options = {})
+      require "polipus/url_tracker/redis_set"
       options[:redis]      ||= Redis.current
       options[:key_name]   ||= 'polipus-set'
       self::RedisSet.new options

@@ -1,6 +1,5 @@
-require "set"
 module Polipus
-  module UrlTracke
+  module UrlTracker
     class RedisSet
       
       def initialize(options = {})
