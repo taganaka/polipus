@@ -6,6 +6,7 @@ require "polipus/http"
 require "polipus/storage"
 require "polipus/url_tracker"
 require "polipus/plugin"
+require "polipus/queue_overflow"
 require "logger"
 require "json"
 
@@ -39,7 +40,9 @@ module Polipus
       :redis_options => {},
       # An instance of logger
       :logger => nil,
-      :include_query_string_in_saved_page => true
+      :include_query_string_in_saved_page => true,
+      :queue_items_limit => 2_000_000,
+      :queue_overflow_adapter => nil
     }
 
     OPTS.keys.each do |key|
@@ -159,8 +162,14 @@ module Polipus
       end
 
       def enqueue url_to_visit, current_page, queue
+        overflowed = false
+        if @options[:queue_overflow_adapter] && overflowed?(queue)
+          @logger.info {"Queue overflowed! Saving new items into overflow adapter"}
+          overflowed = true
+        end
+        
         page_to_visit = Page.new(url_to_visit.to_s, :referer => current_page.url.to_s, :depth => current_page.depth + 1)
-        queue << page_to_visit.to_json
+        overflowed ? @options[:queue_overflow_adapter] << page_to_visit.to_json : queue << page_to_visit.to_json
         to_track = @options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/,'')
         @url_tracker.visit to_track
         @logger.debug {"Added [#{url_to_visit.to_s}] to the queue"}
@@ -178,6 +187,10 @@ module Polipus
             instance_eval(&ret_val) if ret_val.kind_of? Proc
           end
         end
+      end
+
+      def overflowed?(queue)
+        queue.size > @options[:queue_items_limit]
       end
   
   end
