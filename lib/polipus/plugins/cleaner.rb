@@ -17,6 +17,7 @@ module Polipus
           @url_tracker.clear
           @storage.clear
           queue_factory.clear
+          @options[:queue_overflow_adapter].clear if @options[:queue_overflow_adapter]
         }
       end
     end

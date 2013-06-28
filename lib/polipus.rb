@@ -7,6 +7,7 @@ require "polipus/storage"
 require "polipus/url_tracker"
 require "polipus/plugin"
 require "polipus/queue_overflow"
+require "thread"
 require "logger"
 require "json"
 
@@ -40,9 +41,15 @@ module Polipus
       :redis_options => {},
       # An instance of logger
       :logger => nil,
+      # whether the query string should be included in the saved page
       :include_query_string_in_saved_page => true,
+      # Max number of items for collection
       :queue_items_limit => 2_000_000,
-      :queue_overflow_adapter => nil
+      # The adapter used to store exceed redis items
+      :queue_overflow_adapter => nil,
+      # The probability that some items will be restored 
+      # from the overflow adapter when the size of the queue is half of the maximum size
+      :queue_overflow_restore_probability => 0.25
     }
 
     OPTS.keys.each do |key|
@@ -68,9 +75,9 @@ module Polipus
       @follow_links_like = []
       @skip_links_like   = []
       @on_page_downloaded = []
-
       @urls.each{ |url| url.path = '/' if url.path.empty? }
-
+      @mutex = Mutex.new
+      @in_overflow = false
       execute_plugin 'on_initialize'
       yield self if block_given?
     end
@@ -98,14 +105,14 @@ module Polipus
 
             page = Page.from_json message
             url = page.url.to_s
-            @logger.info {"[worker ##{worker_number}] Fetching page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth}"}
+            @logger.debug {"[worker ##{worker_number}] Fetching page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth}"}
 
             execute_plugin 'on_before_download'
             page = http.fetch_page(url, page.referer, page.depth)
             execute_plugin 'on_after_download'
 
             @storage.add page
-            @logger.info {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
+            @logger.debug {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
 
             # Execute on_page_downloaded blocks
             @on_page_downloaded.each {|e| e.call(page)} unless page.nil?
@@ -162,17 +169,38 @@ module Polipus
       end
 
       def enqueue url_to_visit, current_page, queue
-        overflowed = false
-        if @options[:queue_overflow_adapter] && overflowed?(queue)
-          @logger.info {"Queue overflowed! Saving new items into overflow adapter"}
-          overflowed = true
-        end
-        
+        @logger.debug {"Queue overflow status: #{@in_overflow ? "ON" : "OFF"}"}
+        @mutex.synchronize {
+
+          if @options[:queue_overflow_adapter] && overflowed?(queue)
+            if !@in_overflow
+              @logger.info {"Toggle Queue overflow mode to ON"}
+              toggle_overflow
+            end
+          end
+
+          if @in_overflow
+            if queue.size <= @options[:queue_items_limit] / 2
+                p = rand(0.0...1.0)
+                @logger.info {"Overflow probability: #{p}"}
+                if p <= @options[:queue_overflow_restore_probability]
+                  @logger.info {"Overflow restore mode triggered!"}
+                  restore(@options[:queue_items_limit] / 3, queue)
+                end
+                @logger.info {"Toggle Queue overflow mode to OFF"}
+
+                toggle_overflow
+              
+            end
+          end
+        }
+       
+    
         page_to_visit = Page.new(url_to_visit.to_s, :referer => current_page.url.to_s, :depth => current_page.depth + 1)
-        overflowed ? @options[:queue_overflow_adapter] << page_to_visit.to_json : queue << page_to_visit.to_json
+        @in_overflow ? @options[:queue_overflow_adapter] << page_to_visit.to_json : queue << page_to_visit.to_json
         to_track = @options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/,'')
         @url_tracker.visit to_track
-        @logger.debug {"Added [#{url_to_visit.to_s}] to the queue"}
+        @logger.debug {"Added [#{url_to_visit.to_s}] to the queue"}        
       end
 
       def queue_factory
@@ -191,6 +219,23 @@ module Polipus
 
       def overflowed?(queue)
         queue.size > @options[:queue_items_limit]
+      end
+
+      def toggle_overflow
+        @in_overflow = !@in_overflow  
+      end
+
+      def restore items, queue
+        added = 0
+        items.times {
+          if message = @options[:queue_overflow_adapter].pop
+            queue << message
+            added += 1
+          else
+            break
+          end
+        }
+        @logger.info {"Messages restored: #{added}, Messages left: #{@options[:queue_overflow_adapter].size}"}
       end
   
   end
