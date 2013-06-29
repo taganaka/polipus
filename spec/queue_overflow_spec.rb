@@ -15,10 +15,14 @@ describe Polipus::QueueOverflow do
   end
 
   it 'should work' do
+    @queue_overflow.empty?.should be_true
+    @queue_overflow.pop.should be_nil
     @queue_overflow << "test"
     @queue_overflow.size.should be == 1
     @queue_overflow.pop.should be == "test"
     @queue_overflow.empty?.should be_true
+    @queue_overflow.pop.should be_nil
+    @queue_overflow.size.should be == 0
   end
 
   it 'should act as a queue' do
@@ -33,4 +37,5 @@ describe Polipus::QueueOverflow do
     b = @queue_overflow.pop
     JSON.parse(b).should be == a
   end
+
 end
