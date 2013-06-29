@@ -95,11 +95,22 @@ module Polipus
       if queue_overflow_adapter
         @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
         Thread.new do
+         
+          redis_lock = Redis.new(@options[:redis_options])
+          op_timeout = @options[:queue_overflow_manager_check_time]
           while true
-            removed, restored = @overflow_manager.perform
-            @logger.info {"Overflow Manager: items removed=#{removed}, items restored=#{restored}"}
+            now = Time.now.to_i
+            tstamp = (redis_lock.getset "polipus_queue_overflow.lock",(now + op_timeout)).to_i
+            if (tstamp <= now)
+              removed, restored = @overflow_manager.perform
+              @logger.info {"Overflow Manager: items removed=#{removed}, items restored=#{restored}"}
+            
+            else
+              @logger.info {"Lock not acquired"}
+            end
             sleep @options[:queue_overflow_manager_check_time]
           end
+          
         end
       end
       
