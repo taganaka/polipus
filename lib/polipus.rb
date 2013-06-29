@@ -47,14 +47,14 @@ module Polipus
       :queue_items_limit => 2_000_000,
       # The adapter used to store exceed redis items
       :queue_overflow_adapter => nil,
-      # The probability that some items will be restored 
-      # from the overflow adapter when the size of the queue is half of the maximum size
-      :queue_overflow_restore_probability => 0.25
+      :queue_overflow_manager_check_time => 60
     }
 
     attr_reader :storage
     attr_reader :job_name
     attr_reader :logger
+    attr_reader :overflow_adapter
+    attr_reader :options
 
     OPTS.keys.each do |key|
       define_method "#{key}=" do |value|
@@ -80,27 +80,27 @@ module Polipus
       @skip_links_like   = []
       @on_page_downloaded = []
       @urls.each{ |url| url.path = '/' if url.path.empty? }
-      @mutex = Mutex.new
-      @in_overflow = false
+      @overflow_manager = nil
+
       execute_plugin 'on_initialize'
+
       yield self if block_given?
 
     end
 
     def takeover
 
-      # Thread.new do
-      #   main_q = queue_factory
-      #   while true && @options[:queue_overflow_adapter]
-      #     @logger.info {main_q.size}
-
-      #     if main_q.size < @options[:queue_items_limit] && !@options[:queue_overflow_adapter].empty?
-      #       restore 10_000, main_q
-      #     end
-      #     sleep 20
-      #   end
-      # end
-
+      if queue_overflow_adapter
+        @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
+        Thread.new do
+          while true
+            removed, restored = @overflow_manager.perform
+            @logger.info {"Overflow Manager: items removed=#{removed}, items restored=#{restored}"}
+            sleep @options[:queue_overflow_manager_check_time]
+          end
+        end
+      end
+      
       q = queue_factory
       @urls.each do |u|
         next if @url_tracker.visited?(u.to_s)
@@ -182,6 +182,10 @@ module Polipus
       @options[:redis_options]
     end
 
+    def overflow_adapter
+      @options[:overflow_adapter]
+    end
+
     private
       def should_be_visited?(url)
 
@@ -192,35 +196,8 @@ module Polipus
       end
 
       def enqueue url_to_visit, current_page, queue
-        @logger.debug {"Queue overflow status: #{@in_overflow ? "ON" : "OFF"}"}
-        @mutex.synchronize {
-
-          if @options[:queue_overflow_adapter] && overflowed?(queue)
-            if !@in_overflow
-              @logger.info {"Toggle Queue overflow mode to ON"}
-              toggle_overflow
-            end
-          end
-
-          if @in_overflow
-            if queue.size <= @options[:queue_items_limit] / 2
-                p = rand(0.0...1.0)
-                @logger.info {"Overflow probability: #{p}"}
-                if p <= @options[:queue_overflow_restore_probability]
-                  @logger.info {"Overflow restore mode triggered!"}
-                  restore(@options[:queue_items_limit] / 3, queue)
-                end
-                @logger.info {"Toggle Queue overflow mode to OFF"}
-
-                toggle_overflow
-              
-            end
-          end
-        }
-       
-    
         page_to_visit = Page.new(url_to_visit.to_s, :referer => current_page.url.to_s, :depth => current_page.depth + 1)
-        @in_overflow ? @options[:queue_overflow_adapter] << page_to_visit.to_json : queue << page_to_visit.to_json
+        queue << page_to_visit.to_json
         to_track = @options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/,'')
         @url_tracker.visit to_track
         @logger.debug {"Added [#{url_to_visit.to_s}] to the queue"}        
@@ -240,27 +217,5 @@ module Polipus
         end
       end
 
-      def overflowed?(queue)
-        queue.size > @options[:queue_items_limit]
-      end
-
-      def toggle_overflow
-        @in_overflow = !@in_overflow  
-      end
-
-      def restore items, queue
-        @logger.info {"Restoring #{items}"}
-        0.upto(items) {
-          message = @options[:queue_overflow_adapter].pop
-          if message.nil? || @options[:queue_overflow_adapter].empty?
-            break
-          end
-          
-          queue << message
-          added += 1
-        }
-        @logger.info {"Messages restored"}
-      end
-  
   end
 end
