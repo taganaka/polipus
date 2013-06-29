@@ -52,6 +52,10 @@ module Polipus
       :queue_overflow_restore_probability => 0.25
     }
 
+    attr_reader :storage
+    attr_reader :job_name
+    attr_reader :logger
+
     OPTS.keys.each do |key|
       define_method "#{key}=" do |value|
         @options[key.to_sym] = value
@@ -80,9 +84,23 @@ module Polipus
       @in_overflow = false
       execute_plugin 'on_initialize'
       yield self if block_given?
+
     end
 
     def takeover
+
+      # Thread.new do
+      #   main_q = queue_factory
+      #   while true && @options[:queue_overflow_adapter]
+      #     @logger.info {main_q.size}
+
+      #     if main_q.size < @options[:queue_items_limit] && !@options[:queue_overflow_adapter].empty?
+      #       restore 10_000, main_q
+      #     end
+      #     sleep 20
+      #   end
+      # end
+
       q = queue_factory
       @urls.each do |u|
         next if @url_tracker.visited?(u.to_s)
@@ -110,7 +128,7 @@ module Polipus
             execute_plugin 'on_before_download'
             page = http.fetch_page(url, page.referer, page.depth)
             execute_plugin 'on_after_download'
-
+            @logger.error {"Page #{page.url} has error: #{page.error}"} if page.error
             @storage.add page
             @logger.debug {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
 
@@ -127,6 +145,7 @@ module Polipus
             end
 
             @logger.info {"[worker ##{worker_number}] Queue size: #{queue.size}"}
+
             execute_plugin 'on_message_processed'
             true
           end
@@ -159,12 +178,16 @@ module Polipus
       end
     end
 
+    def redis_options
+      @options[:redis_options]
+    end
+
     private
       def should_be_visited?(url)
 
         return false unless @follow_links_like.any?{|p| url.path =~ p}
         return false if     @skip_links_like.any?{|p| url.path =~ p}
-        return false if     @url_tracker.visited?(url.to_s)
+        return false if     @url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
         true
       end
 
@@ -226,16 +249,17 @@ module Polipus
       end
 
       def restore items, queue
-        added = 0
-        items.times {
-          if message = @options[:queue_overflow_adapter].pop
-            queue << message
-            added += 1
-          else
+        @logger.info {"Restoring #{items}"}
+        0.upto(items) {
+          message = @options[:queue_overflow_adapter].pop
+          if message.nil? || @options[:queue_overflow_adapter].empty?
             break
           end
+          
+          queue << message
+          added += 1
         }
-        @logger.info {"Messages restored: #{added}, Messages left: #{@options[:queue_overflow_adapter].size}"}
+        @logger.info {"Messages restored"}
       end
   
   end
