@@ -79,7 +79,7 @@ module Polipus
       @follow_links_like = []
       @skip_links_like   = []
       @on_page_downloaded = []
-      @on_before_download = []
+      @on_before_save     = []
       @urls.each{ |url| url.path = '/' if url.path.empty? }
       @overflow_manager = nil
 
@@ -128,13 +128,12 @@ module Polipus
 
             execute_plugin 'on_before_download'
 
-            # Execute on_before_download blocks
-            @on_before_download.each {|e| e.call(page)} unless page.nil?
-
             page = http.fetch_page(url, page.referer, page.depth)
+            # Execute on_before_save blocks
+            @on_before_save.each {|e| e.call(page)} unless page.nil?
             execute_plugin 'on_after_download'
             @logger.error {"Page #{page.url} has error: #{page.error}"} if page.error
-            @storage.add page
+            @storage.add page unless page.nil?
             @logger.debug {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
 
             # Execute on_page_downloaded blocks
@@ -175,8 +174,8 @@ module Polipus
       self
     end
 
-    def on_before_download(&block)
-      @on_before_download << block
+    def on_before_save(&block)
+      @on_before_save << block
       self
     end
 
