@@ -55,6 +55,7 @@ module Polipus
     attr_reader :logger
     attr_reader :overflow_adapter
     attr_reader :options
+    attr_reader :crawler_name
 
     OPTS.keys.each do |key|
       define_method "#{key}=" do |value|
@@ -82,7 +83,7 @@ module Polipus
       @on_before_save     = []
       @urls.each{ |url| url.path = '/' if url.path.empty? }
       @overflow_manager = nil
-
+      @crawler_name = `hostname`.strip + "-#{@job_name}"
       execute_plugin 'on_initialize'
 
       yield self if block_given?
