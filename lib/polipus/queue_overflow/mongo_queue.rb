@@ -27,6 +27,7 @@ module Polipus
       def pop
         @semaphore.synchronize {
           doc = @mongo_db[@collection_name].find({},:sort => {:_id => 1}).limit(1).first
+          return nil if doc.nil?
           @mongo_db[@collection_name].remove(:_id => doc['_id'])
           return doc && doc['payload'] ? doc['payload'] : nil
         }
