@@ -7,6 +7,7 @@ module Polipus
       def initialize(options = {})
         @mongo      = options[:mongo]
         @collection = options[:collection]
+        @mongo.create_collection(@collection)
         @mongo[@collection].ensure_index(:uuid, :unique => true, :drop_dups => true, :background => true)
         @compress_body = options[:compress_body] ||= true
       end
