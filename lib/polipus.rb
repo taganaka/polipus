@@ -103,7 +103,7 @@ module Polipus
             tstamp = (redis_lock.getset "polipus_queue_overflow.lock",(now + op_timeout)).to_i
             if (tstamp <= now)
               removed, restored = @overflow_manager.perform
-              @logger.info {"Overflow Manager: items removed=#{removed}, items restored=#{restored}"}
+              @logger.info {"Overflow Manager: items removed=#{removed}, items restored=#{restored}, items stored=#{queue_overflow_adapter.size}"}
             
             else
               @logger.info {"Lock not acquired"}
@@ -161,7 +161,7 @@ module Polipus
             end
 
             @logger.info {"[worker ##{worker_number}] Queue size: #{queue.size}"}
-
+            @overflow_manager.perform if @overflow_manager && queue.empty?
             execute_plugin 'on_message_processed'
             true
           end
