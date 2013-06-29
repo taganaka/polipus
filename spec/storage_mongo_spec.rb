@@ -62,4 +62,14 @@ describe Polipus::Storage::MongoStore do
     @storage.remove p
   end
 
+  it 'should store a page with user data associated' do
+    p = page_factory 'http://www.user.com',  :code => 200, :body => '<html></html>'
+    p.user_data.name = 'Test User Data'
+    @storage.add p
+    @storage.exists?(p).should be_true
+    p = @storage.get(p)
+    p.user_data.name.should be == 'Test User Data'
+    @storage.remove p
+  end
+
 end

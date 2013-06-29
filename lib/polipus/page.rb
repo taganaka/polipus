@@ -1,5 +1,6 @@
 require 'nokogiri'
 require 'json'
+require 'ostruct'
 module Polipus
   class Page
 
@@ -22,6 +23,8 @@ module Polipus
     attr_accessor :referer
     # Response time of the request for this page in milliseconds
     attr_accessor :response_time
+    # OpenStruct it holds users defined data
+    attr_accessor :user_data
 
     #
     # Create a new page
@@ -39,6 +42,7 @@ module Polipus
       @body = params[:body]
       @error = params[:error]
       @fetched = !params[:code].nil?
+      @user_data = OpenStruct.new
     end
 
     #
@@ -164,7 +168,9 @@ module Polipus
        'referer' => @referer.to_s,
        'redirect_to' => @redirect_to.to_s,
        'response_time' => @response_time,
-       'fetched' => @fetched}
+       'fetched' => @fetched,
+       'user_data' => @user_data.nil? ? {} : @user_data.marshal_dump
+     }
     end
 
     def to_json
@@ -181,7 +187,8 @@ module Polipus
        '@referer' => hash['referer'],
        '@redirect_to' => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
        '@response_time' => hash['response_time'].to_i,
-       '@fetched' => hash['fetched']
+       '@fetched' => hash['fetched'],
+       '@user_data' => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil
       }.each do |var, value|
         page.instance_variable_set(var, value)
       end
