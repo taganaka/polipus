@@ -29,6 +29,7 @@ module Polipus
               dest << message
               performed += 1
             end
+            source.commit if source.respond_to? :commit
             break if !message || source.empty?
           }
           performed
