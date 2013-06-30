@@ -72,6 +72,13 @@ module Polipus
     end
 
     #
+    # Discard links, a next call of page.links will return an empty array
+    #
+    def discard_links!
+      @links = []
+    end
+
+    #
     # Delete the Nokogiri document and response body to conserve memory
     #
     def discard_doc!
