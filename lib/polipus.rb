@@ -211,6 +211,11 @@ module Polipus
       @options[:overflow_adapter]
     end
 
+    def queue_size
+      @internal_queue ||= queue_factory
+      @internal_queue.size
+    end
+
     private
       def should_be_visited?(url)
 
