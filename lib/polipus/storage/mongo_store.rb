@@ -10,10 +10,12 @@ module Polipus
         @mongo.create_collection(@collection)
         @mongo[@collection].ensure_index(:uuid, :unique => true, :drop_dups => true, :background => true)
         @compress_body = options[:compress_body] ||= true
+        @except = options[:except] ||= []
       end
 
       def add page
         obj = page.to_hash
+        @except.each {|e| obj.delete e.to_s}
         obj['uuid'] = uuid(page)
         obj['body'] = Zlib::Deflate.deflate(obj['body']) if @compress_body && obj['body']
         BINARY_FIELDS.each do |field|

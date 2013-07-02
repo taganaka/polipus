@@ -73,4 +73,13 @@ describe Polipus::Storage::MongoStore do
     @storage.remove p
   end
 
+  it 'should honor the except parameters' do
+    storage = Polipus::Storage.mongo_store(@mongo, '_test_pages', ['body'])
+    p = page_factory 'http://www.user-doo.com',  :code => 200, :body => '<html></html>'
+    storage.add p
+    p = storage.get p
+    p.body.should be_empty
+    storage.clear
+  end
+
 end
