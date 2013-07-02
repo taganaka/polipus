@@ -47,7 +47,8 @@ module Polipus
       :queue_items_limit => 2_000_000,
       # The adapter used to store exceed redis items
       :queue_overflow_adapter => nil,
-      :queue_overflow_manager_check_time => 60
+      :queue_overflow_manager_check_time => 60,
+      :stats_enabled => false,
     }
 
     attr_reader :storage
@@ -84,6 +85,7 @@ module Polipus
       @urls.each{ |url| url.path = '/' if url.path.empty? }
       @overflow_manager = nil
       @crawler_name = `hostname`.strip + "-#{@job_name}"
+      @redis = Redis.new(@options[:redis_options])
       execute_plugin 'on_initialize'
 
       yield self if block_given?
@@ -149,8 +151,17 @@ module Polipus
             @on_before_save.each {|e| e.call(page)} unless page.nil?
             execute_plugin 'on_after_download'
             @logger.error {"Page #{page.url} has error: #{page.error}"} if page.error
+
+            if @options[:stats_enabled]
+              incr_error
+            end
+
             @storage.add page unless page.nil?
             @logger.debug {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
+
+            if @options[:stats_enabled]
+              incr_pages
+            end
 
             # Execute on_page_downloaded blocks
             @on_page_downloaded.each {|e| e.call(page)} unless page.nil?
@@ -216,6 +227,10 @@ module Polipus
       @internal_queue.size
     end
 
+    def stats_reset!
+      ["polipus:#{@job_name}:errors", "polipus:#{@job_name}:pages"].each {|e| @redis.del i}
+    end
+
     private
       def should_be_visited?(url)
 
@@ -235,6 +250,14 @@ module Polipus
 
       def queue_factory
         Redis::Queue.new("polipus_queue_#{@job_name}","bp_polipus_queue_#{@job_name}", :redis => Redis.new(@options[:redis_options]))
+      end
+
+      def incr_error
+        @redis.incr "polipus:#{@job_name}:errors"
+      end
+
+      def incr_pages
+        @redis.incr "polipus:#{@job_name}:pages"
       end
 
       def execute_plugin method
