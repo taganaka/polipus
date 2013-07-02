@@ -181,16 +181,19 @@ module Polipus
     end
 
     def to_json
-      to_hash.to_json
+      th = to_hash.dup
+      th.each {|k,v| th.delete(k) if v.nil? || (v.respond_to?(:empty?) && v.empty?)}
+      th.delete('headers') if content_type.empty?
+      th.to_json
     end
 
     def self.from_hash(hash)
       page = self.new(URI(hash['url']))
-      {'@headers' => Marshal.load(hash['headers']),
-       '@body' => hash['body'],
-       '@links' => hash['links'].map { |link| URI(link) },
-       '@code' => hash['code'].to_i,
-       '@depth' => hash['depth'].to_i,
+      {'@headers' => hash['headers'] ? Marshal.load(hash['headers']) : {'content-type' => ['']},
+       '@body'    => hash['body'],
+       '@links'   => hash['links'] ? hash['links'].map { |link| URI(link) } : [],
+       '@code'    => hash['code'].to_i,
+       '@depth'   => hash['depth'].to_i,
        '@referer' => hash['referer'],
        '@redirect_to' => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
        '@response_time' => hash['response_time'].to_i,
