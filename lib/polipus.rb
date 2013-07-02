@@ -57,6 +57,7 @@ module Polipus
     attr_reader :overflow_adapter
     attr_reader :options
     attr_reader :crawler_name
+    attr_reader :redis
 
     OPTS.keys.each do |key|
       define_method "#{key}=" do |value|
