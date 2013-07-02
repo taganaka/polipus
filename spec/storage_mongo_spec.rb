@@ -14,7 +14,8 @@ describe Polipus::Storage::MongoStore do
 
   it 'should store a page' do
     p = page_factory 'http://www.google.com', :code => 200, :body => '<html></html>'
-    @storage.add p
+    uuid = @storage.add p
+    uuid.should be == 'ed646a3334ca891fd3467db131372140'
     @storage.count.should be 1
     @mongo['_test_pages'].count.should be 1
     p = @storage.get p

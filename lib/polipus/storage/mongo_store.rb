@@ -19,7 +19,8 @@ module Polipus
         BINARY_FIELDS.each do |field|
           obj[field] = BSON::Binary.new(obj[field]) unless obj[field].nil?
         end
-        @mongo[@collection].update({:uuid => uuid(page)}, obj, :upsert => true)
+        @mongo[@collection].update({:uuid => obj['uuid']}, obj, :upsert => true)
+        obj['uuid']
       end
 
       def exists?(page)
