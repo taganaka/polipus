@@ -103,7 +103,6 @@ module Polipus
           op_timeout = @options[:queue_overflow_manager_check_time]
 
           while true
-
             lock = redis_lock.setnx "polipus_queue_overflow.lock", 1
 
             if lock
@@ -151,15 +150,16 @@ module Polipus
             # Execute on_before_save blocks
             @on_before_save.each {|e| e.call(page)} unless page.nil?
             execute_plugin 'on_after_download'
-            @logger.error {"Page #{page.url} has error: #{page.error}"} if page.error
+            @logger.warn {"Page #{page.url} has error: #{page.error}"} if page.error
 
             if @options[:stats_enabled]
               incr_error
             end
 
             @storage.add page unless page.nil?
-            @logger.debug {"[worker ##{worker_number}] Fetched page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth} Code: #{page.code} Response Time: #{page.response_time}"}
-
+            @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
+            @logger.info  {"[worker ##{worker_number}] Page [#{page.url.to_s}] downloaded"}
+            
             if @options[:stats_enabled]
               incr_pages
             end
@@ -176,7 +176,7 @@ module Polipus
               @logger.info {"[worker ##{worker_number}] Depth limit reached #{page.depth}"}
             end
 
-            @logger.info {"[worker ##{worker_number}] Queue size: #{queue.size}"}
+            @logger.debug {"[worker ##{worker_number}] Queue size: #{queue.size}"}
             @overflow_manager.perform if @overflow_manager && queue.empty?
             execute_plugin 'on_message_processed'
             true
