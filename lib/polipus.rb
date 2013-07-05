@@ -152,7 +152,7 @@ module Polipus
             execute_plugin 'on_after_download'
             @logger.warn {"Page #{page.url} has error: #{page.error}"} if page.error
 
-            if @options[:stats_enabled]
+            if @options[:stats_enabled] && page.error
               incr_error
             end
 
