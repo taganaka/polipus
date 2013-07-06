@@ -12,6 +12,10 @@ describe Polipus::Storage::MongoStore do
     @mongo['_test_pages'].drop
   end
 
+  after(:each) do
+    @mongo['_test_pages'].drop
+  end
+
   it 'should store a page' do
     p = page_factory 'http://www.google.com', :code => 200, :body => '<html></html>'
     uuid = @storage.add p
@@ -80,6 +84,14 @@ describe Polipus::Storage::MongoStore do
     p = storage.get p
     p.body.should be_empty
     storage.clear
+  end
+
+  it 'should return false if a doc not exists' do
+    p_other  = page_factory 'http://www.asdrrrr.com', :code => 200, :body => '<html></html>'
+    @storage.include_query_string_in_uuid = false
+    @storage.exists?(p_other).should be_false
+    @storage.add p_other
+    @storage.exists?(p_other).should be_true
   end
 
 end
