@@ -1,5 +1,6 @@
 require "mongo"
 require "zlib"
+require "thread"
 module Polipus
   module Storage
     class MongoStore < Base
@@ -11,33 +12,43 @@ module Polipus
         @mongo[@collection].ensure_index(:uuid, :unique => true, :drop_dups => true, :background => true)
         @compress_body = options[:compress_body] ||= true
         @except = options[:except] ||= []
+        @semaphore = Mutex.new
       end
 
       def add page
-        obj = page.to_hash
-        @except.each {|e| obj.delete e.to_s}
-        obj['uuid'] = uuid(page)
-        obj['body'] = Zlib::Deflate.deflate(obj['body']) if @compress_body && obj['body']
-        BINARY_FIELDS.each do |field|
-          obj[field] = BSON::Binary.new(obj[field]) unless obj[field].nil?
-        end
-        @mongo[@collection].update({:uuid => obj['uuid']}, obj, :upsert => true)
-        obj['uuid']
+        @semaphore.synchronize {
+          obj = page.to_hash
+          @except.each {|e| obj.delete e.to_s}
+          obj['uuid'] = uuid(page)
+          obj['body'] = Zlib::Deflate.deflate(obj['body']) if @compress_body && obj['body']
+          BINARY_FIELDS.each do |field|
+            obj[field] = BSON::Binary.new(obj[field]) unless obj[field].nil?
+          end
+          @mongo[@collection].update({:uuid => obj['uuid']}, obj, {:upsert => true, :w => 1})
+          obj['uuid']
+        }
       end
 
       def exists?(page)
-        @mongo[@collection].count({:uuid => uuid(page)}) > 0
+        @semaphore.synchronize {
+          doc = @mongo[@collection].find({:uuid => uuid(page)}, {:fields => [:_id]}).limit(1).first
+          !doc.nil?
+        }
       end
 
       def get page
-        data = @mongo[@collection].find({:uuid => uuid(page)}).limit(1).first
-        if data
-          load_page(data)
-        end
+        @semaphore.synchronize {
+          data = @mongo[@collection].find({:uuid => uuid(page)}).limit(1).first
+          if data
+            return load_page(data)
+          end
+        }
       end
 
       def remove page
-        @mongo[@collection].remove({:uuid => uuid(page)})
+        @semaphore.synchronize {
+          @mongo[@collection].remove({:uuid => uuid(page)})
+        }
       end
 
       def count
