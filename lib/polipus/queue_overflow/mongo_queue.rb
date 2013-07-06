@@ -1,4 +1,5 @@
 require "thread"
+require "digest/md5"
 module Polipus
   module QueueOverflow
     class MongoQueue
@@ -7,6 +8,10 @@ module Polipus
         @collection_name = "polipus_q_overflow_#{queue_name}"
         @semaphore = Mutex.new
         @options = options
+        @options[:ensure_uniq] ||= false
+        if @options[:ensure_uniq]
+          ensure_index
+        end
       end
 
       def length
@@ -19,10 +24,21 @@ module Polipus
 
       def clear
         @mongo_db[@collection_name].drop
+        if @options[:ensure_uniq]
+          ensure_index
+        end
       end
 
       def push data
-        @mongo_db[@collection_name].insert({:payload => data})
+        unless @options[:ensure_uniq]
+          @mongo_db[@collection_name].insert({:payload => data})  
+        else
+          @semaphore.synchronize {
+            hash = Digest::MD5.hexdigest(data)
+            @mongo_db[@collection_name].update({:h => hash}, {:h => hash, :payload => data}, {:upsert => 1, :w => 1})
+          }
+        end
+        true        
       end
 
       def pop(_ = false)
@@ -30,7 +46,7 @@ module Polipus
           doc = @mongo_db[@collection_name].find({},:sort => {:_id => 1}).limit(1).first
           return nil if doc.nil?
           @mongo_db[@collection_name].remove(:_id => doc['_id'])
-          return doc && doc['payload'] ? doc['payload'] : nil
+          doc && doc['payload'] ? doc['payload'] : nil
         }
       end
       
@@ -39,6 +55,11 @@ module Polipus
       alias :shift :pop
       alias :enc   :push
       alias :<<    :push
+
+      protected
+        def ensure_index
+          @mongo_db[@collection_name].ensure_index({:h => 1},{:background => 1, :unique => 1, :drop_dups => 1})
+        end
     end
   end
 end
