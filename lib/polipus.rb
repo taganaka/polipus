@@ -141,8 +141,12 @@ module Polipus
             execute_plugin 'on_message_received'
 
             page = Page.from_json message
+            if @storage.exists? page
+              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
+              next
+            end
             url = page.url.to_s
-            @logger.debug {"[worker ##{worker_number}] Fetching page: {#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth}"}
+            @logger.debug {"[worker ##{worker_number}] Fetching page: [#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth}"}
 
             execute_plugin 'on_before_download'
 
