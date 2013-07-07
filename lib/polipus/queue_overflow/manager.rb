@@ -26,8 +26,11 @@ module Polipus
           1.upto(items){|i|
             message = source.pop(true)
             if message
-              dest << message
-              performed += 1
+              page = Page.from_json message
+              unless @polipus.storage.exists?(page)
+                dest << message
+                performed += 1
+              end
             end
             source.commit if source.respond_to? :commit
             break if !message || source.empty?
