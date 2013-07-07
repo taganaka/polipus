@@ -1,5 +1,4 @@
 require "thread"
-require "digest/md5"
 module Polipus
   module QueueOverflow
     class MongoQueue
@@ -33,10 +32,7 @@ module Polipus
         unless @options[:ensure_uniq]
           @mongo_db[@collection_name].insert({:payload => data})  
         else
-          @semaphore.synchronize {
-            hash = Digest::MD5.hexdigest(data)
-            @mongo_db[@collection_name].update({:h => hash}, {:h => hash, :payload => data}, {:upsert => 1, :w => 1})
-          }
+          @mongo_db[@collection_name].update({:payload => data}, {:payload => data}, {:upsert => 1, :w => 1})
         end
         true        
       end
@@ -58,7 +54,7 @@ module Polipus
 
       protected
         def ensure_index
-          @mongo_db[@collection_name].ensure_index({:h => 1},{:background => 1, :unique => 1, :drop_dups => 1})
+          @mongo_db[@collection_name].ensure_index({:payload => 1},{:background => 1, :unique => 1, :drop_dups => 1})
         end
     end
   end
