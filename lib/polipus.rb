@@ -43,11 +43,13 @@ module Polipus
       :logger => nil,
       # whether the query string should be included in the saved page
       :include_query_string_in_saved_page => true,
-      # Max number of items for collection
+      # Max number of items to keep on redis
       :queue_items_limit => 2_000_000,
-      # The adapter used to store exceed redis items
+      # The adapter used to store exceed (queue_items_limit) redis items
       :queue_overflow_adapter => nil,
+      # Every x seconds, the main queue is checked for overflowed items
       :queue_overflow_manager_check_time => 60,
+      # If true, each page downloaded will increment a counter on redis
       :stats_enabled => false,
     }
 
@@ -93,33 +95,20 @@ module Polipus
 
     end
 
-    def takeover
+    def self.crawl(job_name, urls, opts = {})
 
-      if queue_overflow_adapter
-        @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
-        Thread.new do
-         
-          redis_lock = Redis.new(@options[:redis_options])
-          op_timeout = @options[:queue_overflow_manager_check_time]
-
-          while true
-            lock = redis_lock.setnx "polipus_queue_overflow-#{@job_name}.lock", 1
-
-            if lock
-              redis_lock.expire "polipus_queue_overflow-#{@job_name}.lock", op_timeout + 350
-              removed, restored = @overflow_manager.perform
-              @logger.info {"Overflow Manager: items removed=#{removed}, items restored=#{restored}, items stored=#{queue_overflow_adapter.size}"}
-              redis_lock.del "polipus_queue_overflow-#{@job_name}.lock"
-            else
-              @logger.info {"Lock not acquired"}
-            end
-
-            sleep @options[:queue_overflow_manager_check_time]
-          end
-          
-        end
+      self.new(job_name, urls, opts) do |polipus|
+        yield polipus if block_given?
+        
+        polipus.takeover
       end
       
+    end
+
+    def takeover
+
+      overflow_items_controller if queue_overflow_adapter
+
       q = queue_factory
       @urls.each do |u|
         next if @url_tracker.visited?(u.to_s)
@@ -216,15 +205,6 @@ module Polipus
       self
     end
 
-    def self.crawl(job_name, urls, opts = {})
-
-      self.new(job_name, urls, opts) do |polipus|
-        yield polipus if block_given?
-        polipus.takeover
-      end
-      
-    end
-
     def redis_options
       @options[:redis_options]
     end
@@ -270,7 +250,32 @@ module Polipus
         @redis.incr "polipus:#{@job_name}:pages"
       end
 
+      def overflow_items_controller
+        @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
+        Thread.new do
+         
+          redis_lock = Redis.new(@options[:redis_options])
+          op_timeout = @options[:queue_overflow_manager_check_time]
+
+          while true
+            lock = redis_lock.setnx "polipus_queue_overflow-#{@job_name}.lock", 1
+
+            if lock
+              redis_lock.expire "polipus_queue_overflow-#{@job_name}.lock", op_timeout + 350
+              removed, restored = @overflow_manager.perform
+              @logger.info {"Overflow Manager: items removed=#{removed}, items restored=#{restored}, items stored=#{queue_overflow_adapter.size}"}
+              redis_lock.del "polipus_queue_overflow-#{@job_name}.lock"
+            else
+              @logger.info {"Lock not acquired"}
+            end
+
+            sleep @options[:queue_overflow_manager_check_time]
+          end
+        end
+      end
+
       def execute_plugin method
+
         Polipus::Plugin.plugins.each do |k,p|
           if p.respond_to? method
             @logger.info("Running plugin method #{method} on #{k}")
