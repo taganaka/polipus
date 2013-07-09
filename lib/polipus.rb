@@ -89,6 +89,7 @@ module Polipus
       @overflow_manager = nil
       @crawler_name = `hostname`.strip + "-#{@job_name}"
       @redis = Redis.new(@options[:redis_options])
+      @storage.include_query_string_in_uuid = @options[:include_query_string_in_saved_page] if @storage.respond_to?(:include_query_string_in_saved_page)
       execute_plugin 'on_initialize'
 
       yield self if block_given?

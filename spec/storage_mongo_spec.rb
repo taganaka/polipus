@@ -87,11 +87,16 @@ describe Polipus::Storage::MongoStore do
   end
 
   it 'should return false if a doc not exists' do
-    p_other  = page_factory 'http://www.asdrrrr.com', :code => 200, :body => '<html></html>'
     @storage.include_query_string_in_uuid = false
+    p_other  = page_factory 'http://www.asdrrrr.com', :code => 200, :body => '<html></html>'
     @storage.exists?(p_other).should be_false
     @storage.add p_other
     @storage.exists?(p_other).should be_true
+    p_other  = page_factory 'http://www.asdrrrr.com?trk=asd-lol', :code => 200, :body => '<html></html>'
+    @storage.exists?(p_other).should be_true
+    @storage.include_query_string_in_uuid = true
+    @storage.exists?(p_other).should be_false
+
   end
 
 end
