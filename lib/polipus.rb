@@ -142,7 +142,18 @@ module Polipus
 
             execute_plugin 'on_before_download'
 
-            page = http.fetch_page(url, page.referer, page.depth)
+            pages = http.fetch_pages(url, page.referer, page.depth)
+            if pages.count > 1
+              rurls = pages.map { |e| e.url.to_s }.join(' --> ')
+              @logger.info {"Got redirects! #{rurls}"}
+              page = pages.last
+              if @storage.exists?(pages.last)
+                @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
+                queue.commit
+                next
+              end
+            end
+            page = pages.last
             
             # Execute on_before_save blocks
             @on_before_save.each {|e| e.call(page)} unless page.nil?
