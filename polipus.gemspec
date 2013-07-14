@@ -28,8 +28,11 @@ Gem::Specification.new do |s|
   s.add_dependency "mongo",             "~> 1.8.6"
   s.add_dependency "bson_ext",          "~> 1.8.6"
   s.add_dependency "json",              "~> 1.8.0"
+  s.add_dependency "aws-s3",            "~> 0.6.3"
+  
   s.add_development_dependency "rspec"
   s.add_development_dependency "vcr", "~> 2.5.0"
   s.add_development_dependency "webmock"
   s.add_development_dependency "flexmock", "~> 1.3.2"
+
 end

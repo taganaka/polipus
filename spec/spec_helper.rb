@@ -15,10 +15,14 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
   config.mock_with :flexmock
+  config.around(:each) do |example|
+    VCR.use_cassette(example.metadata[:full_description]) do
+      example.run
+    end
+  end
 end
 require "vcr"
 require "polipus"
-
 VCR.configure do |c|
   c.cassette_library_dir = "#{File.dirname(__FILE__)}/cassettes"
   c.hook_into :webmock
