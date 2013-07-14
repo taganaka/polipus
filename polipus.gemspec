@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/taganaka/polipus"
   s.summary     = %q{Polipus distributed web-crawler framework}
   s.description = %q{
-    An easy to use distrubuted web-crawler framework based on redis
+    An easy to use distributed web-crawler framework based on Redis
   }
 
   s.rubyforge_project = "polipus"
