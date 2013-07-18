@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require "redis"
 require "redis/connection/hiredis"
 require "redis-queue"
@@ -85,6 +86,7 @@ module Polipus
       @skip_links_like   = []
       @on_page_downloaded = []
       @on_before_save     = []
+      @focus_crawl_block = nil
       @urls.each{ |url| url.path = '/' if url.path.empty? }
       @overflow_manager = nil
       @crawler_name = `hostname`.strip + "-#{@job_name}"
@@ -178,7 +180,7 @@ module Polipus
             @on_page_downloaded.each {|e| e.call(page)} unless page.nil?
 
             if @options[:depth_limit] == false || @options[:depth_limit] > page.depth 
-              page.links.each do |url_to_visit|
+              links_for(page).each do |url_to_visit|
                 next unless should_be_visited?(url_to_visit)
                 enqueue url_to_visit, page, queue
               end
@@ -217,6 +219,11 @@ module Polipus
       self
     end
 
+    def focus_crawl(&block)
+      @focus_crawl_block = block
+      self
+    end
+
     def redis_options
       @options[:redis_options]
     end
@@ -236,10 +243,17 @@ module Polipus
 
     private
       def should_be_visited?(url)
-        return false unless @follow_links_like.any?{|p| url.path =~ p}
+        unless @follow_links_like.empty?
+          return false unless @follow_links_like.any?{|p| url.path =~ p}  
+        end
         return false if     @skip_links_like.any?{|p| url.path =~ p}
         return false if     @url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
         true
+      end
+
+      def links_for page
+        links = @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
+        links
       end
 
       def enqueue url_to_visit, current_page, queue
