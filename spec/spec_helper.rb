@@ -4,6 +4,7 @@
 # loaded once.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+require "digest/md5"
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
@@ -16,7 +17,7 @@ RSpec.configure do |config|
   config.order = 'random'
   config.mock_with :flexmock
   config.around(:each) do |example|
-    VCR.use_cassette(example.metadata[:full_description]) do
+    VCR.use_cassette(Digest::MD5.hexdigest(example.metadata[:full_description])) do
       example.run
     end
   end

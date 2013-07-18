@@ -16,18 +16,33 @@ http_interactions:
 
         <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>com.polipus.pages._test_pages</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>'
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:03 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:34 GMT
+- request:
+    method: head
+    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/34efd0ecfdafa1edc377946f5768229b
+    body:
+      encoding: US-ASCII
+      string: ''
+  response:
+    status:
+      code: 404
+      message: Not Found
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Thu, 18 Jul 2013 11:04:34 GMT
 - request:
     method: put
-    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/ef727a04499928b997ca7f26fcedd1b4
+    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/34efd0ecfdafa1edc377946f5768229b
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        eJxVTc1qhDAQfpc5p2sUWWu6bU9d6DOsRWIyojQaSSbIIvvunSo99PT9zjcb
-        pOBAwUC0qCxb1/Wkoz0ZP2XvTF6ddyBgQG0xRO41SUpZNt22k/Nnszt5bvxM
-        ONMT3Rc8InXAx/X2ryrlIV8OceX1zts7T18GmtzbJduBbTfO3/zy9iXAeIug
-        CikFWFxoAMUsYI8BA1/Cr7BjQEMt+T8jLn6O2NI48e2cnBPQI5kBLSgKCQWk
-        iKG1mjSo7cEyjRwB9lVRaVmWdV0Xz11dV0ZXfXHuDVqbdyU8fgA35WAW
+        eJxVjdFugzAMRf/Fz6yklMGaVXtbpX1DmVCIHYEKBAVHqEL993mgPcwvvuf6
+        2l4hhh40tMyTTtNlWQ5mxiB1sH6ABFoySGGWSBWVUnnVrJsovqrNOR6tH5lG
+        fuHHRPtI7+3zevsXVWrH9x2ucr3x+JDTl5aH/uOSbk3svhvv8vL2nYD1SKAz
+        pRJAmrgFLSqQo0BBNuEXsAtkuWb/Z8yTH2equRtkd4x9n4Ajti0haA6REogz
+        hRoNG9DrUzB2MoJTTg4VWYfGmSOhPZXlOS/ca1m8Zdm5gecPnqlfCg==
   response:
     status:
       code: 200
@@ -36,10 +51,10 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:03 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:35 GMT
 - request:
     method: head
-    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/ef727a04499928b997ca7f26fcedd1b4
+    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/34efd0ecfdafa1edc377946f5768229b
     body:
       encoding: US-ASCII
       string: ''
@@ -51,10 +66,10 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:03 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:35 GMT
 - request:
     method: head
-    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/ef727a04499928b997ca7f26fcedd1b4
+    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/34efd0ecfdafa1edc377946f5768229b
     body:
       encoding: US-ASCII
       string: ''
@@ -66,22 +81,37 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:04 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:35 GMT
 - request:
-    method: delete
-    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/ef727a04499928b997ca7f26fcedd1b4
+    method: head
+    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/11a7447d2be96e2be6718cad71a8b4e2
     body:
       encoding: US-ASCII
       string: ''
   response:
     status:
-      code: 204
-      message: No Content
+      code: 404
+      message: Not Found
     body:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:04 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:36 GMT
+- request:
+    method: head
+    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/11a7447d2be96e2be6718cad71a8b4e2
+    body:
+      encoding: US-ASCII
+      string: ''
+  response:
+    status:
+      code: 404
+      message: Not Found
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Thu, 18 Jul 2013 11:04:36 GMT
 - request:
     method: get
     uri: http://s3.amazonaws.com/com.polipus.pages._test_pages
@@ -96,26 +126,24 @@ http_interactions:
       encoding: US-ASCII
       string: ! '<?xml version="1.0" encoding="UTF-8"?>
 
-        <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>com.polipus.pages._test_pages</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>'
+        <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>com.polipus.pages._test_pages</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>34efd0ecfdafa1edc377946f5768229b</Key><LastModified>2013-07-18T11:04:19.000Z</LastModified><ETag>&quot;05e9774cc3d5d587a5dbba7753e5194c&quot;</ETag><Size>220</Size><Owner><ID>7bf30d3e58e134be9c452415fa897f5e4286cf42b8e7fe5f332a0aa54388af1d</ID><DisplayName>ops</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>'
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:04 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:36 GMT
 - request:
-    method: get
-    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages
+    method: delete
+    uri: http://s3.amazonaws.com/com.polipus.pages._test_pages/34efd0ecfdafa1edc377946f5768229b
     body:
       encoding: US-ASCII
       string: ''
   response:
     status:
-      code: 200
-      message: OK
+      code: 204
+      message: No Content
     body:
       encoding: US-ASCII
-      string: ! '<?xml version="1.0" encoding="UTF-8"?>
-
-        <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>com.polipus.pages._test_pages</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>'
+      string: ''
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:04 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:36 GMT
 - request:
     method: delete
     uri: http://s3.amazonaws.com/com.polipus.pages._test_pages
@@ -130,7 +158,7 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:05 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:37 GMT
 - request:
     method: put
     uri: http://s3.amazonaws.com/com.polipus.pages._test_pages
@@ -145,7 +173,7 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:05 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:37 GMT
 - request:
     method: get
     uri: http://s3.amazonaws.com/com.polipus.pages._test_pages
@@ -162,5 +190,5 @@ http_interactions:
 
         <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>com.polipus.pages._test_pages</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>'
     http_version: 
-  recorded_at: Sun, 14 Jul 2013 20:52:05 GMT
+  recorded_at: Thu, 18 Jul 2013 11:04:37 GMT
 recorded_with: VCR 2.5.0
