@@ -60,7 +60,7 @@ module Polipus
     attr_reader :overflow_adapter
     attr_reader :options
     attr_reader :crawler_name
-    attr_reader :redis
+
 
     OPTS.keys.each do |key|
       define_method "#{key}=" do |value|
@@ -75,23 +75,30 @@ module Polipus
 
       @job_name     = job_name
       @options      = OPTS.merge(options)
+      @logger       = @options[:logger] ||= Logger.new(nil)
+
       @storage      = @options[:storage]     ||= Storage.dev_null
-      @url_tracker  = @options[:url_tracker] ||= UrlTracker.bloomfilter(:key_name => "polipus_bf_#{job_name}", :redis => Redis.new(@options[:redis_options]))
+
       @http_pool    = []
       @workers_pool = []
       @queues_pool  = []
-      @urls         = [urls].flatten.map{ |url| url.is_a?(URI) ? url : URI(url) }
-      @logger       = @options[:logger] ||= Logger.new(nil)
-      @follow_links_like = []
-      @skip_links_like   = []
+      
+      
+      @follow_links_like  = []
+      @skip_links_like    = []
       @on_page_downloaded = []
       @on_before_save     = []
-      @focus_crawl_block = nil
-      @urls.each{ |url| url.path = '/' if url.path.empty? }
+      @focus_crawl_block  = nil
+      @redis_factory      = nil
+
+      
       @overflow_manager = nil
       @crawler_name = `hostname`.strip + "-#{@job_name}"
       @redis = Redis.new(@options[:redis_options])
       @storage.include_query_string_in_uuid = @options[:include_query_string_in_saved_page]
+
+      @urls = [urls].flatten.map{ |url| url.is_a?(URI) ? url : URI(url) }
+      @urls.each{ |url| url.path = '/' if url.path.empty? }
       execute_plugin 'on_initialize'
 
       yield self if block_given?
@@ -114,7 +121,7 @@ module Polipus
 
       q = queue_factory
       @urls.each do |u|
-        next if @url_tracker.visited?(u.to_s)
+        next if url_tracker.visited?(u.to_s)
         q << Page.new(u.to_s, :referer => '').to_json
       end
 
@@ -241,13 +248,32 @@ module Polipus
       ["polipus:#{@job_name}:errors", "polipus:#{@job_name}:pages"].each {|e| @redis.del i}
     end
 
+    def redis_factory(&block)
+      @redis_factory = block
+      self
+    end
+
+    def url_tracker
+      if @url_tracker.nil?
+        @url_tracker  = @options[:url_tracker] ||= UrlTracker.bloomfilter(:key_name => "polipus_bf_#{job_name}", :redis => redis_factory_adapter, :driver => 'lua')
+      end
+      @url_tracker
+    end
+
+    def redis
+      if @redis.nil?
+        @redis = redis_factory_adapter
+      end
+      @redis
+    end
+
     private
       def should_be_visited?(url)
         unless @follow_links_like.empty?
           return false unless @follow_links_like.any?{|p| url.path =~ p}  
         end
         return false if     @skip_links_like.any?{|p| url.path =~ p}
-        return false if     @url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+        return false if     url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
         true
       end
 
@@ -260,12 +286,19 @@ module Polipus
         page_to_visit = Page.new(url_to_visit.to_s, :referer => current_page.url.to_s, :depth => current_page.depth + 1)
         queue << page_to_visit.to_json
         to_track = @options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/,'')
-        @url_tracker.visit to_track
+        url_tracker.visit to_track
         @logger.debug {"Added [#{url_to_visit.to_s}] to the queue"}        
       end
 
+      def redis_factory_adapter
+        unless @redis_factory.nil?
+          return @redis_factory.call(redis_options)
+        end
+        Redis.new(redis_options)
+      end
+
       def queue_factory
-        Redis::Queue.new("polipus_queue_#{@job_name}","bp_polipus_queue_#{@job_name}", :redis => Redis.new(@options[:redis_options]))
+        Redis::Queue.new("polipus_queue_#{@job_name}","bp_polipus_queue_#{@job_name}", :redis => redis_factory_adapter)
       end
 
       def incr_error
@@ -280,7 +313,7 @@ module Polipus
         @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
         Thread.new do
          
-          redis_lock = Redis.new(@options[:redis_options])
+          redis_lock = redis_factory_adapter
           op_timeout = @options[:queue_overflow_manager_check_time]
 
           while true
