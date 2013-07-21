@@ -11,6 +11,7 @@ require "polipus/queue_overflow"
 require "thread"
 require "logger"
 require "json"
+require "singleton"
 
 module Polipus
   
@@ -116,7 +117,7 @@ module Polipus
     end
 
     def takeover
-
+      PolipusSignalHandler.enable
       overflow_items_controller if queue_overflow_adapter
 
       q = queue_factory
@@ -198,6 +199,12 @@ module Polipus
             @logger.debug {"[worker ##{worker_number}] Queue size: #{queue.size}"}
             @overflow_manager.perform if @overflow_manager && queue.empty?
             execute_plugin 'on_message_processed'
+
+            if PolipusSignalHandler.terminated?
+              @logger.info {"About to exit! Thanks for using Polipus"}
+              queue.commit
+              break
+            end
             true
           end
         end
@@ -345,4 +352,26 @@ module Polipus
       end
 
   end
+
+  class PolipusSignalHandler
+    include Singleton
+    attr_accessor :terminated
+    def initialize
+      self.terminated = false
+    end
+
+    def self.enable
+      trap(:INT)  {self.terminate}
+      trap(:TERM) {self.terminate}
+    end
+
+    def self.terminate
+      self.instance.terminated = true
+    end
+
+    def self.terminated?
+      self.instance.terminated
+    end
+  end
+
 end
