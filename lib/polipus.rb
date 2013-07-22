@@ -274,6 +274,13 @@ module Polipus
       @redis
     end
 
+    # Request to Polipus to stop its work (gracefully)
+    # cler_queue = true if you want to delete all of the pending urls to visit
+    def stop!(cler_queue = false)
+      PolipusSignalHandler.terminate
+      queue_factory.clear(true) if cler_queue
+    end
+
     private
       def should_be_visited?(url)
         unless @follow_links_like.empty?
