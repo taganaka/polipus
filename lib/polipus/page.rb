@@ -1,6 +1,7 @@
 require 'nokogiri'
 require 'json'
 require 'ostruct'
+require 'set'
 module Polipus
   class Page
 
@@ -49,9 +50,9 @@ module Polipus
     # Array of distinct A tag HREFs from the page
     #
     def links
-      return @links unless @links.nil?
-      @links = []
-      return @links if !doc
+      return @links.to_a unless @links.nil?
+      @links = Set.new
+      return [] if !doc
 
       doc.search("//a[@href]").each do |a|
         u = a['href']
@@ -59,8 +60,7 @@ module Polipus
         abs = to_absolute(u) rescue next
         @links << abs if in_domain?(abs)
       end
-      @links.uniq!
-      @links
+      @links.to_a
     end
 
     #
