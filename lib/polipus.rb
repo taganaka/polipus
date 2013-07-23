@@ -140,15 +140,15 @@ module Polipus
 
             execute_plugin 'on_message_received'
 
-            page = Page.from_json message
-            if @storage.exists? page
-              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
+            unless should_be_visited?(page.url, false)
+              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] is no more welcome."}
               queue.commit
               next
             end
 
-            unless should_be_visited?(page.url)
-              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] is no more welcome."}
+            page = Page.from_json message
+            if @storage.exists? page
+              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
               queue.commit
               next
             end
@@ -288,12 +288,14 @@ module Polipus
     end
 
     private
-      def should_be_visited?(url)
+      def should_be_visited?(url, with_tracker = true)
         unless @follow_links_like.empty?
           return false unless @follow_links_like.any?{|p| url.path =~ p}  
         end
         return false if     @skip_links_like.any?{|p| url.path =~ p}
-        return false if     url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+        if with_tracker
+          return false if     url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+        end
         true
       end
 
@@ -331,9 +333,9 @@ module Polipus
 
       def overflow_items_controller
         @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
-        
+
         @overflow_manager.url_filter do |page|
-          should_be_visited?(page.url)
+          should_be_visited?(page.url, false)
         end
 
         Thread.new do
