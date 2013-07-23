@@ -146,6 +146,12 @@ module Polipus
               queue.commit
               next
             end
+
+            unless should_be_visited?(page.url)
+              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] is no more welcome."}
+              queue.commit
+              next
+            end
             
             url = page.url.to_s
             @logger.debug {"[worker ##{worker_number}] Fetching page: [#{page.url.to_s}] Referer: #{page.referer} Depth: #{page.depth}"}
@@ -325,6 +331,11 @@ module Polipus
 
       def overflow_items_controller
         @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
+        
+        @overflow_manager.url_filter do |page|
+          should_be_visited?(page.url)
+        end
+
         Thread.new do
          
           redis_lock = redis_factory_adapter

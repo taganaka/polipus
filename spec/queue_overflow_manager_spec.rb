@@ -70,4 +70,20 @@ describe Polipus::QueueOverflow::Manager do
     
   end
 
+  it 'should filter an url based on the spec' do
+    @queue_overflow.clear
+    @redis_q.clear
+    10.times {|i| @queue_overflow << page_factory("http://www.user-doo.com/page_#{i}",  :code => 200, :body => '<html></html>').to_json  }
+    @manager.url_filter do |page|
+      page.url.to_s.end_with?("page_0") ? false : true
+    end
+    @manager.perform.should be == [0,9]
+    @queue_overflow.size.should be == 0
+    @redis_q.size.should be == 9
+    @manager.url_filter do |page|
+      true
+    end
+
+  end
+
 end

@@ -1,11 +1,16 @@
 module Polipus
   module QueueOverflow
     class Manager
+      attr_accessor :url_filter
       def initialize(polipus, main_q, item_limit)
         @polipus = polipus
         @main_q  = main_q
         @adapter = @polipus.queue_overflow_adapter
         @item_limit = item_limit
+      end
+
+      def url_filter &block
+        @url_filter = block
       end
 
       def perform
@@ -28,8 +33,11 @@ module Polipus
             if message
               page = Page.from_json message
               unless @polipus.storage.exists?(page)
-                dest << message
-                performed += 1
+                allowed = !@url_filter.nil? ? @url_filter.call(page) : true
+                if allowed
+                  dest << message
+                  performed += 1
+                end
               end
             end
             source.commit if source.respond_to? :commit
