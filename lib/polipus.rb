@@ -140,13 +140,14 @@ module Polipus
 
             execute_plugin 'on_message_received'
 
+            page = Page.from_json message
+
             unless should_be_visited?(page.url, false)
               @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] is no more welcome."}
               queue.commit
               next
             end
 
-            page = Page.from_json message
             if @storage.exists? page
               @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
               queue.commit
