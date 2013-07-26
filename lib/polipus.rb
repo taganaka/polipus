@@ -178,18 +178,14 @@ module Polipus
             
             @logger.warn {"Page #{page.url} has error: #{page.error}"} if page.error
 
-            if @options[:stats_enabled] && page.error
-              incr_error
-            end
+            incr_error if page.error
 
             @storage.add page unless page.nil?
             
             @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
             @logger.info  {"[worker ##{worker_number}] Page [#{page.url.to_s}] downloaded"}
             
-            if @options[:stats_enabled]
-              incr_pages
-            end
+            incr_pages
 
             # Execute on_page_downloaded blocks
             @on_page_downloaded.each {|e| e.call(page)} unless page.nil?
@@ -219,22 +215,30 @@ module Polipus
       @workers_pool.each {|w| w.join}
       execute_plugin 'on_crawl_end'
     end
-  
+    
+    # A pattern or an array of patterns can be passed as argument
+    # An url will be discarded if it doesn't match patterns
     def follow_links_like(*patterns)
       @follow_links_like = @follow_links_like += patterns.uniq.compact
       self
     end
 
+    # A pattern or an array of patterns can be passed as argument
+    # An url will be discarded if it matches a pattern
     def skip_links_like(*patterns)
       @skip_links_like = @skip_links_like += patterns.uniq.compact
       self
     end
 
+    # A block of code will be executed on every page dowloaded
+    # The block takes the page as argument
     def on_page_downloaded(&block)
       @on_page_downloaded << block
       self
     end
 
+    # A block of code will be executed on every page donloaded
+    # before being saved in the registered storage
     def on_before_save(&block)
       @on_before_save << block
       self
@@ -289,22 +293,33 @@ module Polipus
     end
 
     private
+      # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
+
+        # Check against whitelist pattern matching
         unless @follow_links_like.empty?
           return false unless @follow_links_like.any?{|p| url.path =~ p}  
         end
-        return false if     @skip_links_like.any?{|p| url.path =~ p}
+
+        # Check against blacklist pattern matching
+        unless @skip_links_like.empty?
+          return false if @skip_links_like.any?{|p| url.path =~ p}
+        end
+
+        # Check against url tracker
         if with_tracker
-          return false if     url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+          return false if  url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
         end
         true
       end
 
+      # It extracts URLs from the page
       def links_for page
         links = @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
         links
       end
 
+      # The url is enqueued for a later visit
       def enqueue url_to_visit, current_page, queue
         page_to_visit = Page.new(url_to_visit.to_s, :referer => current_page.url.to_s, :depth => current_page.depth + 1)
         queue << page_to_visit.to_json
@@ -313,6 +328,7 @@ module Polipus
         @logger.debug {"Added [#{url_to_visit.to_s}] to the queue"}        
       end
 
+      # It creates a redis client
       def redis_factory_adapter
         unless @redis_factory.nil?
           return @redis_factory.call(redis_options)
@@ -320,21 +336,26 @@ module Polipus
         Redis.new(redis_options)
       end
 
+      # It creates a new distributed queue
       def queue_factory
         Redis::Queue.new("polipus_queue_#{@job_name}","bp_polipus_queue_#{@job_name}", :redis => redis_factory_adapter)
       end
 
+      # If stats enable, it increments errors found
       def incr_error
-        @redis.incr "polipus:#{@job_name}:errors"
+        @redis.incr "polipus:#{@job_name}:errors" if @options[:stats_enabled]
       end
 
+      # If stats enable, it increments pages downloaded
       def incr_pages
-        @redis.incr "polipus:#{@job_name}:pages"
+        @redis.incr "polipus:#{@job_name}:pages" if @options[:stats_enabled]
       end
 
+      # It handles the overflow item policy (if any)
       def overflow_items_controller
         @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
 
+        # In the time, url policy may change so policy is re-evaluated
         @overflow_manager.url_filter do |page|
           should_be_visited?(page.url, false)
         end
@@ -361,6 +382,7 @@ module Polipus
         end
       end
 
+      # It invokes a plugin method if any
       def execute_plugin method
 
         Polipus::Plugin.plugins.each do |k,p|
@@ -382,8 +404,14 @@ module Polipus
     end
 
     def self.enable
-      trap(:INT)  {self.terminate}
-      trap(:TERM) {self.terminate}
+      trap(:INT)  {
+        puts "Got INT signal"
+        self.terminate
+      }
+      trap(:TERM) {
+        puts "Got TERM signal"
+        self.terminate
+      }
     end
 
     def self.terminate
