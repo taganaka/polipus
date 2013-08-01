@@ -343,12 +343,12 @@ module Polipus
 
       # If stats enable, it increments errors found
       def incr_error
-        @redis.incr "polipus:#{@job_name}:errors" if @options[:stats_enabled]
+        redis.incr "polipus:#{@job_name}:errors" if @options[:stats_enabled]
       end
 
       # If stats enable, it increments pages downloaded
       def incr_pages
-        @redis.incr "polipus:#{@job_name}:pages" if @options[:stats_enabled]
+        redis.incr "polipus:#{@job_name}:pages" if @options[:stats_enabled]
       end
 
       # It handles the overflow item policy (if any)
