@@ -95,7 +95,7 @@ module Polipus
       
       @overflow_manager = nil
       @crawler_name = `hostname`.strip + "-#{@job_name}"
-      @redis = Redis.new(@options[:redis_options])
+
       @storage.include_query_string_in_uuid = @options[:include_query_string_in_saved_page]
 
       @urls = [urls].flatten.map{ |url| url.is_a?(URI) ? url : URI(url) }
@@ -263,7 +263,7 @@ module Polipus
     end
 
     def stats_reset!
-      ["polipus:#{@job_name}:errors", "polipus:#{@job_name}:pages"].each {|e| @redis.del i}
+      ["polipus:#{@job_name}:errors", "polipus:#{@job_name}:pages"].each {|e| redis.del i}
     end
 
     def redis_factory(&block)
