@@ -53,6 +53,9 @@ module Polipus
       :queue_overflow_manager_check_time => 60,
       # If true, each page downloaded will increment a counter on redis
       :stats_enabled => false,
+      # Cookies strategy
+      :cookie_jar => nil,
+      :accept_cookies => false
     }
 
     attr_reader :storage

@@ -1,6 +1,8 @@
 require "net/https"
 require "polipus/page"
 require "zlib"
+require 'http/cookie'
+
 module Polipus
   class HTTP
     # Maximum number of redirects to follow on each get_response
@@ -89,6 +91,17 @@ module Polipus
       @opts[:read_timeout]
     end
 
+    # Does this HTTP client accept cookies from the server?
+    #
+    def accept_cookies?
+      @opts[:accept_cookies]
+    end
+
+    def cookie_jar
+      @opts[:cookie_jar] ||= ::HTTP::CookieJar.new
+      @opts[:cookie_jar]
+    end
+
     private
 
     #
@@ -121,6 +134,7 @@ module Polipus
       opts = {}
       opts['User-Agent'] = user_agent if user_agent
       opts['Referer'] = referer.to_s if referer
+      opts['Cookie']  = ::HTTP::Cookie.cookie_value(cookie_jar.cookies(url)) if accept_cookies?
 
       retries = 0
       begin
@@ -132,7 +146,7 @@ module Polipus
         response = connection(url).request(req)
         finish = Time.now()
         response_time = ((finish - start) * 1000).round
-
+        cookie_jar.parse(response["Set-Cookie"], url) if accept_cookies?
         return response, response_time
       rescue Timeout::Error, Net::HTTPBadResponse, EOFError => e
         
