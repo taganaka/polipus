@@ -15,6 +15,10 @@ module Polipus
         @redis.sadd(@set_name, url)
       end
 
+      def remove
+        @redis.srem(@set_name, url, 0)
+      end
+
       def clear
         @redis.del @set_name
       end

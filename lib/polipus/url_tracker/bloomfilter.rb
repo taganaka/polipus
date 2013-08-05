@@ -14,6 +14,10 @@ module Polipus
         @bf.insert url
       end
 
+      def remove url
+        @bf.remove url
+      end
+
       def clear
         @bf.clear
       end
