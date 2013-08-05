@@ -27,6 +27,8 @@ module Polipus
     # OpenStruct it holds users defined data
     attr_accessor :user_data
 
+    attr_accessor :aliases
+
     #
     # Create a new page
     #
@@ -44,6 +46,7 @@ module Polipus
       @error = params[:error]
       @fetched = !params[:code].nil?
       @user_data = OpenStruct.new
+
     end
 
     #
