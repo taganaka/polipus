@@ -93,6 +93,7 @@ module Polipus
       @on_page_downloaded = []
       @on_before_save     = []
       @focus_crawl_block  = nil
+      @on_crawl_end       = []
       @redis_factory      = nil
 
       
@@ -166,14 +167,16 @@ module Polipus
             if pages.count > 1
               rurls = pages.map { |e| e.url.to_s }.join(' --> ')
               @logger.info {"Got redirects! #{rurls}"}
-              page = pages.last
-              if @storage.exists?(pages.last)
+              page = pages.pop
+              page.aliases = pages.collect { |e| e.url }
+              if @storage.exists?(page)
                 @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
                 queue.commit
                 next
               end
+            else
+              page = pages.last
             end
-            page = pages.last
             
             # Execute on_before_save blocks
             @on_before_save.each {|e| e.call(page)} unless page.nil?
@@ -216,6 +219,7 @@ module Polipus
         end
       end
       @workers_pool.each {|w| w.join}
+      @on_crawl_end.each {|e| e.call(self)}
       execute_plugin 'on_crawl_end'
     end
     
@@ -237,6 +241,11 @@ module Polipus
     # The block takes the page as argument
     def on_page_downloaded(&block)
       @on_page_downloaded << block
+      self
+    end
+
+    def on_crawl_end(&block)
+      @on_crawl_end << block
       self
     end
 
@@ -286,6 +295,12 @@ module Polipus
         @redis = redis_factory_adapter
       end
       @redis
+    end
+
+    def add_url url
+      @url_tracker.remove url.to_s
+      page = Page.new(url)
+      queue_factory << page.to_json
     end
 
     # Request to Polipus to stop its work (gracefully)
