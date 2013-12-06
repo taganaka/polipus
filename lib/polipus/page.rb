@@ -57,7 +57,8 @@ module Polipus
       @links = Set.new
       return [] if !doc
 
-      doc.search("//a[@href]").each do |a|
+      # Only follow links that do not have the rel="nofollow" attribute
+      doc.search('//a[@href and not(contains(@rel, "nofollow"))]').each do |a|
         u = a['href']
         next if u.nil? or u.empty?
         abs = to_absolute(u) rescue next
