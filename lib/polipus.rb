@@ -275,7 +275,7 @@ module Polipus
     end
 
     def stats_reset!
-      ["polipus:#{@job_name}:errors", "polipus:#{@job_name}:pages"].each {|e| redis.del i}
+      ["polipus:#{@job_name}:errors", "polipus:#{@job_name}:pages"].each {|e| redis.del e}
     end
 
     def redis_factory(&block)
