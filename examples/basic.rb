@@ -45,7 +45,7 @@ Polipus.crawler('polipus-rubygems', starting_urls, options) do |crawler|
   # In-place page processing
   crawler.on_page_downloaded do |page|
     # A nokogiri object
-    puts  "Page title: #{page.doc.css('title').text}"
+    puts "Page title: #{page.doc.css('title').text}"
   end
 
   # Do a nifty stuff at the end of the crawling session
