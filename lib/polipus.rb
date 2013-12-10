@@ -55,7 +55,10 @@ module Polipus
       :stats_enabled => false,
       # Cookies strategy
       :cookie_jar => nil,
-      :accept_cookies => false
+      :accept_cookies => false,
+      # A set of hosts that should be considered parts of the same domain
+      # Eg It can be used to follow links with and without 'www' domain
+      :domain_aliases => []
     }
 
     attr_reader :storage
@@ -336,6 +339,7 @@ module Polipus
 
       # It extracts URLs from the page
       def links_for page
+        page.domain_aliases = domain_aliases
         links = @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
         links
       end
