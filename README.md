@@ -15,6 +15,19 @@ http://www.slideshare.net/francescolaurita/roll-your-own-web-crawler-rubyday
 * Focus crawling made easy
 * Heavily inspired to Anemone https://github.com/chriskite/anemone/
 
+## Survival code example
+
+```ruby
+require "polipus"
+
+Polipus.crawler("rubygems","http://rubygems.org/") do |crawler|
+  # In-place page processing
+  crawler.on_page_downloaded do |page|
+    # A nokogiri object
+    puts "Page title: '#{page.doc.css('title').text}' Page url: #{page.url}"
+  end
+end
+
 ## Contributing to polipus ##
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
