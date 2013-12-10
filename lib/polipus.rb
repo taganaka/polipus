@@ -79,9 +79,9 @@ module Polipus
 
       @job_name     = job_name
       @options      = OPTS.merge(options)
-      @logger       = @options[:logger] ||= Logger.new(nil)
-
-      @storage      = @options[:storage]     ||= Storage.dev_null
+      @logger       = @options[:logger]  ||= Logger.new(nil)
+      @logger.level = @options[:logger_level] ||= Logger::INFO
+      @storage      = @options[:storage] ||= Storage.dev_null
 
       @http_pool    = []
       @workers_pool = []
@@ -256,6 +256,9 @@ module Polipus
       self
     end
 
+    # A block of code will be executed
+    # on every page donloaded. The code is used to extract urls to visit
+    # see links_for method
     def focus_crawl(&block)
       @focus_crawl_block = block
       self
