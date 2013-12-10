@@ -9,7 +9,7 @@ module Polipus
       def on_initialize crawler
         crawler.logger.info {"Cleaner plugin loaded"}
         unless @reset
-          crawler.logger.info {"Cleaner plugin is disable, add :reset => true to the plugin if you really know what are you doing"}
+          crawler.logger.info {"Cleaner plugin is disable, add :reset => true to the plugin if you really know what you are doing"}
           return nil
         end
         crawler.logger.info {"Cleaning all: url_tracker, storage, queue"}
