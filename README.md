@@ -27,6 +27,7 @@ Polipus.crawler("rubygems","http://rubygems.org/") do |crawler|
     puts "Page title: '#{page.doc.css('title').text}' Page url: #{page.url}"
   end
 end
+```
 
 ## Contributing to polipus ##
  
