@@ -165,7 +165,7 @@ module Polipus
     # +false+ otherwise
     #
     def in_domain?(uri)
-      uri.host == @url.host
+      uri.host == @url.host || uri.host == "www.#{@url.host}"
     end
 
     def to_hash
