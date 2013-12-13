@@ -29,11 +29,13 @@ module Polipus
 
     attr_accessor :aliases
 
+    attr_accessor :domain_aliases
+
     #
     # Create a new page
     #
     def initialize(url, params = {})
-      @url = url
+      @url = url.kind_of?(URI) ? url : URI(url)
       @code = params[:code]
       @headers = params[:headers] || {}
       @headers['content-type'] ||= ['']
@@ -46,7 +48,7 @@ module Polipus
       @error = params[:error]
       @fetched = !params[:code].nil?
       @user_data = OpenStruct.new
-
+      @domain_aliases = params[:domain_aliases] ||= []
     end
 
     #
@@ -56,7 +58,7 @@ module Polipus
       return @links.to_a unless @links.nil?
       @links = Set.new
       return [] if !doc
-
+      
       doc.search("//a[@href]").each do |a|
         u = a['href']
         next if u.nil? or u.empty?
@@ -165,7 +167,8 @@ module Polipus
     # +false+ otherwise
     #
     def in_domain?(uri)
-      uri.host == @url.host
+      @domain_aliases ||= []
+      uri.host == @url.host || @domain_aliases.include?(uri.host)
     end
 
     def to_hash
