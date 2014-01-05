@@ -29,6 +29,15 @@ Polipus.crawler("rubygems","http://rubygems.org/") do |crawler|
 end
 ```
 
+## Installation
+
+    $ gem install polipus
+
+## Testing
+
+    $ bundle install
+    $ rake
+
 ## Contributing to polipus ##
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
