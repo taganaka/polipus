@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Polipus::VERSION
   s.authors     = ["Francesco Laurita"]
   s.email       = ["francesco.laurita@gmail.com"]
-  s.homepage    = "https://github.com/taganaka/polipus"
+  s.homepage    = Polipus::HOMEPAGE
   s.summary     = %q{Polipus distributed web-crawler framework}
   s.description = %q{
     An easy to use distributed web-crawler framework based on Redis
@@ -25,9 +25,12 @@ Gem::Specification.new do |s|
   s.add_dependency "nokogiri",          "~> 1.6.0"
   s.add_dependency "hiredis",           "~> 0.4.5"
   s.add_dependency "redis",             "~> 3.0.4"
-  s.add_dependency "mongo",             "~> 1.8.6"
-  s.add_dependency "bson_ext",          "~> 1.8.6"
-  s.add_dependency "json",              "~> 1.8.0"
+  s.add_dependency "mongo",             "~> 1.9.2"
+  if defined?(JRUBY_VERSION)
+    s.add_dependency "bson",              "~> 1.9.2"
+  else
+    s.add_dependency "bson_ext",          "~> 1.9.2"
+  end
   s.add_dependency "aws-s3",            "~> 0.6.3"
   s.add_dependency "http-cookie",       "~> 1.0.1"
   
