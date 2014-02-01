@@ -1,6 +1,6 @@
 require "polipus"
 require "mongo"
-
+require "polipus/plugins/cleaner"
 # Define a Mongo connection
 mongo = Mongo::Connection.new(:pool_size => 15, :pool_timeout => 5).db('crawler')
 
@@ -20,9 +20,9 @@ options = {
   # Use 5 threads
   :workers    => 5,
   # Logs goes to the crawler.log file
-  :logger     => Logger.new("/tmp/crawler.log")
+  :logger     => Logger.new(STDOUT)
 }
-
+Polipus::Plugin.register Polipus::Plugin::Cleaner, reset:true
 starting_urls = ["http://rubygems.org/gems"]
 
 # Crawl the entire rubygems's site
