@@ -11,7 +11,7 @@ describe Polipus::HTTP do
       http = Polipus::HTTP.new
       page = http.fetch_page("http://sfbay.craigslist.org/apa/")
       page.should be_an_instance_of(Polipus::Page)
-      page.doc.search("title").text.strip.should be == "SF bay area apts/housing for rent classifieds  - craigslist"
+      page.doc.search("title").text.strip.should eq "SF bay area apts/housing for rent classifieds  - craigslist"
     end
   end
 
@@ -22,9 +22,9 @@ describe Polipus::HTTP do
       page = http.fetch_page("http://greenbytes.de/tech/tc/httpredirects/t300bodyandloc.asis")
 
       page.should be_an_instance_of(Polipus::Page)
-      page.code.should be == 200
-      page.url.to_s.should be == "http://greenbytes.de/tech/tc/httpredirects/300.txt"
-      page.body.strip.should be == "You have reached the target\r\nof a 300 redirect."
+      page.code.should be 200
+      page.url.to_s.should eq "http://greenbytes.de/tech/tc/httpredirects/300.txt"
+      page.body.strip.should eq "You have reached the target\r\nof a 300 redirect."
     end
   end
 
