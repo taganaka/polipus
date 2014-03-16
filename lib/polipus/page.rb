@@ -17,8 +17,7 @@ module Polipus
     attr_reader :error
     # Integer response code of the page
     attr_accessor :code
-    # Depth of this page from the root of the crawl. This is not necessarily the
-    # shortest path; use PageStore#shortest_paths! to find that value.
+    # Depth of this page from the root of the crawl
     attr_accessor :depth
     # URL of the page that brought us to this page
     attr_accessor :referer
@@ -26,29 +25,32 @@ module Polipus
     attr_accessor :response_time
     # OpenStruct it holds users defined data
     attr_accessor :user_data
-
+    # It holds a list of aliases of this page (redirects)
     attr_accessor :aliases
-
+    # It holds a list of domain aliases for this page
     attr_accessor :domain_aliases
+    # It holds the date when the page has been fetched (UNIX timestamp)
+    attr_accessor :fetched_at
 
     #
     # Create a new page
     #
     def initialize(url, params = {})
-      @url = url.kind_of?(URI) ? url : URI(url)
-      @code = params[:code]
-      @headers = params[:headers] || {}
-      @headers['content-type'] ||= ['']
-      @aliases = Array(params[:aka]).compact
-      @referer = params[:referer]
-      @depth = params[:depth] || 0
-      @redirect_to = to_absolute(params[:redirect_to])
-      @response_time = params[:response_time]
-      @body = params[:body]
-      @error = params[:error]
-      @fetched = !params[:code].nil?
-      @user_data = OpenStruct.new
+      @url            = url.kind_of?(URI) ? url : URI(url)
+      @code           = params[:code]
+      @headers        = params[:headers] || {}
+      @aliases        = Array(params[:aka]).compact
+      @referer        = params[:referer]
+      @depth          = params[:depth] || 0
+      @redirect_to    = to_absolute(params[:redirect_to])
+      @response_time  = params[:response_time]
+      @body           = params[:body]
+      @error          = params[:error]
+      @fetched        = !params[:code].nil?
+      @user_data      = OpenStruct.new
       @domain_aliases = params[:domain_aliases] ||= []
+      @fetched_at     = params[:fetched_at] ||= nil
+      @headers['content-type'] ||= ['']
     end
 
     #
@@ -172,17 +174,19 @@ module Polipus
     end
 
     def to_hash
-      {'url' => @url.to_s,
-       'headers' => Marshal.dump(@headers),
-       'body' => @body,
-       'links' => links.map(&:to_s), 
-       'code' => @code,
-       'depth' => @depth,
-       'referer' => @referer.to_s,
-       'redirect_to' => @redirect_to.to_s,
+      {
+       'url'           => @url.to_s,
+       'headers'       => Marshal.dump(@headers),
+       'body'          => @body,
+       'links'         => links.map(&:to_s), 
+       'code'          => @code,
+       'depth'         => @depth,
+       'referer'       => @referer.to_s,
+       'redirect_to'   => @redirect_to.to_s,
        'response_time' => @response_time,
-       'fetched' => @fetched,
-       'user_data' => @user_data.nil? ? {} : @user_data.marshal_dump
+       'fetched'       => @fetched,
+       'user_data'     => @user_data.nil? ? {} : @user_data.marshal_dump,
+       'fetched_at'    => @fetched_at
      }
     end
 
@@ -195,16 +199,17 @@ module Polipus
 
     def self.from_hash(hash)
       page = self.new(URI(hash['url']))
-      {'@headers' => hash['headers'] ? Marshal.load(hash['headers']) : {'content-type' => ['']},
-       '@body'    => hash['body'],
-       '@links'   => hash['links'] ? hash['links'].map { |link| URI(link) } : [],
-       '@code'    => hash['code'].to_i,
-       '@depth'   => hash['depth'].to_i,
-       '@referer' => hash['referer'],
-       '@redirect_to' => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
+      {'@headers'       => hash['headers'] ? Marshal.load(hash['headers']) : {'content-type' => ['']},
+       '@body'          => hash['body'],
+       '@links'         => hash['links'] ? hash['links'].map { |link| URI(link) } : [],
+       '@code'          => hash['code'].to_i,
+       '@depth'         => hash['depth'].to_i,
+       '@referer'       => hash['referer'],
+       '@redirect_to'   => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
        '@response_time' => hash['response_time'].to_i,
-       '@fetched' => hash['fetched'],
-       '@user_data' => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil
+       '@fetched'       => hash['fetched'],
+       '@user_data'     => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil,
+       '@fetched_at'    => hash['fetched_at']
       }.each do |var, value|
         page.instance_variable_set(var, value)
       end
