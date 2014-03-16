@@ -25,6 +25,7 @@ describe Polipus::HTTP do
       page.code.should be 200
       page.url.to_s.should eq "http://greenbytes.de/tech/tc/httpredirects/300.txt"
       page.body.strip.should eq "You have reached the target\r\nof a 300 redirect."
+      page.fetched_at.should_not be_nil
     end
   end
 

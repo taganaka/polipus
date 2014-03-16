@@ -18,7 +18,8 @@ EOF
       code: 200, 
       body: body, 
       headers: {'content-type' => ['text/html']}, 
-      domain_aliases: %w(www.google.com google.com)
+      domain_aliases: %w(www.google.com google.com),
+      fetched_at: Time.now.to_i
   end
 
   it 'should be fetched' do
@@ -27,5 +28,9 @@ EOF
   
   it 'should honor domain_aliases attribute' do
     page.links.count.should be 4
+  end
+
+  it 'should have a fetched_at attr' do
+    page.fetched_at.should_not be_nil
   end
 end
