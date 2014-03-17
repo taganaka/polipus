@@ -7,6 +7,7 @@ module Polipus
         @main_q  = main_q
         @adapter = @polipus.queue_overflow_adapter
         @item_limit = item_limit
+        @redis = @polipus.redis
       end
 
       def url_filter &block
@@ -41,6 +42,7 @@ module Polipus
               end
             end
             source.commit if source.respond_to? :commit
+            @redis.expire "polipus_queue_overflow-#{@polipus.job_name}.lock", 180
             break if !message || source.empty?
           }
           performed

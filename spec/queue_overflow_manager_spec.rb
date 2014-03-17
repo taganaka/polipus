@@ -9,9 +9,12 @@ describe Polipus::QueueOverflow::Manager do
     @storage = Polipus::Storage.mongo_store(@mongo, '_test_pages')
     @redis_q = Redis::Queue.new("queue_test","bp_queue_test", :redis => Redis.new())
     @queue_overflow   = Polipus::QueueOverflow.mongo_queue(nil, "queue_test")
+    @redis = Redis.new
     @polipus = flexmock("polipus")
     @polipus.should_receive(:queue_overflow_adapter).and_return(@queue_overflow)
     @polipus.should_receive(:storage).and_return(@storage)
+    @polipus.should_receive(:redis).and_return(@redis)
+    @polipus.should_receive(:job_name).and_return("___test")
     @manager = Polipus::QueueOverflow::Manager.new(@polipus, @redis_q, 10)
   end
 
