@@ -28,4 +28,26 @@ describe Polipus::HTTP do
     end
   end
 
+  describe 'proxy settings' do
+    it 'should set proxy correctly using a procedure' do
+      http = Polipus::HTTP.new({proxy_host: -> con { "127.0.0.0" }, proxy_port: -> con { 8080 }})
+      http.proxy_host.should eq "127.0.0.0"
+      http.proxy_port.should be 8080
+    end
+
+    it 'should set proxy correctly using shorthand method' do
+      http = Polipus::HTTP.new({proxy_host_port: -> con {["127.0.0.0", 8080] }})
+      http.proxy_host_port.should eq ["127.0.0.0", 8080]
+      http.proxy_port.should be 8080
+      http.proxy_host.should eq "127.0.0.0"
+    end
+
+    it 'should set proxy settings' do
+      http = Polipus::HTTP.new({proxy_host: "127.0.0.0", proxy_port:  8080 })
+      http.proxy_port.should be 8080
+      http.proxy_host.should eq "127.0.0.0"
+    end
+
+  end
+
 end
