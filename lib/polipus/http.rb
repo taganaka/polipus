@@ -174,7 +174,7 @@ module Polipus
 
       if conn = @connections[url.host][url.port]
         if @opts[:connection_max_hits] && @connections_hits[url.host][url.port] >= @opts[:connection_max_hits]
-          @opts[:logger].debug {"Connection #{url} is staled, refreshing"} if @opts[:logger]
+          @opts[:logger].debug {"Connection #{url.host}:#{url.port} is staled, refreshing"} if @opts[:logger]
           return refresh_connection url
         end
         @connections_hits[url.host][url.port] += 1
@@ -199,7 +199,7 @@ module Polipus
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
-      @connections_hits[url.host][url.port] = 0
+      @connections_hits[url.host][url.port] = 1
       @connections[url.host][url.port] = http.start 
     end
 
