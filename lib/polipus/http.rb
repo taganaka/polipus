@@ -74,14 +74,24 @@ module Polipus
     # The proxy address string
     #
     def proxy_host
-      @opts[:proxy_host]
+      return proxy_host_port.first unless @opts[:proxy_host_port].nil?
+      @opts[:proxy_host].respond_to?(:call) ? @opts[:proxy_host].call(self) : @opts[:proxy_host]
     end
 
     #
     # The proxy port
     #
     def proxy_port
-      @opts[:proxy_port]
+      return proxy_host_port.last unless @opts[:proxy_host_port].nil?
+      @opts[:proxy_port].respond_to?(:call) ? @opts[:proxy_port].call(self) : @opts[:proxy_port]
+    end
+
+    #
+    # Shorthand to get proxy info with a single call
+    # It returns an array of ['addr', port]
+    #
+    def proxy_host_port
+      @opts[:proxy_host_port].respond_to?(:call) ? @opts[:proxy_host_port].call(self) : @opts[:proxy_host_port]
     end
 
     #
@@ -168,6 +178,8 @@ module Polipus
     end
 
     def refresh_connection(url)
+      proxy_host, proxy_port = proxy_host_port unless @opts[:proxy_host_port].nil?
+
       http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port)
 
       http.read_timeout = read_timeout if !!read_timeout
