@@ -10,6 +10,7 @@ module Polipus
 
     def initialize(opts = {})
       @connections = {}
+      @connections_hits = {}
       @opts = opts
     end
 
@@ -169,8 +170,14 @@ module Polipus
 
     def connection(url)
       @connections[url.host] ||= {}
+      @connections_hits[url.host] ||= {}
 
       if conn = @connections[url.host][url.port]
+        if @opts[:connection_max_hits] && @connections_hits[url.host][url.port] >= @opts[:connection_max_hits]
+          @opts[:logger].debug {"Connection #{url} is staled, refreshing"} if @opts[:logger]
+          return refresh_connection url
+        end
+        @connections_hits[url.host][url.port] += 1
         return conn
       end
 
@@ -180,6 +187,10 @@ module Polipus
     def refresh_connection(url)
       proxy_host, proxy_port = proxy_host_port unless @opts[:proxy_host_port].nil?
 
+      if @opts[:logger] && proxy_host && proxy_port
+        @opts[:logger].debug {"Request #{url} using proxy: #{proxy_host}:#{proxy_port}"}
+      end
+
       http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port)
 
       http.read_timeout = read_timeout if !!read_timeout
@@ -188,7 +199,7 @@ module Polipus
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
-
+      @connections_hits[url.host][url.port] = 0
       @connections[url.host][url.port] = http.start 
     end
 

@@ -58,7 +58,9 @@ module Polipus
       :accept_cookies => false,
       # A set of hosts that should be considered parts of the same domain
       # Eg It can be used to follow links with and without 'www' domain
-      :domain_aliases => []
+      :domain_aliases => [],
+      #Mark a connection as staled after connection_max_hits request
+      :connection_max_hits => nil
     }
 
     attr_reader :storage
