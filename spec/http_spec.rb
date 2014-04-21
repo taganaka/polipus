@@ -48,6 +48,27 @@ describe Polipus::HTTP do
       http.proxy_host.should eq "127.0.0.0"
     end
 
+  describe 'staled connections' do
+    
+    it 'should refresh a staled connection' do
+     
+      VCR.use_cassette('http_tconnection_max_hits') do
+        http = Polipus::HTTP.new(connection_max_hits: 1, logger: Logger.new(STDOUT))
+        http.class.__send__(:attr_reader, :connections)
+        http.class.__send__(:attr_reader, :connections_hits)
+        http.fetch_page("https://www.yahoo.com/")
+        http.connections['www.yahoo.com'][443].should_not be_nil
+        old_conn = http.connections['www.yahoo.com'][443]
+        http.connections_hits['www.yahoo.com'][443].should be 1
+
+        http.fetch_page("https://www.yahoo.com/tech/expectant-parents-asked-the-internet-to-name-their-83416450388.html")
+        http.connections_hits['www.yahoo.com'][443].should be 1
+        http.connections['www.yahoo.com'][443].should_not be old_conn
+
+      end
+    end
+  end
+
   end
 
 end
