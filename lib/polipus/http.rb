@@ -102,6 +102,13 @@ module Polipus
       @opts[:read_timeout]
     end
 
+    #
+    # HTTP open timeout in seconds
+    #
+    def open_timeout
+      @opts[:open_timeout]
+    end
+
     # Does this HTTP client accept cookies from the server?
     #
     def accept_cookies?
