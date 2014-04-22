@@ -194,6 +194,7 @@ module Polipus
       http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port)
 
       http.read_timeout = read_timeout if !!read_timeout
+      http.open_timeout = open_timeout if !!open_timeout
 
       if url.scheme == 'https'
         http.use_ssl = true
