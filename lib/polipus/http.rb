@@ -166,12 +166,16 @@ module Polipus
         response_time = ((finish - start) * 1000).round
         cookie_jar.parse(response["Set-Cookie"], url) if accept_cookies?
         return response, response_time
-      rescue Timeout::Error, Net::HTTPBadResponse, EOFError => e
+      rescue StandardError => e
         
         puts e.inspect if verbose?
         refresh_connection(url)
         retries += 1
-        retry unless retries > 3
+        unless retries > 3
+          retry 
+        else
+          raise e
+        end
       end
     end
 
