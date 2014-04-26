@@ -193,10 +193,14 @@ module Polipus
 
             incr_error if page.error
 
-            @storage.add page unless page.nil?
+            if page && page.storable?
+              @storage.add page
+            end
             
-            @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
-            @logger.info  {"[worker ##{worker_number}] Page [#{page.url.to_s}] downloaded"}
+            if page
+              @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
+              @logger.info  {"[worker ##{worker_number}] Page [#{page.url.to_s}] downloaded"}
+            end
             
             incr_pages
 
