@@ -31,6 +31,10 @@ module Polipus
 
     attr_accessor :domain_aliases
 
+    # Whether the current page should be stored
+    # Default: true  
+    attr_accessor :storable
+
     #
     # Create a new page
     #
@@ -49,6 +53,7 @@ module Polipus
       @fetched = !params[:code].nil?
       @user_data = OpenStruct.new
       @domain_aliases = params[:domain_aliases] ||= []
+      @storable = true
     end
 
     #
@@ -191,6 +196,10 @@ module Polipus
       th.each {|k,v| th.delete(k) if v.nil? || (v.respond_to?(:empty?) && v.empty?)}
       th.delete('headers') if content_type.empty?
       th.to_json
+    end
+
+    def storable?
+      @storable
     end
 
     def self.from_hash(hash)
