@@ -87,7 +87,11 @@ module Polipus
       @job_name     = job_name
       @options      = OPTS.merge(options)
       @logger       = @options[:logger]  ||= Logger.new(nil)
-      @logger.level = @options[:logger_level] ||= Logger::INFO
+      
+      unless @logger.is_a?(Log4r::Logger)
+        @logger.level = @options[:logger_level] ||= Logger::INFO  
+      end
+      
       @storage      = @options[:storage] ||= Storage.dev_null
 
       @http_pool    = []
