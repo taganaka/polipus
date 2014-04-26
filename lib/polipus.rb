@@ -37,6 +37,8 @@ module Polipus
       :proxy_port => false,
       # HTTP read timeout in seconds
       :read_timeout => 30,
+      # HTTP open connection timeout in seconds
+      :open_timeout => 10,
       # An URL tracker instance. default is Bloomfilter based on redis
       :url_tracker => nil,
       # A Redis options {} that will be passed directly to Redis.new
@@ -58,7 +60,9 @@ module Polipus
       :accept_cookies => false,
       # A set of hosts that should be considered parts of the same domain
       # Eg It can be used to follow links with and without 'www' domain
-      :domain_aliases => []
+      :domain_aliases => [],
+      # Mark a connection as staled after connection_max_hits request
+      :connection_max_hits => nil
     }
 
     attr_reader :storage
