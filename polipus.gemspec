@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'nokogiri', '~> 1.6', '>= 1.6.0'
   s.add_runtime_dependency 'hiredis', '~> 0.4', '>= 0.4.5'
   s.add_runtime_dependency 'redis', '~> 3.0', '>= 3.0.4'
-  s.add_runtime_dependency 'mongo', '~> 1.9', '>= 1.9.2'
+  s.add_runtime_dependency 'mongo', '~> 1.9.0', '>= 1.9.2'
 
   if defined?(JRUBY_VERSION)
     s.add_runtime_dependency 'bson', '~> 1.9', '>= 1.9.2'
