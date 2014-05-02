@@ -88,10 +88,10 @@ module Polipus
       @options      = OPTS.merge(options)
       @logger       = @options[:logger]  ||= Logger.new(nil)
       
-      unless @logger.is_a?(Log4r::Logger)
-        @logger.level = @options[:logger_level] ||= Logger::INFO  
+      unless @logger.class.to_s == "Log4r::Logger"
+        @logger.level = @options[:logger_level] ||= Logger::INFO
       end
-      
+
       @storage      = @options[:storage] ||= Storage.dev_null
 
       @http_pool    = []
