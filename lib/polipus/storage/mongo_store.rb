@@ -39,9 +39,7 @@ module Polipus
       def get page
         @semaphore.synchronize {
           data = @mongo[@collection].find({:uuid => uuid(page)}).limit(1).first
-          if data
-            return load_page(data)
-          end
+          return load_page(data) if data
         }
       end
 

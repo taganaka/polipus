@@ -212,6 +212,11 @@ module Polipus
       @storable
     end
 
+    def expired? ttl
+      return false if fetched_at.nil?
+      (Time.now.to_i - ttl) > fetched_at
+    end
+
     def self.from_hash(hash)
       page = self.new(URI(hash['url']))
       {

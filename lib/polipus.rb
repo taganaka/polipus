@@ -23,7 +23,7 @@ module Polipus
     OPTS = {
       # run 4 threads
       :workers => 4,
-      # identify self as Anemone/VERSION
+      # identify self as Polipus/VERSION
       :user_agent => "Polipus - #{Polipus::VERSION} - #{Polipus::HOMEPAGE}",
       # by default, don't limit the depth of the crawl
       :depth_limit => false,
@@ -62,7 +62,9 @@ module Polipus
       # Eg It can be used to follow links with and without 'www' domain
       :domain_aliases => [],
       # Mark a connection as staled after connection_max_hits request
-      :connection_max_hits => nil
+      :connection_max_hits => nil,
+      # Page TTL: mark a page as expired after ttl_page seconds
+      :ttl_page => nil
     }
 
     attr_reader :storage
@@ -202,7 +204,7 @@ module Polipus
             end
             
             if page
-              @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
+              @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
               @logger.info  {"[worker ##{worker_number}] Page [#{page.url.to_s}] downloaded"}
             end
             
@@ -264,7 +266,7 @@ module Polipus
       self
     end
 
-    # A block of code will be executed on every page donloaded
+    # A block of code will be executed on every page downloaded
     # before being saved in the registered storage
     def on_before_save(&block)
       @on_before_save << block
@@ -272,7 +274,7 @@ module Polipus
     end
 
     # A block of code will be executed
-    # on every page donloaded. The code is used to extract urls to visit
+    # on every page downloaded. The code is used to extract urls to visit
     # see links_for method
     def focus_crawl(&block)
       @focus_crawl_block = block
@@ -344,7 +346,7 @@ module Polipus
 
         # Check against url tracker
         if with_tracker
-          return false if  url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+          return false if url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
         end
         true
       end
