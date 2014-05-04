@@ -35,6 +35,8 @@ module Polipus
     # Default: true  
     attr_accessor :storable
 
+    attr_accessor :fetched_at
+
     #
     # Create a new page
     #
@@ -54,6 +56,7 @@ module Polipus
       @user_data = OpenStruct.new
       @domain_aliases = params[:domain_aliases] ||= []
       @storable = true
+      @fetched_at = params[:fetched_at]
     end
 
     #
@@ -177,17 +180,19 @@ module Polipus
     end
 
     def to_hash
-      {'url' => @url.to_s,
-       'headers' => Marshal.dump(@headers),
-       'body' => @body,
-       'links' => links.map(&:to_s), 
-       'code' => @code,
-       'depth' => @depth,
-       'referer' => @referer.to_s,
-       'redirect_to' => @redirect_to.to_s,
+      {
+       'url'           => @url.to_s,
+       'headers'       => Marshal.dump(@headers),
+       'body'          => @body,
+       'links'         => links.map(&:to_s), 
+       'code'          => @code,
+       'depth'         => @depth,
+       'referer'       => @referer.to_s,
+       'redirect_to'   => @redirect_to.to_s,
        'response_time' => @response_time,
-       'fetched' => @fetched,
-       'user_data' => @user_data.nil? ? {} : @user_data.marshal_dump
+       'fetched'       => @fetched,
+       'user_data'     => @user_data.nil? ? {} : @user_data.marshal_dump,
+       'fetched_at'    => @fetched_at
      }
     end
 
@@ -198,22 +203,29 @@ module Polipus
       th.to_json
     end
 
+    #
+    # Returns +true+ if page is marked as storeable
+    # +false+ otherwise
+    # Default is +true+
+    #
     def storable?
       @storable
     end
 
     def self.from_hash(hash)
       page = self.new(URI(hash['url']))
-      {'@headers' => hash['headers'] ? Marshal.load(hash['headers']) : {'content-type' => ['']},
-       '@body'    => hash['body'],
-       '@links'   => hash['links'] ? hash['links'].map { |link| URI(link) } : [],
-       '@code'    => hash['code'].to_i,
-       '@depth'   => hash['depth'].to_i,
-       '@referer' => hash['referer'],
-       '@redirect_to' => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
-       '@response_time' => hash['response_time'].to_i,
-       '@fetched' => hash['fetched'],
-       '@user_data' => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil
+      {
+        '@headers'       => hash['headers'] ? Marshal.load(hash['headers']) : {'content-type' => ['']},
+        '@body'          => hash['body'],
+        '@links'         => hash['links'] ? hash['links'].map { |link| URI(link) } : [],
+        '@code'          => hash['code'].to_i,
+        '@depth'         => hash['depth'].to_i,
+        '@referer'       => hash['referer'],
+        '@redirect_to'   => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
+        '@response_time' => hash['response_time'].to_i,
+        '@fetched'       => hash['fetched'],
+        '@user_data'     => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil,
+        '@fetched_at'    => hash['fetched_at']
       }.each do |var, value|
         page.instance_variable_set(var, value)
       end

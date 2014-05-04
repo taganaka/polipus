@@ -36,13 +36,14 @@ module Polipus
             gzip = Zlib::GzipReader.new(StringIO.new(body))    
             body = gzip.read
           end
-          pages << Page.new(location, :body => response.body.dup,
-                                      :code => code,
-                                      :headers => response.to_hash,
-                                      :referer => referer,
-                                      :depth => depth,
-                                      :redirect_to => redirect_to,
-                                      :response_time => response_time)
+          pages << Page.new(location, :body          => response.body.dup,
+                                      :code          => code,
+                                      :headers       => response.to_hash,
+                                      :referer       => referer,
+                                      :depth         => depth,
+                                      :redirect_to   => redirect_to,
+                                      :response_time => response_time,
+                                      :fetched_at    => Time.now.to_i)
         end
 
         return pages
