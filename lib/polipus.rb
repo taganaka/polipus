@@ -165,7 +165,7 @@ module Polipus
               next
             end
 
-            if @storage.exists? page
+            if page_exists? page
               @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
               queue.commit
               next
@@ -182,7 +182,7 @@ module Polipus
               @logger.info {"Got redirects! #{rurls}"}
               page = pages.pop
               page.aliases = pages.collect { |e| e.url }
-              if @storage.exists?(page)
+              if page_exists? page
                 @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
                 queue.commit
                 next
@@ -344,6 +344,9 @@ module Polipus
           return false if @skip_links_like.any?{|p| url.path =~ p}
         end
 
+        #Page is marked as expired
+        return true if page_expired?(Page.new(url))
+
         # Check against url tracker
         if with_tracker
           return false if url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
@@ -356,6 +359,16 @@ module Polipus
         page.domain_aliases = domain_aliases
         links = @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
         links
+      end
+
+      def page_expired? page
+        return false if @options[:ttl_page].nil?
+        stored_page = @storage.get(page)
+        stored_page && @stored_page.expired?(@options[:ttl_page])
+      end
+
+      def page_exists? page
+        @storage.exists?(page) && !page_expired?(page)
       end
 
       # The url is enqueued for a later visit
