@@ -376,7 +376,9 @@ module Polipus
       def page_expired? page
         return false if @options[:ttl_page].nil?
         stored_page = @storage.get(page)
-        stored_page && stored_page.expired?(@options[:ttl_page])
+        r = stored_page && stored_page.expired?(@options[:ttl_page])
+        @logger.debug {"Page #{page.url.to_s} marked as expired"} if r
+        r
       end
 
       def page_exists? page
