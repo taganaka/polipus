@@ -61,5 +61,17 @@ describe Polipus::PolipusCrawler do
       polipus.storage.each {|id, page| page.expired?(3600).should be_false}
     end
 
+    it "should re-download seeder urls no matter what" do
+      cache_hit = {}
+      polipus.follow_links_like(/\/gems$/)
+      polipus.on_page_downloaded do |page|
+        cache_hit[page.url.to_s] ||= 0
+        cache_hit[page.url.to_s] += 1
+      end
+      polipus.takeover
+      polipus.takeover
+      cache_hit["http://rubygems.org/gems"].should be 2
+    end
+
   end
 end

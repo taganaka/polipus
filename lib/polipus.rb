@@ -145,8 +145,9 @@ module Polipus
 
       q = queue_factory
       @urls.each do |u|
-        next unless should_be_visited?(u)
-        q << Page.new(u.to_s, :referer => '').to_json
+        page = Page.new(u.to_s, :referer => '')
+        page.user_data.p_seeded = true
+        q << page.to_json
       end
 
       return if q.empty?
@@ -340,6 +341,11 @@ module Polipus
       # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
 
+        # return +true+ If an url is part of the initial seeder
+        # no matter what
+
+        return true if @urls.map(&:to_s).include?(url.to_s)
+
         # Check against whitelist pattern matching
         unless @follow_links_like.empty?
           return false unless @follow_links_like.any?{|p| url.path =~ p}  
@@ -374,6 +380,7 @@ module Polipus
       end
 
       def page_exists? page
+        return false if page.user_data && page.user_data.p_seeded
         @storage.exists?(page) && !page_expired?(page)
       end
 
