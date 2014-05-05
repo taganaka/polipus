@@ -39,6 +39,7 @@ module Polipus
       :read_timeout => 30,
       # HTTP open connection timeout in seconds
       :open_timeout => 10,
+      :queue_timeout => 30,
       # An URL tracker instance. default is Bloomfilter based on redis
       :url_tracker => nil,
       # A Redis options {} that will be passed directly to Redis.new
@@ -88,6 +89,7 @@ module Polipus
 
       @job_name     = job_name
       @options      = OPTS.merge(options)
+      @options[:queue_timeout] = 1 if @options[:queue_timeout] <= 0
       @logger       = @options[:logger]  ||= Logger.new(nil)
       
       unless @logger.class.to_s == "Log4r::Logger"
@@ -151,7 +153,7 @@ module Polipus
           @logger.debug {"Start worker #{worker_number}"}
           http  = @http_pool[worker_number]   ||= HTTP.new(@options)
           queue = @queues_pool[worker_number] ||= queue_factory
-          queue.process(false, @options[:read_timeout]) do |message|
+          queue.process(false, @options[:queue_timeout]) do |message|
 
             next if message.nil?
 
