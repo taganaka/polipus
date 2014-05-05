@@ -99,4 +99,22 @@ describe Polipus::Storage::MongoStore do
 
   end
 
+  it 'should set page.fetched_at based on the id creation' do
+    storage = Polipus::Storage.mongo_store(@mongo, '_test_pages')
+    p = page_factory 'http://www.user-doojo.com',  :code => 200, :body => '<html></html>'
+    storage.add p
+    p.fetched_at.should be_nil
+    p = storage.get p
+    p.fetched_at.should_not be_nil
+  end
+
+  it 'should NOT set page.fetched_at if already present' do
+    storage = Polipus::Storage.mongo_store(@mongo, '_test_pages')
+    p = page_factory 'http://www.user-doojooo.com',  :code => 200, :body => '<html></html>'
+    p.fetched_at = 10
+    storage.add p
+    p = storage.get p
+    p.fetched_at.should be 10
+  end
+
 end

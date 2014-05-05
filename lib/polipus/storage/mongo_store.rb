@@ -73,7 +73,11 @@ module Polipus
           end
           begin
             hash['body'] = Zlib::Inflate.inflate(hash['body']) if @compress_body && hash['body'] && !hash['body'].empty?
-            return Page.from_hash(hash)
+            page = Page.from_hash(hash)
+            if page.fetched_at.nil?
+              page.fetched_at = hash['_id'].generation_time.to_i
+            end
+            return page
           rescue
           end
           nil
