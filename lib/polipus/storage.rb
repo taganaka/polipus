@@ -27,5 +27,10 @@ module Polipus
       require 'polipus/storage/dev_null'
       self::DevNull.new
     end
+
+    def self.memory_store
+      require 'polipus/storage/memory_store'
+      self::MemoryStore.new
+    end
   end
 end
