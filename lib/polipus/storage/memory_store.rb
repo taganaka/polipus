@@ -41,11 +41,9 @@ module Polipus
       end
 
       def each
-        @semaphore.synchronize {
-          @store.each do |k,v|
-            yield k,v
-          end
-        }
+        @store.each do |k,v|
+          yield k,v
+        end
       end
 
       def clear

@@ -48,6 +48,8 @@ module Polipus
       :redis_options => {},
       # An instance of logger
       :logger => nil,
+      # A logger level
+      :logger_level => nil,
       # whether the query string should be included in the saved page
       :include_query_string_in_saved_page => true,
       # Max number of items to keep on redis
@@ -143,7 +145,7 @@ module Polipus
 
       q = queue_factory
       @urls.each do |u|
-        next if url_tracker.visited?(u.to_s)
+        next unless should_be_visited?(u.to_s)
         q << Page.new(u.to_s, :referer => '').to_json
       end
 
@@ -368,7 +370,7 @@ module Polipus
       def page_expired? page
         return false if @options[:ttl_page].nil?
         stored_page = @storage.get(page)
-        stored_page && @stored_page.expired?(@options[:ttl_page])
+        stored_page && stored_page.expired?(@options[:ttl_page])
       end
 
       def page_exists? page
