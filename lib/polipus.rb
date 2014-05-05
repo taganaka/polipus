@@ -145,7 +145,7 @@ module Polipus
 
       q = queue_factory
       @urls.each do |u|
-        next unless should_be_visited?(u.to_s)
+        next unless should_be_visited?(u)
         q << Page.new(u.to_s, :referer => '').to_json
       end
 
