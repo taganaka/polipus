@@ -39,6 +39,8 @@ module Polipus
       :read_timeout => 30,
       # HTTP open connection timeout in seconds
       :open_timeout => 10,
+      # Time to wait for new messages on Redis
+      # After this timeout, current crawling session is marked as terminated
       :queue_timeout => 30,
       # An URL tracker instance. default is Bloomfilter based on redis
       :url_tracker => nil,
