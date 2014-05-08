@@ -12,6 +12,7 @@ describe Polipus::HTTP do
       page = http.fetch_page("http://sfbay.craigslist.org/apa/")
       page.should be_an_instance_of(Polipus::Page)
       page.doc.search("title").text.strip.should eq "SF bay area apts/housing for rent classifieds  - craigslist"
+      page.fetched_at.should_not be_nil
     end
   end
 

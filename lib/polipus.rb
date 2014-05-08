@@ -23,7 +23,7 @@ module Polipus
     OPTS = {
       # run 4 threads
       :workers => 4,
-      # identify self as Anemone/VERSION
+      # identify self as Polipus/VERSION
       :user_agent => "Polipus - #{Polipus::VERSION} - #{Polipus::HOMEPAGE}",
       # by default, don't limit the depth of the crawl
       :depth_limit => false,
@@ -39,12 +39,17 @@ module Polipus
       :read_timeout => 30,
       # HTTP open connection timeout in seconds
       :open_timeout => 10,
+      # Time to wait for new messages on Redis
+      # After this timeout, current crawling session is marked as terminated
+      :queue_timeout => 30,
       # An URL tracker instance. default is Bloomfilter based on redis
       :url_tracker => nil,
       # A Redis options {} that will be passed directly to Redis.new
       :redis_options => {},
       # An instance of logger
       :logger => nil,
+      # A logger level
+      :logger_level => nil,
       # whether the query string should be included in the saved page
       :include_query_string_in_saved_page => true,
       # Max number of items to keep on redis
@@ -62,7 +67,9 @@ module Polipus
       # Eg It can be used to follow links with and without 'www' domain
       :domain_aliases => [],
       # Mark a connection as staled after connection_max_hits request
-      :connection_max_hits => nil
+      :connection_max_hits => nil,
+      # Page TTL: mark a page as expired after ttl_page seconds
+      :ttl_page => nil
     }
 
     attr_reader :storage
@@ -86,6 +93,7 @@ module Polipus
 
       @job_name     = job_name
       @options      = OPTS.merge(options)
+      @options[:queue_timeout] = 1 if @options[:queue_timeout] <= 0
       @logger       = @options[:logger]  ||= Logger.new(nil)
       
       unless @logger.class.to_s == "Log4r::Logger"
@@ -137,8 +145,9 @@ module Polipus
 
       q = queue_factory
       @urls.each do |u|
-        next if url_tracker.visited?(u.to_s)
-        q << Page.new(u.to_s, :referer => '').to_json
+        page = Page.new(u.to_s, :referer => '')
+        page.user_data.p_seeded = true
+        q << page.to_json
       end
 
       return if q.empty?
@@ -149,7 +158,7 @@ module Polipus
           @logger.debug {"Start worker #{worker_number}"}
           http  = @http_pool[worker_number]   ||= HTTP.new(@options)
           queue = @queues_pool[worker_number] ||= queue_factory
-          queue.process(false, @options[:read_timeout]) do |message|
+          queue.process(false, @options[:queue_timeout]) do |message|
 
             next if message.nil?
 
@@ -163,7 +172,7 @@ module Polipus
               next
             end
 
-            if @storage.exists? page
+            if page_exists? page
               @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
               queue.commit
               next
@@ -180,7 +189,7 @@ module Polipus
               @logger.info {"Got redirects! #{rurls}"}
               page = pages.pop
               page.aliases = pages.collect { |e| e.url }
-              if @storage.exists?(page)
+              if page_exists? page
                 @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
                 queue.commit
                 next
@@ -202,7 +211,7 @@ module Polipus
             end
             
             if page
-              @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
+              @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
               @logger.info  {"[worker ##{worker_number}] Page [#{page.url.to_s}] downloaded"}
             end
             
@@ -264,7 +273,7 @@ module Polipus
       self
     end
 
-    # A block of code will be executed on every page donloaded
+    # A block of code will be executed on every page downloaded
     # before being saved in the registered storage
     def on_before_save(&block)
       @on_before_save << block
@@ -272,7 +281,7 @@ module Polipus
     end
 
     # A block of code will be executed
-    # on every page donloaded. The code is used to extract urls to visit
+    # on every page downloaded. The code is used to extract urls to visit
     # see links_for method
     def focus_crawl(&block)
       @focus_crawl_block = block
@@ -332,6 +341,11 @@ module Polipus
       # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
 
+        # return +true+ If an url is part of the initial seeder
+        # no matter what
+
+        return true if @urls.map(&:to_s).include?(url.to_s)
+
         # Check against whitelist pattern matching
         unless @follow_links_like.empty?
           return false unless @follow_links_like.any?{|p| url.path =~ p}  
@@ -342,9 +356,12 @@ module Polipus
           return false if @skip_links_like.any?{|p| url.path =~ p}
         end
 
+        #Page is marked as expired
+        return true if page_expired?(Page.new(url))
+
         # Check against url tracker
         if with_tracker
-          return false if  url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+          return false if url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
         end
         true
       end
@@ -354,6 +371,19 @@ module Polipus
         page.domain_aliases = domain_aliases
         links = @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
         links
+      end
+
+      def page_expired? page
+        return false if @options[:ttl_page].nil?
+        stored_page = @storage.get(page)
+        r = stored_page && stored_page.expired?(@options[:ttl_page])
+        @logger.debug {"Page #{page.url.to_s} marked as expired"} if r
+        r
+      end
+
+      def page_exists? page
+        return false if page.user_data && page.user_data.p_seeded
+        @storage.exists?(page) && !page_expired?(page)
       end
 
       # The url is enqueued for a later visit
