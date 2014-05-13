@@ -19,7 +19,7 @@ describe Polipus::PolipusCrawler do
   }
 
   let(:init_page){
-    init_page = Polipus::Page.new "http://rubygems.org/gems"
+    Polipus::Page.new "http://rubygems.org/gems"
   }
 
   let(:logger){Logger.new(nil)}
