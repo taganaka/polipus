@@ -341,11 +341,6 @@ module Polipus
       # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
 
-        # return +true+ If an url is part of the initial seeder
-        # no matter what
-
-        return true if @urls.map(&:to_s).include?(url.to_s)
-
         # Check against whitelist pattern matching
         unless @follow_links_like.empty?
           return false unless @follow_links_like.any?{|p| url.path =~ p}  
