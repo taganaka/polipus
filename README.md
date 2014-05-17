@@ -1,3 +1,6 @@
+![](https://travis-ci.org/taganaka/polipus.svg?branch=master)
+
+
 # Polipus #
 
 A distributed web crawler written in ruby, backed by Redis
