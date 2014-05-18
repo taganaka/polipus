@@ -361,8 +361,7 @@ module Polipus
       # It extracts URLs from the page
       def links_for page
         page.domain_aliases = domain_aliases
-        links = @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
-        links
+        @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
       end
 
       def page_expired? page
