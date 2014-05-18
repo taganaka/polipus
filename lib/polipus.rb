@@ -121,7 +121,7 @@ module Polipus
 
       @storage.include_query_string_in_uuid = @options[:include_query_string_in_saved_page]
 
-      @urls = [urls].flatten.map{ |url| url.is_a?(URI) ? url : URI(url) }
+      @urls = [urls].flatten.map{ |url| URI(url) }
       @urls.each{ |url| url.path = '/' if url.path.empty? }
       execute_plugin 'on_initialize'
 
