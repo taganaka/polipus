@@ -311,17 +311,15 @@ module Polipus
     end
 
     def url_tracker
-      if @url_tracker.nil?
-        @url_tracker  = @options[:url_tracker] ||= UrlTracker.bloomfilter(:key_name => "polipus_bf_#{job_name}", :redis => redis_factory_adapter, :driver => 'lua')
-      end
-      @url_tracker
+      @url_tracker ||=
+        @options[:url_tracker] ||=
+          UrlTracker.bloomfilter(:key_name => "polipus_bf_#{job_name}",
+                                 :redis => redis_factory_adapter,
+                                 :driver => 'lua')
     end
 
     def redis
-      if @redis.nil?
-        @redis = redis_factory_adapter
-      end
-      @redis
+      @redis ||= redis_factory_adapter
     end
 
     def add_url url
@@ -388,10 +386,11 @@ module Polipus
 
       # It creates a redis client
       def redis_factory_adapter
-        unless @redis_factory.nil?
-          return @redis_factory.call(redis_options)
+        if @redis_factory
+          @redis_factory.call(redis_options)
+        else
+          Redis.new(redis_options)
         end
-        Redis.new(redis_options)
       end
 
       # It creates a new distributed queue
