@@ -340,25 +340,22 @@ module Polipus
     private
       # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
-
+        case
         # Check against whitelist pattern matching
-        unless @follow_links_like.empty?
-          return false unless @follow_links_like.any?{|p| url.path =~ p}  
-        end
-
+        when !@follow_links_like.empty? && @follow_links_like.none?{ |p| url.path =~ p }
+          false
         # Check against blacklist pattern matching
-        unless @skip_links_like.empty?
-          return false if @skip_links_like.any?{|p| url.path =~ p}
-        end
-
-        #Page is marked as expired
-        return true if page_expired?(Page.new(url))
-
+        when @skip_links_like.any?{ |p| url.path =~ p }
+          false
+        # Page is marked as expired
+        when page_expired?(Page.new(url))
+          true
         # Check against url tracker
-        if with_tracker
-          return false if url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+        when with_tracker && url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+          false
+        else
+          true
         end
-        true
       end
 
       # It extracts URLs from the page
