@@ -167,13 +167,13 @@ module Polipus
             page = Page.from_json message
 
             unless should_be_visited?(page.url, false)
-              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] is no more welcome."}
+              @logger.info {"[worker ##{worker_number}] Page (#{page.url.to_s}) is no more welcome."}
               queue.commit
               next
             end
 
             if page_exists? page
-              @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
+              @logger.info {"[worker ##{worker_number}] Page (#{page.url.to_s}) already stored."}
               queue.commit
               next
             end
@@ -190,7 +190,7 @@ module Polipus
               page = pages.pop
               page.aliases = pages.collect { |e| e.url }
               if page_exists? page
-                @logger.info {"[worker ##{worker_number}] Page [#{page.url.to_s}] already stored."}
+                @logger.info {"[worker ##{worker_number}] Page (#{page.url.to_s}) already stored."}
                 queue.commit
                 next
               end
@@ -212,7 +212,7 @@ module Polipus
             
             if page
               @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
-              @logger.info  {"[worker ##{worker_number}] Page [#{page.url.to_s}] downloaded"}
+              @logger.info  {"[worker ##{worker_number}] Page (#{page.url.to_s}) downloaded"}
             end
             
             incr_pages
