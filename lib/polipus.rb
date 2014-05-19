@@ -15,7 +15,7 @@ require "singleton"
 
 module Polipus
   
-  def Polipus.crawler(job_name = 'polipus', urls = [], options = {}, &block)
+  def self.crawler(job_name = 'polipus', urls = [], options = {}, &block)
     PolipusCrawler.crawl(job_name, urls, options, &block)
   end
 
@@ -89,7 +89,7 @@ module Polipus
       end
     end
 
-    def initialize(job_name = 'polipus',urls = [], options = {})
+    def initialize(job_name = 'polipus', urls = [], options = {})
 
       @job_name     = job_name
       @options      = OPTS.merge(options)
@@ -129,14 +129,8 @@ module Polipus
 
     end
 
-    def self.crawl(job_name, urls, opts = {})
-
-      self.new(job_name, urls, opts) do |polipus|
-        yield polipus if block_given?
-        
-        polipus.takeover
-      end
-      
+    def self.crawl(*args, &block)
+      new(*args, &block).takeover
     end
 
     def takeover
@@ -261,7 +255,7 @@ module Polipus
       self
     end
 
-    # A block of code will be executed on every page dowloaded
+    # A block of code will be executed on every page downloaded
     # The block takes the page as argument
     def on_page_downloaded(&block)
       @on_page_downloaded << block
