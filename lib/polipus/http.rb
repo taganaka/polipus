@@ -27,7 +27,7 @@ module Polipus
     # including redirects
     #
     def fetch_pages(url, referer = nil, depth = nil)
-      url = URI(url) unless url.is_a?(URI)
+      url = URI(url)
       pages = []
       get(url, referer) do |response, code, location, redirect_to, response_time|
         body = response.body.dup
@@ -45,13 +45,14 @@ module Polipus
                                     :fetched_at    => Time.now.to_i)
       end
 
-      return pages
+      pages
     rescue StandardError => e
       if verbose?
         puts e.inspect
         puts e.backtrace
       end
-      return [Page.new(url, :error => e)]
+
+      [Page.new(url, :error => e)]
     end
 
     #
