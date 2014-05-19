@@ -35,7 +35,8 @@ module Polipus
           gzip = Zlib::GzipReader.new(StringIO.new(body))
           body = gzip.read
         end
-        pages << Page.new(location, :body          => response.body.dup,
+      
+        pages << Page.new(location, :body          => body,
                                     :code          => code,
                                     :headers       => response.to_hash,
                                     :referer       => referer,
@@ -153,6 +154,8 @@ module Polipus
       opts['User-Agent'] = user_agent if user_agent
       opts['Referer'] = referer.to_s if referer
       opts['Cookie']  = ::HTTP::Cookie.cookie_value(cookie_jar.cookies(url)) if accept_cookies?
+      opts['Accept-Encoding'] = 'gzip'
+
 
       retries = 0
       begin
@@ -224,6 +227,10 @@ module Polipus
     #
     def allowed?(to_url, from_url)
       to_url.host.nil? || (to_url.host == from_url.host)
+    end
+
+    def gzip_enabled?
+      @opts[:gzip_enabled]
     end
 
   end
