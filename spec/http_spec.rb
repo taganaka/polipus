@@ -6,7 +6,6 @@ require "polipus/page"
 describe Polipus::HTTP do
   
   it 'should download a page' do
-
     VCR.use_cassette('http_test') do
       http = Polipus::HTTP.new
       page = http.fetch_page("http://sfbay.craigslist.org/apa/")
@@ -30,6 +29,7 @@ describe Polipus::HTTP do
   end
 
   describe 'proxy settings' do
+
     it 'should set proxy correctly using a procedure' do
       http = Polipus::HTTP.new({proxy_host: -> con { "127.0.0.0" }, proxy_port: -> con { 8080 }})
       http.proxy_host.should eq "127.0.0.0"
@@ -49,10 +49,25 @@ describe Polipus::HTTP do
       http.proxy_host.should eq "127.0.0.0"
     end
 
+  end
+
+
+  describe 'gzipped content handling' do
+
+    it 'should decode gzip content' do
+      VCR.use_cassette('gzipped_on') do
+        http = Polipus::HTTP.new(gzip_enabled: true, logger: Logger.new(STDOUT))
+        page = http.fetch_page("http://www.whatsmyip.org/http-compression-test/")
+        page.doc.css('.gzip_yes').should_not be_empty
+      end
+    end
+
+
+  end
+
   describe 'staled connections' do
     
     it 'should refresh a staled connection' do
-     
       VCR.use_cassette('http_tconnection_max_hits') do
         http = Polipus::HTTP.new(connection_max_hits: 1, logger: Logger.new(STDOUT))
         http.class.__send__(:attr_reader, :connections)
@@ -65,11 +80,8 @@ describe Polipus::HTTP do
         http.fetch_page("https://www.yahoo.com/tech/expectant-parents-asked-the-internet-to-name-their-83416450388.html")
         http.connections_hits['www.yahoo.com'][443].should be 1
         http.connections['www.yahoo.com'][443].should_not be old_conn
-
       end
     end
-  end
-
   end
 
 end
