@@ -71,7 +71,9 @@ module Polipus
       # Mark a connection as staled after connection_max_hits request
       :connection_max_hits => nil,
       # Page TTL: mark a page as expired after ttl_page seconds
-      :ttl_page => nil
+      :ttl_page => nil,
+      # don't obey the robots exclusion protocol
+      :obey_robots_txt => false
     }
 
     attr_reader :storage
@@ -125,8 +127,8 @@ module Polipus
 
       @urls = [urls].flatten.map{ |url| URI(url) }
       @urls.each{ |url| url.path = '/' if url.path.empty? }
-
       @internal_queue = queue_factory
+      @robots = Polipus::Robotex.new(@options[:user_agent]) if @options[:obey_robots_txt]
 
       execute_plugin 'on_initialize'
 
@@ -345,6 +347,10 @@ module Polipus
     private
       # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
+        
+        # robots.txt
+        return false unless allowed_by_robot?(url)
+
         case
         # Check against whitelist pattern matching
         when !@follow_links_like.empty? && @follow_links_like.none?{ |p| url.path =~ p }
@@ -383,6 +389,17 @@ module Polipus
         return false if page.user_data && page.user_data.p_seeded
         @storage.exists?(page) && !page_expired?(page)
       end
+
+      #
+      # Returns +true+ if we are obeying robots.txt and the link
+      # is granted access in it. Always returns +true+ when we are
+      # not obeying robots.txt.
+      #
+      def allowed_by_robot?(link)
+        return true if @robots.nil?
+        @options[:obey_robots_txt] ? @robots.allowed?(link) : true
+      end
+
 
       # The url is enqueued for a later visit
       def enqueue url_to_visit, current_page, queue
