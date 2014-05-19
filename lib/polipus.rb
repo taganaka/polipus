@@ -75,7 +75,6 @@ module Polipus
     attr_reader :storage
     attr_reader :job_name
     attr_reader :logger
-    attr_reader :overflow_adapter
     attr_reader :options
     attr_reader :crawler_name
 
@@ -290,10 +289,6 @@ module Polipus
 
     def redis_options
       @options[:redis_options]
-    end
-
-    def overflow_adapter
-      @options[:overflow_adapter]
     end
 
     def queue_size
