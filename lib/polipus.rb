@@ -15,7 +15,7 @@ require "singleton"
 
 module Polipus
   
-  def Polipus.crawler(job_name = 'polipus', urls = [], options = {}, &block)
+  def self.crawler(job_name = 'polipus', urls = [], options = {}, &block)
     PolipusCrawler.crawl(job_name, urls, options, &block)
   end
 
@@ -88,7 +88,7 @@ module Polipus
       end
     end
 
-    def initialize(job_name = 'polipus',urls = [], options = {})
+    def initialize(job_name = 'polipus', urls = [], options = {})
 
       @job_name     = job_name
       @options      = OPTS.merge(options)
@@ -120,7 +120,7 @@ module Polipus
 
       @storage.include_query_string_in_uuid = @options[:include_query_string_in_saved_page]
 
-      @urls = [urls].flatten.map{ |url| url.is_a?(URI) ? url : URI(url) }
+      @urls = [urls].flatten.map{ |url| URI(url) }
       @urls.each{ |url| url.path = '/' if url.path.empty? }
       execute_plugin 'on_initialize'
 
@@ -128,14 +128,8 @@ module Polipus
 
     end
 
-    def self.crawl(job_name, urls, opts = {})
-
-      self.new(job_name, urls, opts) do |polipus|
-        yield polipus if block_given?
-        
-        polipus.takeover
-      end
-      
+    def self.crawl(*args, &block)
+      new(*args, &block).takeover
     end
 
     def takeover
@@ -260,7 +254,7 @@ module Polipus
       self
     end
 
-    # A block of code will be executed on every page dowloaded
+    # A block of code will be executed on every page downloaded
     # The block takes the page as argument
     def on_page_downloaded(&block)
       @on_page_downloaded << block
@@ -306,17 +300,15 @@ module Polipus
     end
 
     def url_tracker
-      if @url_tracker.nil?
-        @url_tracker  = @options[:url_tracker] ||= UrlTracker.bloomfilter(:key_name => "polipus_bf_#{job_name}", :redis => redis_factory_adapter, :driver => 'lua')
-      end
-      @url_tracker
+      @url_tracker ||=
+        @options[:url_tracker] ||=
+          UrlTracker.bloomfilter(:key_name => "polipus_bf_#{job_name}",
+                                 :redis => redis_factory_adapter,
+                                 :driver => 'lua')
     end
 
     def redis
-      if @redis.nil?
-        @redis = redis_factory_adapter
-      end
-      @redis
+      @redis ||= redis_factory_adapter
     end
 
     def add_url url
@@ -335,32 +327,28 @@ module Polipus
     private
       # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
-
+        case
         # Check against whitelist pattern matching
-        unless @follow_links_like.empty?
-          return false unless @follow_links_like.any?{|p| url.path =~ p}  
-        end
-
+        when !@follow_links_like.empty? && @follow_links_like.none?{ |p| url.path =~ p }
+          false
         # Check against blacklist pattern matching
-        unless @skip_links_like.empty?
-          return false if @skip_links_like.any?{|p| url.path =~ p}
-        end
-
-        #Page is marked as expired
-        return true if page_expired?(Page.new(url))
-
+        when @skip_links_like.any?{ |p| url.path =~ p }
+          false
+        # Page is marked as expired
+        when page_expired?(Page.new(url))
+          true
         # Check against url tracker
-        if with_tracker
-          return false if url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+        when with_tracker && url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
+          false
+        else
+          true
         end
-        true
       end
 
       # It extracts URLs from the page
       def links_for page
         page.domain_aliases = domain_aliases
-        links = @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
-        links
+        @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
       end
 
       def page_expired? page
@@ -387,10 +375,11 @@ module Polipus
 
       # It creates a redis client
       def redis_factory_adapter
-        unless @redis_factory.nil?
-          return @redis_factory.call(redis_options)
+        if @redis_factory
+          @redis_factory.call(redis_options)
+        else
+          Redis.new(redis_options)
         end
-        Redis.new(redis_options)
       end
 
       # It creates a new distributed queue

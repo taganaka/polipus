@@ -27,33 +27,32 @@ module Polipus
     # including redirects
     #
     def fetch_pages(url, referer = nil, depth = nil)
-      begin
-        url = URI(url) unless url.is_a?(URI)
-        pages = []
-        get(url, referer) do |response, code, location, redirect_to, response_time|
-          body = response.body.dup
-          if response.to_hash.fetch('content-encoding', [])[0] == 'gzip'
-            gzip = Zlib::GzipReader.new(StringIO.new(body))    
-            body = gzip.read
-          end
-          pages << Page.new(location, :body          => response.body.dup,
-                                      :code          => code,
-                                      :headers       => response.to_hash,
-                                      :referer       => referer,
-                                      :depth         => depth,
-                                      :redirect_to   => redirect_to,
-                                      :response_time => response_time,
-                                      :fetched_at    => Time.now.to_i)
+      url = URI(url)
+      pages = []
+      get(url, referer) do |response, code, location, redirect_to, response_time|
+        body = response.body.dup
+        if response.to_hash.fetch('content-encoding', [])[0] == 'gzip'
+          gzip = Zlib::GzipReader.new(StringIO.new(body))
+          body = gzip.read
         end
-
-        return pages
-      rescue StandardError => e
-        if verbose?
-          puts e.inspect
-          puts e.backtrace
-        end
-        return [Page.new(url, :error => e)]
+        pages << Page.new(location, :body          => response.body.dup,
+                                    :code          => code,
+                                    :headers       => response.to_hash,
+                                    :referer       => referer,
+                                    :depth         => depth,
+                                    :redirect_to   => redirect_to,
+                                    :response_time => response_time,
+                                    :fetched_at    => Time.now.to_i)
       end
+
+      pages
+    rescue StandardError => e
+      if verbose?
+        puts e.inspect
+        puts e.backtrace
+      end
+
+      [Page.new(url, :error => e)]
     end
 
     #
