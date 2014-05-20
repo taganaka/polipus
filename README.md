@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/taganaka/polipus.svg?branch=master)](https://travis-ci.org/taganaka/polipus)
 [![Coverage Status](https://img.shields.io/coveralls/taganaka/polipus.svg)](https://coveralls.io/r/taganaka/polipus)
-
+[![Code Climate](https://codeclimate.com/github/taganaka/polipus.png)](https://codeclimate.com/github/taganaka/polipus)
 
 # Polipus #
 
