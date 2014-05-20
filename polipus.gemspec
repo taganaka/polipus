@@ -41,5 +41,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'webmock', '>= 1.8.0', '< 1.12'
   s.add_development_dependency 'flexmock', '~> 1.3', '>= 1.3.2'
   s.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
+  s.add_development_dependency 'coveralls'
+
 
 end
