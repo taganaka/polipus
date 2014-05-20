@@ -122,6 +122,9 @@ module Polipus
 
       @urls = [urls].flatten.map{ |url| URI(url) }
       @urls.each{ |url| url.path = '/' if url.path.empty? }
+
+      @internal_queue = queue_factory
+
       execute_plugin 'on_initialize'
 
       yield self if block_given?
@@ -286,7 +289,6 @@ module Polipus
     end
 
     def queue_size
-      @internal_queue ||= queue_factory
       @internal_queue.size
     end
 
@@ -311,17 +313,17 @@ module Polipus
       @redis ||= redis_factory_adapter
     end
 
+    # Enqueue an url, no matter what
     def add_url url
-      @url_tracker.remove url.to_s
       page = Page.new(url)
-      queue_factory << page.to_json
+      @internal_queue << page.to_json
     end
 
     # Request to Polipus to stop its work (gracefully)
     # cler_queue = true if you want to delete all of the pending urls to visit
     def stop!(cler_queue = false)
       PolipusSignalHandler.terminate
-      queue_factory.clear(true) if cler_queue
+      @internal_queue.clear(true) if cler_queue
     end
 
     private
@@ -351,6 +353,7 @@ module Polipus
         @focus_crawl_block.nil? ? page.links : @focus_crawl_block.call(page)
       end
 
+      # whether a page is expired or not
       def page_expired? page
         return false if @options[:ttl_page].nil?
         stored_page = @storage.get(page)
@@ -359,6 +362,7 @@ module Polipus
         r
       end
 
+      # whether a page exists or not
       def page_exists? page
         return false if page.user_data && page.user_data.p_seeded
         @storage.exists?(page) && !page_expired?(page)
