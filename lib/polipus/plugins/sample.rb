@@ -12,6 +12,10 @@ module Polipus
         puts '-------------------------------------'
       end
 
+      def plugin_registered
+        puts "Plugin registered with options: #{plugin_options}"
+      end
+
     end
   end
 end
