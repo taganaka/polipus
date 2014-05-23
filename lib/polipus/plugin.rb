@@ -14,9 +14,10 @@ module Polipus
 
     module Base
 
-      attr_reader :plugins_options
+      attr_reader :plugin_options
       def initialize(options = {})
-        @plugins_options = options
+        @plugin_options = options
+        plugin_registered if respond_to? :plugin_registered
       end
 
       def self.included(mod)
