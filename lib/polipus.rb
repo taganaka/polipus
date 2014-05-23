@@ -201,10 +201,20 @@ module Polipus
             # Execute on_before_save blocks
             @on_before_save.each { |e| e.call(page) }
 
+<<<<<<< HEAD
             page.storable? && @storage.add(page)
 
             @logger.debug { "[worker ##{worker_number}] Fetched page: [#{page.url}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]" }
             @logger.info  { "[worker ##{worker_number}] Page (#{page.url}) downloaded" }
+=======
+            if page.storable?
+              @storage.add page
+              execute_plugin 'on_page_stored'
+            end
+            
+            @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
+            @logger.info  {"[worker ##{worker_number}] Page (#{page.url.to_s}) downloaded"}
+>>>>>>> new plugin strategy
 
             incr_pages
 
@@ -444,22 +454,25 @@ module Polipus
           sleep @options[:queue_overflow_manager_check_time]
           break if SignalHandler.terminated?
         end
-
+        
       end
+
     end
+
+      # It invokes a plugin method if any
+      def execute_plugin method
+        method = method.to_sym
+        Polipus::Plugin.plugins.each do |k,plugin_instance|
+          if plugin_instance.class.plugin_data[method]
+            @logger.info("Running plugin method #{method} on #{k}")
+            self.instance_eval(&plugin_instance.class.plugin_data[method])
+          end
+        end
+      end
 
     def internal_queue
       @internal_queue ||= queue_factory
     end
 
-    # It invokes a plugin method if any
-    def execute_plugin(method)
-      Polipus::Plugin.plugins.each do |k, p|
-        next unless p.respond_to?(method)
-        @logger.info { "Running plugin method #{method} on #{k}" }
-        ret_val = p.send(method, self)
-        instance_eval(&ret_val) if ret_val.kind_of? Proc
-      end
-    end
   end
 end
