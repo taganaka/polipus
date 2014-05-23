@@ -465,7 +465,7 @@ module Polipus
         Polipus::Plugin.plugins.each do |k,plugin_instance|
           if plugin_instance.class.plugin_data[method]
             @logger.info("Running plugin method #{method} on #{k}")
-            self.instance_eval(&plugin_instance.class.plugin_data[method])
+            self.instance_exec(plugin_instance, &plugin_instance.class.plugin_data[method])
           end
         end
       end
