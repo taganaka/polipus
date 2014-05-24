@@ -7,6 +7,7 @@ module Polipus
 
       on_initialize do |plugin_instance|
         @options[:workers] = 1
+        @logger.info {"#{self.class.name}: options: #{plugin_instance.plugin_options}"}
       end
 
       on_message_processed do |plugin_instance|
