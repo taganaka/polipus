@@ -2,23 +2,23 @@
 module Polipus
   module Plugin
     class Cleaner
-      def initialize(options = {})
-        @reset = options[:reset] ||= false
-      end
+      include Polipus::Plugin::Base
 
-      def on_initialize(crawler)
-        crawler.logger.info { 'Cleaner plugin loaded' }
-        unless @reset
-          crawler.logger.info { 'Cleaner plugin is disabled, add :reset => true to the plugin if you really know what you are doing' }
-          return nil
-        end
-        crawler.logger.info { 'Cleaning all: url_tracker, storage, queue' }
-        proc do
+      on_initialize do |plugin_instance|
+        if plugin_instance.options[:reset]
+          @logger.info { 'Cleaning all: url_tracker, storage, queue' }
           url_tracker.clear
           storage.clear
           queue_factory.clear
           @options[:queue_overflow_adapter].clear if @options[:queue_overflow_adapter]
+        else
+          @logger.info { 'Cleaner plugin is disable, add :reset => true to the plugin if you really know what you are doing' }
         end
+      end
+
+      def plugin_registered
+        puts "Plugin #{self.class.name} registered with options: #{plugin_options}"
+        @options[:reset] ||= false
       end
     end
   end
