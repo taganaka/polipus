@@ -82,6 +82,20 @@ describe Polipus::HTTP do
         http.connections['www.yahoo.com'][443].should_not be old_conn
       end
     end
+
+  end
+
+  describe 'cookies' do
+
+    it 'should handle cookies correctly' do
+      VCR.use_cassette('http_cookies') do
+        http = Polipus::HTTP.new(accept_cookies: true)
+        http.fetch_page "http://www.whatarecookies.com/cookietest.asp"
+        http.accept_cookies?.should be_true
+        http.cookie_jar.cookies(URI("http://www.whatarecookies.com/cookietest.asp")).should_not be_empty
+      end
+    end
+
   end
 
 end

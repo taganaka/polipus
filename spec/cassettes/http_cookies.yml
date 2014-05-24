@@ -1,0 +1,133 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://www.whatarecookies.com/cookietest.asp
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Cookie:
+      - ''
+      Accept-Encoding:
+      - gzip
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - private
+      Content-Type:
+      - text/html
+      Server:
+      - Microsoft-IIS/7.5
+      Set-Cookie:
+      - ASPSESSIONIDSQBRADAR=HIJMNLEDAGEAENHFEMJJDGGH; path=/
+      X-Powered-By:
+      - ASP.NET
+      Date:
+      - Sat, 24 May 2014 04:57:08 GMT
+      Connection:
+      - close
+    body:
+      encoding: US-ASCII
+      string: ! "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\r\n\t\"http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd\">\r\n<HTML>\r\n\r\n<HEAD>\r\n<TITLE>Cookie
+        checker - Check cookies - Cookie test - WhatAreCookies.com</TITLE>\r\n<META
+        HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=iso-8859-1\">\r\n<META
+        NAME=\"keywords\" CONTENT=\"Cookie checker, Check cookies, Cookie test\">\r\n<META
+        NAME=\"description\" CONTENT=\"A description of computer cookies, including
+        a test for whether cookies are enabled in your browser. Information on what
+        cookies are used for, security implications, etc.\">\r\n<META NAME=\"Author\"
+        CONTENT=\"WhatAreCookies.com Cookie checker\">\r\n<META NAME=\"Copyright\"
+        CONTENT=\"&copy; 1999-2014&nbsp;SlightlyInteresting.com \">\r\n<LINK rel='stylesheet'
+        type='text/css' href='style3.css'>\r\n</HEAD>\r\n\r\n\r\n<BODY>\r\n<DIV id=\"page\">\r\n\r\n<DIV
+        id=\"topbar\">\r\n<TABLE width=\"904\" cellpadding=\"0\" cellspacing=\"0\"
+        border=\"0\">\r\n<TR>\r\n<TD width=\"404\" align=\"left\">\r\n<H1><A href=\"/\">What
+        Are Cookies?</A></H1>\r\n<H2>Computer Cookies Explained</H2>\r\n</TD>\r\n<TD
+        width=\"500\" align=\"right\">\r\n\r\n\r\n\r\n</TD>\r\n</TR>\r\n</TABLE>\r\n</DIV>\r\n\r\n<DIV
+        id=\"linkunit\">\r\n<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script>\r\n<!--
+        WhatAreCookies 728x90 -->\r\n<ins class=\"adsbygoogle\"\r\n     style=\"display:inline-block;width:728px;height:90px\"\r\n
+        \    data-ad-client=\"ca-pub-2444621535611930\"\r\n     data-ad-slot=\"4039575542\"></ins>\r\n<script>\r\n(adsbygoogle
+        = window.adsbygoogle || []).push({});\r\n</script>\r\n</DIV>\r\n\r\n<DIV id=\"pageright\">\r\n<script
+        async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script>\r\n<!--
+        WhatAreCookies 160x600 -->\r\n<ins class=\"adsbygoogle\"\r\n     style=\"display:inline-block;width:160px;height:600px\"\r\n
+        \    data-ad-client=\"ca-pub-2444621535611930\"\r\n     data-ad-slot=\"7324777145\"></ins>\r\n<script>\r\n(adsbygoogle
+        = window.adsbygoogle || []).push({});\r\n</script>\r\n</DIV>\r\n<DIV id=\"maintext\"
+        style=\"height:306px;\">\r\n<H1><FONT size=\"5\">Cookie Checker (Cookie Test)</FONT></H1>\r\n\tThis
+        web page tests whether cookies are enabled or disabled on your computer.<BR>\r\n\tChecking
+        your computer indicates that...<BR>\r\n\t&nbsp;<BR>\r\n\t<FONT size=\"4\">Cookies
+        are&nbsp;<B><SPAN id=\"endis\"></SPAN></B>&nbsp;in this browser</FONT><BR>\r\n<SPAN
+        id=\"result\"></SPAN>\r\n<BR>\r\n&nbsp;<BR>\r\nClick for information on how
+        to <A href=\"enable.asp\">enable cookies</A> or <A href=\"delete.asp\">delete
+        cookies</A>.<BR>\r\nAlso see the home page for more information on <A href=\"/\">computer
+        cookies</A>.\r\n<script LANGUAGE=\"JavaScript\" type=\"text/javascript\">\r\n<!--\r\n//
+        Get named HTML object\r\nfunction GetObject(name)\r\n{\r\n\tvar o=null;\r\n\tif(document.getElementById)\r\n\t\to=document.getElementById(name);\r\n\telse
+        if(document.all)\r\n\t\to=document.all.item(name);\r\n\telse if(document.layers)\r\n\t\to=document.layers[name];\r\n\tif
+        (o==null && document.getElementsByName)\r\n\t{\r\n\t\tvar e=document.getElementsByName(name);\r\n\t\tif
+        (e.length==1) o=e[0];\r\n\t}\r\n\treturn o;\r\n}\r\nfunction setvar(nm,vl)\r\n{\r\n\tvar
+        dta=\"\";\r\n\tvar allck=document.cookie;\r\n\tvar pos=allck.indexOf(\"dta=\");\r\n\tif
+        (pos!=-1)\r\n\t{\r\n\t\tvar start=pos+4;\r\n\t\tvar end=allck.indexOf(\";\",
+        start);\r\n\t\tif (end==-1) end=allck.length;\r\n\t\tdta=unescape(allck.substring(start,
+        end));\r\n\t}\r\n\tvar a=dta.split(\",\");\r\n\tfor (var i=0; i<a.length;
+        i++)\r\n\t{\r\n\t\tif (a[i].substr(0,nm.length+1)==nm+\"=\")\r\n\t\t\tbreak;\r\n\t}\r\n\ta[i]=nm+\"=\"+vl;\r\n\tdta=a.join(\",\");\r\n\tif
+        (dta.substr(0,1)==',') dta=dta.substr(1);\r\n\tvar exp=new Date((new Date()).getTime()+20*60000);
+        // expire in 20 mins\r\n\tdocument.cookie=\"dta=\"+escape(dta)+\"; expires=\"+exp.toGMTString();\r\n}\r\n\r\nfunction
+        getvar(nm)\r\n{\r\n\tvar value=null;\r\n\tvar allck=document.cookie;\r\n\tvar
+        pos=allck.indexOf(\"dta=\");\r\n\tif (pos!=-1)\r\n\t{\r\n\t\tvar start=pos+4;\r\n\t\tvar
+        end=allck.indexOf(\";\", start);\r\n\t\tif (end==-1) end=allck.length;\r\n\t\tvar
+        dta=unescape(allck.substring(start, end));\r\n\t\tpos=dta.indexOf(nm+\"=\");\r\n\t\tif
+        (pos!=-1)\r\n\t\t{\r\n\t\t\tstart=pos+nm.length+1;\r\n\t\t\tend=dta.indexOf(\",\",
+        start);\r\n\t\t\tif (end==-1) end=dta.length;\r\n\t\t\tvalue=dta.substring(start,
+        end);\r\n\t\t}\r\n\t}\r\n\treturn value;\r\n}\r\n\r\n\r\n// try to store a
+        cookie, then chain to cookietest.asp\r\nvar exp=new Date();\r\nvar now=new
+        Date();\r\nexp.setMinutes(exp.getMinutes()+5);\r\nvar vc=getvar(\"vcount\");\r\nif
+        (vc==null)\r\n\tsetvar(\"vcount\",0);\r\nelse setvar(\"vcount\",parseInt(vc)+1);\r\nvc=getvar(\"vcount\");\r\nprv=parseInt(getvar(\"prev\"));\r\nsetvar(\"prev\",now.getTime());\r\nvar
+        h=\"\"\r\nif (vc==null)\r\n{\r\n\tGetObject(\"endis\").innerHTML=\"DISABLED\";\r\n\th='<P>The
+        attempt to create and read a cookie failed.<\\/P> \\\r\n\t\t<P>It is not possible
+        to tell whether you have visited this test page before.<\\/P>\\n';\r\n}\r\nelse\r\n{\r\n\tvc=parseInt(vc);\r\n\tGetObject(\"endis\").innerHTML=\"ENABLED\";\r\n\tif
+        (vc==0)\r\n\t{\r\n\t\th='<P>No existing cookie was found for this website
+        - a new cookie was successfully created. It will \\\r\n\t\texpire in 20 minutes
+        time.<\\/P>';\r\n\t}\r\n\telse\r\n\t{\r\n\t\th='<P>A cookie already existed
+        for this website - it will expire in 20 minutes time.<BR> \\\r\n\t\tThe cookie
+        shows you have visited this page '+vc+' times.<BR><\\/P>';\r\n\t\tvar dt=Math.floor((now.getTime()-prv)/1000);\r\n\t\th+='The
+        last visit was ';\r\n\t\tvar m=Math.floor(dt/60);\r\n\t\tvar s=dt%60;\r\n\t\tif
+        (m==1)\r\n\t\t\th+=\"1 minute and \";\r\n\t\telse if (m>0)\r\n\t\t\th+=m+\"
+        minutes and \";\r\n\t\tif (s==1)\r\n\t\t\th+=\"1 second\";\r\n\t\telse\r\n\t\t\th+=s+\"
+        seconds\";\r\n\t\th+=' ago.';\r\n\t}\r\n}\r\nGetObject(\"result\").innerHTML=h;\r\n//-->\r\n</script>\r\n\r\n</DIV>\r\n<DIV
+        id=\"menu\">\r\n<DIV id=\"menutop\"><DIV></DIV></DIV>\r\n\r\n<UL>\r\n<LI class=\"menuitem\">\n<A
+        href=\"/\">Home</A>\n</LI><LI class=\"menuitem\">\n<A href=\"cookietest.asp\">Cookie
+        checker</A>\n</LI><LI class=\"menuitem\">\n<A href=\"enable.asp\">Enable cookies</A>\n</LI><LI
+        class=\"menuitem\">\n<A href=\"delete.asp\">Delete cookies</A>\n</LI><LI class=\"menuitem\">\n<A
+        href=\"view.asp\">View cookies</A>\n</LI><LI class=\"menuitem\">\n<A href=\"sitemap.asp\">Sitemap</A>\n</LI></UL><P
+        class=\"menutext\">Links:</P><UL>\n<LI class=\"menuitem\">\n<A href=\"http://www.firewallinformation.com/\"
+        target=\"_blank\">Firewall Information</A>\n</LI><LI class=\"menuitem\">\n<A
+        href=\"http://www.myipnumber.com/my-ip-address.asp\" target=\"_blank\">My
+        IP Address</A>\n</LI><LI class=\"menuitem\">\n<A href=\"http://www.digitalphotography.com/\"
+        target=\"_blank\">Digital Photography</A>\n</LI><LI class=\"menuitem\">\n<A
+        href=\"http://www.pointlesssites.com/\" target=\"_blank\">Pointless Sites</A>\n</LI>\r\n</UL>\r\n\r\n\r\n<DIV
+        id=\"menubot\"><DIV></DIV></DIV>\r\n</DIV>\r\n\r\n<DIV id=\"searchform\">\r\n<DIV
+        id=\"searchformtop\"><DIV></DIV></DIV>\r\n\r\n<DIV id=\"searchformbot\"><DIV></DIV></DIV>\r\n</DIV>\r\n\r\n\r\n\r\n<DIV
+        id=\"adleft\">\r\n<!-- WhatAreCookies 120x240 -->\r\n<ins class=\"adsbygoogle\"\r\n
+        \    style=\"display:inline-block;width:120px;height:240px\"\r\n     data-ad-client=\"ca-pub-2444621535611930\"\r\n
+        \    data-ad-slot=\"8190573544\"></ins>\r\n<script>\r\n(adsbygoogle = window.adsbygoogle
+        || []).push({});\r\n</script></DIV>\r\n\r\n<DIV id=\"addthis\">\r\n<DIV class=\"addthis_toolbox\"
+        id=\"socialmediabuttons\">\r\n<!-- AddThis Button BEGIN -->\r\n<table cellpadding=\"2\">\r\n<tr><td><a
+        class=\"addthis_button_facebook_like\" fb:like:layout=\"button_count\"></a></td></tr>\r\n<tr><td><a
+        class=\"addthis_button_tweet\"></a></td></tr>\r\n<tr><td height=\"4\"></td></tr>\r\n<tr><td><a
+        class=\"addthis_button_google_plusone\" g:plusone:size=\"medium\"></a></td></tr>\r\n<tr><td
+        height=\"4\"></td></tr>\r\n<tr><td><a class=\"addthis_counter addthis_pill_style\"></a></td></tr>\r\n</table>\r\n<script
+        type=\"text/javascript\" src=\"http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4fd5fb8f3ab1b3a9\"></script>\r\n<!--
+        AddThis Button END -->\r\n</DIV>\r\n</DIV>\r\n\r\n<DIV id=\"footer\">\r\n<P>\r\n<A
+        href=\"mailto:?subject=www.whatarecookies.com&amp;body=Take%20a%20look%20at%20this%20site\">Tell
+        a friend</A> about WhatAreCookies.com&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;\r\n<A
+        href=\"about.asp\">About</A> this site&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;\r\n<A
+        href=\"sitemap.asp\">Sitemap</A>\r\n</P>\r\n</DIV>\r\n\r\n</DIV>\r\n<DIV id=\"copyright\">\r\n<P>&copy;
+        2002-2014&nbsp;SlightlyInteresting.com</P>\r\n</DIV>\r\n</BODY>\r\n</HTML>\r\n"
+    http_version: 
+  recorded_at: Sat, 24 May 2014 04:57:00 GMT
+recorded_with: VCR 2.5.0

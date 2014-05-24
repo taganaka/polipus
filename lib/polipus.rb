@@ -62,6 +62,7 @@ module Polipus
       :stats_enabled => false,
       # Cookies strategy
       :cookie_jar => nil,
+      # whether or not accept cookies 
       :accept_cookies => false,
       # A set of hosts that should be considered parts of the same domain
       # Eg It can be used to follow links with and without 'www' domain
