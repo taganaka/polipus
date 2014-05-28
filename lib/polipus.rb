@@ -314,6 +314,14 @@ module Polipus
       @redis ||= redis_factory_adapter
     end
 
+    def add_to_queue(page)
+      if [:url, :referer, :depth].all? { |method| page.respond_to?(method) }
+        add_url(page.url, referer: page.referer, depth: page.depth)
+      else
+        add_url(page)
+      end
+    end
+
     # Enqueue an url, no matter what
     def add_url url
       page = Page.new(url)
