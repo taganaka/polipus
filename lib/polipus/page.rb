@@ -41,7 +41,7 @@ module Polipus
     # Create a new page
     #
     def initialize(url, params = {})
-      @url = url.kind_of?(URI) ? url : URI(url)
+      @url = URI(url)
       @code = params[:code]
       @headers = params[:headers] || {}
       @headers['content-type'] ||= ['']
