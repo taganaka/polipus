@@ -140,14 +140,10 @@ module Polipus
       PolipusSignalHandler.enable
       overflow_items_controller if queue_overflow_adapter
 
-      q = queue_factory
       @urls.each do |u|
-        page = Page.new(u.to_s, :referer => '')
-        page.user_data.p_seeded = true
-        q << page.to_json
+        add_url(u) { |page| page.user_data.p_seeded = true }
       end
-
-      return if q.empty?
+      return if @internal_queue.empty?
 
       execute_plugin 'on_crawl_start'
       @options[:workers].times do |worker_number|
@@ -315,8 +311,9 @@ module Polipus
     end
 
     # Enqueue an url, no matter what
-    def add_url url
-      page = Page.new(url)
+    def add_url(url, params = {})
+      page = Page.new(url, params)
+      yield(page) if block_given?
       @internal_queue << page.to_json
     end
 
