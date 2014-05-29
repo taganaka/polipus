@@ -7,6 +7,20 @@ module Polipus
   class HTTP
     # Maximum number of redirects to follow on each get_response
     REDIRECT_LIMIT = 5
+    RESCUABLE_ERRORS = [
+      EOFError,
+      Errno::ECONNREFUSED,
+      Errno::ECONNRESET,
+      Errno::EHOSTUNREACH,
+      Errno::EINVAL,
+      Errno::EPIPE,
+      Errno::ETIMEDOUT,
+      Net::HTTPBadResponse,
+      Net::HTTPHeaderSyntaxError,
+      Net::ProtocolError,
+      SocketError,
+      Timeout::Error,
+    ]
 
     def initialize(opts = {})
       @connections = {}
@@ -47,7 +61,7 @@ module Polipus
       end
 
       pages
-    rescue StandardError => e
+    rescue *RESCUABLE_ERRORS => e
       if verbose?
         puts e.inspect
         puts e.backtrace
@@ -169,8 +183,7 @@ module Polipus
         response_time = ((finish - start) * 1000).round
         cookie_jar.parse(response["Set-Cookie"], url) if accept_cookies?
         return response, response_time
-      rescue StandardError => e
-        
+      rescue *RESCUABLE_ERRORS => e
         puts e.inspect if verbose?
         refresh_connection(url)
         retries += 1

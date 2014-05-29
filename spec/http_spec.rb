@@ -98,4 +98,13 @@ describe Polipus::HTTP do
 
   end
 
+  describe 'net errors' do
+    it 'should handle net errors correctly' do
+      VCR.use_cassette('http_errors') do
+        http = Polipus::HTTP.new
+        http.fetch_page("http://www.wrong-domain.lol/").error.should_not be_nil
+      end
+    end
+  end
+
 end
