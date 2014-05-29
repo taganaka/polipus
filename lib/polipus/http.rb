@@ -20,6 +20,7 @@ module Polipus
       Net::ProtocolError,
       SocketError,
       Timeout::Error,
+      Zlib::DataError
     ]
 
     def initialize(opts = {})
@@ -44,13 +45,8 @@ module Polipus
       url = URI(url)
       pages = []
       get(url, referer) do |response, code, location, redirect_to, response_time|
-        body = response.body.dup
-        if response.to_hash.fetch('content-encoding', [])[0] == 'gzip'
-          gzip = Zlib::GzipReader.new(StringIO.new(body))
-          body = gzip.read
-        end
-      
-        pages << Page.new(location, :body          => body,
+        handle_compression response
+        pages << Page.new(location, :body          => response.body,
                                     :code          => code,
                                     :headers       => response.to_hash,
                                     :referer       => referer,
@@ -168,7 +164,7 @@ module Polipus
       opts['User-Agent'] = user_agent if user_agent
       opts['Referer'] = referer.to_s if referer
       opts['Cookie']  = ::HTTP::Cookie.cookie_value(cookie_jar.cookies(url)) if accept_cookies?
-      opts['Accept-Encoding'] = 'gzip'
+      opts['Accept-Encoding'] = 'gzip,deflate'
 
 
       retries = 0
@@ -242,8 +238,14 @@ module Polipus
       to_url.host.nil? || (to_url.host == from_url.host)
     end
 
-    def gzip_enabled?
-      @opts[:gzip_enabled]
+    def handle_compression response
+      case response["content-encoding"]
+      when "gzip", "x-gzip"
+        body_io = StringIO.new(response.body)
+        response.body.replace Zlib::GzipReader.new(body_io).read
+      when "deflate"
+        response.body.replace Zlib::Inflate.inflate(response.body)
+      end
     end
 
   end

@@ -1,0 +1,61 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://david.fullrecall.com/browser-http-compression-test?compression=deflate-http
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: !binary |-
+        T0s=
+    headers:
+      !binary "U2VydmVy":
+      - !binary |-
+        bmdpbng=
+      !binary "RGF0ZQ==":
+      - !binary |-
+        VGh1LCAyOSBNYXkgMjAxNCAwOToyNTowMiBHTVQ=
+      !binary "Q29udGVudC1UeXBl":
+      - !binary |-
+        dGV4dC9odG1s
+      !binary "VHJhbnNmZXItRW5jb2Rpbmc=":
+      - !binary |-
+        Y2h1bmtlZA==
+      !binary "Q29ubmVjdGlvbg==":
+      - !binary |-
+        a2VlcC1hbGl2ZQ==
+      !binary "WC1Qb3dlcmVkLUJ5":
+      - !binary |-
+        UEhQLzUuNC40LTE0K2RlYjd1Nw==
+      !binary "Q2FjaGUtQ29udHJvbA==":
+      - !binary |-
+        bm8tY2FjaGU=
+      !binary "Q29udGVudC1FbmNvZGluZw==":
+      - !binary |-
+        ZGVmbGF0ZQ==
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eNqtU8Fu2zAM/RUipxSobazDOrRQNTSnDluBYs1lR9mmY2GOKEj0jOTrS8V2
+        52w97NCLYYtPj498z6pFU2vFljvUm0BDxAAP2+0TVLT3AWO05IAxsipGkCrG
+        K15vWxuhpqrfo2OQ9/kK1tBH63agSl1j0xnGrGX2qih1Dl8bOFAPJiBExATj
+        RMQtulQIUE4yKgoBK+4OEHvvKXB8i1BgjkVAhq6iWuhykfaMCJaXgqwDZaAN
+        2NytpgYnimwxZ5bm/LI4uJubBTOs9OJDFUbnqgzv3ighV2czwvr+2z0cO1tC
+        Q2Fv+CI1v0z7mjcEE34CgKmkUJ82S2Lm43eIHqt31bs7WtGZnuMqvP4/kty3
+        Pq70s/hcIVAzeh+rYD0nJtWG12gNWGbe7BDWg+WWeh7BDRFLOoyrYT4/tUqx
+        xHABbH5hvFV9p1Vn9fWn6w0MKVuOlnPnqXh182Eq/hPdNNq0zxH6+WYzlc7c
+        OYN8/BsiUXlFFKLo5zLfa2X1j748iKFWg6l/Y2AbcU574mmo62hIb+Ip+j8h
+        j7cgt5PIy6lXIpHNPZL8V6ZMW5kdkT1GK2LIs93bo2ExQ791eLLyBemqeiA=
+    http_version: 
+  recorded_at: Thu, 29 May 2014 09:25:23 GMT
+recorded_with: VCR 2.5.0

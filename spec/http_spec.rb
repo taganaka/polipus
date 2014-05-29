@@ -52,16 +52,22 @@ describe Polipus::HTTP do
   end
 
 
-  describe 'gzipped content handling' do
+  describe 'compressed content handling' do
 
     it 'should decode gzip content' do
       VCR.use_cassette('gzipped_on') do
-        http = Polipus::HTTP.new(gzip_enabled: true, logger: Logger.new(STDOUT))
+        http = Polipus::HTTP.new(logger: Logger.new(STDOUT))
         page = http.fetch_page("http://www.whatsmyip.org/http-compression-test/")
         page.doc.css('.gzip_yes').should_not be_empty
       end
     end
 
+    it 'should decode deflate content' do
+      http = Polipus::HTTP.new(logger: Logger.new(STDOUT))
+      page = http.fetch_page("http://david.fullrecall.com/browser-http-compression-test?compression=deflate-http")
+      page.headers.fetch('content-encoding').first.should eq 'deflate'
+      page.body.include?("deflate-http").should be_true
+    end
 
   end
 
