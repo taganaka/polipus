@@ -111,6 +111,7 @@ module Polipus
       @skip_links_like    = []
       @on_page_downloaded = []
       @on_before_save     = []
+      @on_page_error      = []
       @focus_crawl_block  = nil
       @on_crawl_end       = []
       @redis_factory      = nil
@@ -261,6 +262,7 @@ module Polipus
       self
     end
 
+    # A block of code will be executed when crawl session is over
     def on_crawl_end(&block)
       @on_crawl_end << block
       self
@@ -270,6 +272,12 @@ module Polipus
     # before being saved in the registered storage
     def on_before_save(&block)
       @on_before_save << block
+      self
+    end
+
+    # A block of code will be executed whether a page contains an error
+    def on_page_error(&block)
+      @on_page_error << block
       self
     end
 
