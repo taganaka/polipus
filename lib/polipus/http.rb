@@ -63,7 +63,7 @@ module Polipus
         puts e.backtrace
       end
 
-      [Page.new(url, error: e, referer: referer, depth: depth)]
+      [Page.new(url, error: e, referer: referer, depth: depth, storable: false)]
     end
 
     #
