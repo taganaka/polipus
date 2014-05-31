@@ -55,7 +55,7 @@ module Polipus
       @fetched = !params[:code].nil?
       @user_data = OpenStruct.new
       @domain_aliases = params[:domain_aliases] ||= []
-      @storable = true
+      @storable = params[:storable].nil? ? true : params[:storable]
       @fetched_at = params[:fetched_at]
     end
 
