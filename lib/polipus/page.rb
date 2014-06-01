@@ -17,8 +17,7 @@ module Polipus
     attr_reader :error
     # Integer response code of the page
     attr_accessor :code
-    # Depth of this page from the root of the crawl. This is not necessarily the
-    # shortest path; use PageStore#shortest_paths! to find that value.
+    # Depth of this page from the root of the crawl.
     attr_accessor :depth
     # URL of the page that brought us to this page
     attr_accessor :referer
