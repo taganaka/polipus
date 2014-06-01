@@ -73,5 +73,14 @@ describe Polipus::PolipusCrawler do
       cache_hit["http://rubygems.org/gems"].should be 2
     end
 
+    it "should call on_page_error code blocks when a page has error" do
+      p = Polipus::PolipusCrawler.new("polipus-rspec", ["http://dasd.adad.dom/"], p_options.merge(open_timeout:1, read_timeout: 1))
+      a_page = nil
+      p.on_page_error {|page| a_page = page}
+      p.takeover
+      a_page.should_not be_nil
+      a_page.error.should_not be_nil
+    end
+
   end
 end
