@@ -191,7 +191,8 @@ module Polipus
        'response_time' => @response_time,
        'fetched'       => @fetched,
        'user_data'     => @user_data.nil? ? {} : @user_data.marshal_dump,
-       'fetched_at'    => @fetched_at
+       'fetched_at'    => @fetched_at,
+       'error'         => @error
      }
     end
 
@@ -229,7 +230,8 @@ module Polipus
         '@response_time' => hash['response_time'].to_i,
         '@fetched'       => hash['fetched'],
         '@user_data'     => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil,
-        '@fetched_at'    => hash['fetched_at']
+        '@fetched_at'    => hash['fetched_at'],
+        '@error'         => hash['error']
       }.each do |var, value|
         page.instance_variable_set(var, value)
       end

@@ -48,5 +48,16 @@ EOF
     end
   end
 
+  context 'page error' do
+    
+    let(:page) do
+      Polipus::Page.new 'http://www.google.com/', error: 'an error'
+    end
+
+    it 'should serialize an error' do 
+      page.to_hash['error'].should eq 'an error'
+    end
+
+  end
 
 end
