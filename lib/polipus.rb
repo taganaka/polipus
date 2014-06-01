@@ -196,9 +196,11 @@ module Polipus
             @on_before_save.each {|e| e.call(page)} unless page.nil?
             execute_plugin 'on_after_download'
             
-            @logger.warn {"Page #{page.url} has error: #{page.error}"} if page.error
-
-            incr_error if page.error
+            if page.error
+              @logger.warn {"Page #{page.url} has error: #{page.error}"}
+              incr_error
+              @on_page_error.each {|e| e.call(page)}
+            end
 
             if page && page.storable?
               @storage.add page
