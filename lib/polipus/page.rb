@@ -130,6 +130,14 @@ module Polipus
     end
 
     #
+    # Returns +true+ if the page is a HTTP success, returns +false+
+    # otherwise.
+    #
+    def success?
+      (200..206).include?(@code)
+    end
+
+    #
     # Returns +true+ if the page was not found (returned 404 code),
     # returns +false+ otherwise.
     #
