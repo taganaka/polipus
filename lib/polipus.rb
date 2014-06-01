@@ -191,9 +191,14 @@ module Polipus
             else
               page = pages.last
             end
+
+            if page.nil?
+              @logger.error {"[worker ##{worker_number}] Getting nil while trying to download (#{Page.from_json(message).url}). Message is left into bp queue"}
+              next
+            end
             
             # Execute on_before_save blocks
-            @on_before_save.each {|e| e.call(page)} unless page.nil?
+            @on_before_save.each {|e| e.call(page)}
             execute_plugin 'on_after_download'
             
             if page.error
@@ -202,19 +207,17 @@ module Polipus
               @on_page_error.each {|e| e.call(page)}
             end
 
-            if page && page.storable?
+            if page.storable?
               @storage.add page
             end
             
-            if page
-              @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
-              @logger.info  {"[worker ##{worker_number}] Page (#{page.url.to_s}) downloaded"}
-            end
-            
+            @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
+            @logger.info  {"[worker ##{worker_number}] Page (#{page.url.to_s}) downloaded"}
+
             incr_pages
 
             # Execute on_page_downloaded blocks
-            @on_page_downloaded.each {|e| e.call(page)} unless page.nil?
+            @on_page_downloaded.each {|e| e.call(page)}
 
             if @options[:depth_limit] == false || @options[:depth_limit] > page.depth 
               links_for(page).each do |url_to_visit|
