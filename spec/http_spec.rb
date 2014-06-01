@@ -12,6 +12,7 @@ describe Polipus::HTTP do
       page.should be_an_instance_of(Polipus::Page)
       page.doc.search("title").text.strip.should eq "SF bay area apts/housing for rent classifieds  - craigslist"
       page.fetched_at.should_not be_nil
+      page.fetched?.should be_true
     end
   end
 
@@ -107,7 +108,7 @@ describe Polipus::HTTP do
   describe 'net errors' do
     it 'should handle net errors correctly' do
       VCR.use_cassette('http_errors') do
-        http = Polipus::HTTP.new
+        http = Polipus::HTTP.new(open_timeout:1, read_timeout: 1)
         http.fetch_page("http://www.wrong-domain.lol/").error.should_not be_nil
       end
     end
