@@ -17,8 +17,7 @@ module Polipus
     attr_reader :error
     # Integer response code of the page
     attr_accessor :code
-    # Depth of this page from the root of the crawl. This is not necessarily the
-    # shortest path; use PageStore#shortest_paths! to find that value.
+    # Depth of this page from the root of the crawl.
     attr_accessor :depth
     # URL of the page that brought us to this page
     attr_accessor :referer
@@ -131,6 +130,14 @@ module Polipus
     end
 
     #
+    # Returns +true+ if the page is a HTTP success, returns +false+
+    # otherwise.
+    #
+    def success?
+      (200..206).include?(@code)
+    end
+
+    #
     # Returns +true+ if the page was not found (returned 404 code),
     # returns +false+ otherwise.
     #
@@ -192,7 +199,8 @@ module Polipus
        'response_time' => @response_time,
        'fetched'       => @fetched,
        'user_data'     => @user_data.nil? ? {} : @user_data.marshal_dump,
-       'fetched_at'    => @fetched_at
+       'fetched_at'    => @fetched_at,
+       'error'         => @error
      }
     end
 
@@ -230,7 +238,8 @@ module Polipus
         '@response_time' => hash['response_time'].to_i,
         '@fetched'       => hash['fetched'],
         '@user_data'     => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil,
-        '@fetched_at'    => hash['fetched_at']
+        '@fetched_at'    => hash['fetched_at'],
+        '@error'         => hash['error']
       }.each do |var, value|
         page.instance_variable_set(var, value)
       end

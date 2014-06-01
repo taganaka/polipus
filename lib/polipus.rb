@@ -111,6 +111,7 @@ module Polipus
       @skip_links_like    = []
       @on_page_downloaded = []
       @on_before_save     = []
+      @on_page_error      = []
       @focus_crawl_block  = nil
       @on_crawl_end       = []
       @redis_factory      = nil
@@ -191,27 +192,28 @@ module Polipus
               page = pages.last
             end
             
-            # Execute on_before_save blocks
-            @on_before_save.each {|e| e.call(page)} unless page.nil?
             execute_plugin 'on_after_download'
             
-            @logger.warn {"Page #{page.url} has error: #{page.error}"} if page.error
+            if page.error
+              @logger.warn {"Page #{page.url} has error: #{page.error}"}
+              incr_error
+              @on_page_error.each {|e| e.call(page)}
+            end
 
-            incr_error if page.error
+            # Execute on_before_save blocks
+            @on_before_save.each {|e| e.call(page)}
 
-            if page && page.storable?
+            if page.storable?
               @storage.add page
             end
             
-            if page
-              @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
-              @logger.info  {"[worker ##{worker_number}] Page (#{page.url.to_s}) downloaded"}
-            end
-            
+            @logger.debug {"[worker ##{worker_number}] Fetched page: [#{page.url.to_s}] Referrer: [#{page.referer}] Depth: [#{page.depth}] Code: [#{page.code}] Response Time: [#{page.response_time}]"}
+            @logger.info  {"[worker ##{worker_number}] Page (#{page.url.to_s}) downloaded"}
+
             incr_pages
 
             # Execute on_page_downloaded blocks
-            @on_page_downloaded.each {|e| e.call(page)} unless page.nil?
+            @on_page_downloaded.each {|e| e.call(page)}
 
             if @options[:depth_limit] == false || @options[:depth_limit] > page.depth 
               links_for(page).each do |url_to_visit|
@@ -261,6 +263,7 @@ module Polipus
       self
     end
 
+    # A block of code will be executed when crawl session is over
     def on_crawl_end(&block)
       @on_crawl_end << block
       self
@@ -270,6 +273,12 @@ module Polipus
     # before being saved in the registered storage
     def on_before_save(&block)
       @on_before_save << block
+      self
+    end
+
+    # A block of code will be executed whether a page contains an error
+    def on_page_error(&block)
+      @on_page_error << block
       self
     end
 
