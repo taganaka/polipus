@@ -60,4 +60,12 @@ EOF
 
   end
 
+  context 'page code' do
+    it 'should identify HTTPSuccess code' do
+      Polipus::Page.new('http://www.google.com/', code: 201).success?.should be_true
+      Polipus::Page.new('http://www.google.com/', code: 404).success?.should be_false
+    end
+
+  end
+
 end
