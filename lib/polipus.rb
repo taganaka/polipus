@@ -348,10 +348,10 @@ module Polipus
       # URLs enqueue policy
       def should_be_visited?(url, with_tracker = true)
         
-        # robots.txt
-        return false unless allowed_by_robot?(url)
-
         case
+        # robots.txt
+        when !allowed_by_robot?(url)
+          false
         # Check against whitelist pattern matching
         when !@follow_links_like.empty? && @follow_links_like.none?{ |p| url.path =~ p }
           false
