@@ -191,11 +191,6 @@ module Polipus
             else
               page = pages.last
             end
-
-            if page.nil?
-              @logger.error {"[worker ##{worker_number}] Getting nil while trying to download (#{Page.from_json(message).url}). Message is left into bp queue"}
-              next
-            end
             
             # Execute on_before_save blocks
             @on_before_save.each {|e| e.call(page)}
