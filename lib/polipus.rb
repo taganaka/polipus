@@ -192,8 +192,6 @@ module Polipus
               page = pages.last
             end
             
-            # Execute on_before_save blocks
-            @on_before_save.each {|e| e.call(page)}
             execute_plugin 'on_after_download'
             
             if page.error
@@ -201,6 +199,9 @@ module Polipus
               incr_error
               @on_page_error.each {|e| e.call(page)}
             end
+
+            # Execute on_before_save blocks
+            @on_before_save.each {|e| e.call(page)}
 
             if page.storable?
               @storage.add page
