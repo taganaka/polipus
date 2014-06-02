@@ -11,11 +11,9 @@ module Polipus
 
     def self.enable
       trap(:INT)  {
-        puts "Got INT signal"
         self.terminate
       }
       trap(:TERM) {
-        puts "Got TERM signal"
         self.terminate
       }
     end
