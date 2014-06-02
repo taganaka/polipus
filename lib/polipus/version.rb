@@ -1,4 +1,4 @@
 module Polipus
-  VERSION = "0.2.2"
+  VERSION = "0.3.0"
   HOMEPAGE = "https://github.com/taganaka/polipus"
 end
