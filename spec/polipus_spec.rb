@@ -82,5 +82,14 @@ describe Polipus::PolipusCrawler do
       a_page.error.should_not be_nil
     end
 
+    it "should obey to the robots.txt file" do
+      lopt = p_options
+      lopt[:obey_robots_txt] = true
+      polipus = Polipus::PolipusCrawler.new("polipus-rspec", ["https://rubygems.org/gems/polipus"], lopt)
+      polipus.depth_limit = 1
+      polipus.takeover
+      polipus.storage.each {|id, page| (page.url.path =~ /$\/downloads\//).should be_false}
+    end
+
   end
 end
