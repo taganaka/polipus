@@ -12,7 +12,7 @@
   [#15](https://github.com/taganaka/polipus/issues/15)
 * Add `Page#success?` which returns true if HTTP code is something in between 200 and 206.
 * Polipus supports now `robots.txt` directives.
-  Set the option `:obey_robots_txt` to `true`
+  Set the option `:obey_robots_txt` to `true`.
   See `/examples/robots_txt_handling.rb`
   [#30](https://github.com/taganaka/polipus/pull/30)
 * Add support for GZIP and deflate compressed HTTP requests
