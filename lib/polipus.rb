@@ -9,10 +9,11 @@ require "polipus/url_tracker"
 require "polipus/plugin"
 require "polipus/queue_overflow"
 require "polipus/robotex"
+require "polipus/signal_handler"
 require "thread"
 require "logger"
 require "json"
-require "singleton"
+
 
 module Polipus
   
@@ -73,7 +74,10 @@ module Polipus
       # Page TTL: mark a page as expired after ttl_page seconds
       :ttl_page => nil,
       # don't obey the robots exclusion protocol
-      :obey_robots_txt => false
+      :obey_robots_txt => false,
+      # If true, signal handling strategy is enabled.
+      # INT and TERM signal will stop polipus gracefully
+      :enable_signal_handler => true
     }
 
     attr_reader :storage
@@ -141,7 +145,8 @@ module Polipus
     end
 
     def takeover
-      PolipusSignalHandler.enable
+      # Attach signal handling if enabled
+      SignalHandler.enable if @options[:enable_signal_handler]
       overflow_items_controller if queue_overflow_adapter
 
       @urls.each do |u|
@@ -231,7 +236,7 @@ module Polipus
             @overflow_manager.perform if @overflow_manager && queue.empty?
             execute_plugin 'on_message_processed'
 
-            if PolipusSignalHandler.terminated?
+            if SignalHandler.terminated?
               @logger.info {"About to exit! Thanks for using Polipus"}
               queue.commit
               break
@@ -340,7 +345,7 @@ module Polipus
     # Request to Polipus to stop its work (gracefully)
     # cler_queue = true if you want to delete all of the pending urls to visit
     def stop!(cler_queue = false)
-      PolipusSignalHandler.terminate
+      SignalHandler.terminate
       @internal_queue.clear(true) if cler_queue
     end
 
@@ -477,33 +482,6 @@ module Polipus
         end
       end
 
-  end
-
-  class PolipusSignalHandler
-    include Singleton
-    attr_accessor :terminated
-    def initialize
-      self.terminated = false
-    end
-
-    def self.enable
-      trap(:INT)  {
-        puts "Got INT signal"
-        self.terminate
-      }
-      trap(:TERM) {
-        puts "Got TERM signal"
-        self.terminate
-      }
-    end
-
-    def self.terminate
-      self.instance.terminated = true
-    end
-
-    def self.terminated?
-      self.instance.terminated
-    end
   end
 
 end
