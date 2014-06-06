@@ -77,6 +77,7 @@ module Polipus
       :obey_robots_txt => false,
       # If true, signal handling strategy is enabled.
       # INT and TERM signal will stop polipus gracefully
+      # Disable it if polipus will run as a part of Resque or DelayedJob-like system 
       :enable_signal_handler => true
     }
 
