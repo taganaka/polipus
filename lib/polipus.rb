@@ -424,12 +424,12 @@ module Polipus
         Redis::Queue.new("polipus_queue_#{@job_name}","bp_polipus_queue_#{@job_name}", :redis => redis_factory_adapter)
       end
 
-      # If stats enable, it increments errors found
+      # If stats enabled, it increments errors found
       def incr_error
         redis.incr "polipus:#{@job_name}:errors" if @options[:stats_enabled]
       end
 
-      # If stats enable, it increments pages downloaded
+      # If stats enabled, it increments pages downloaded
       def incr_pages
         redis.incr "polipus:#{@job_name}:pages" if @options[:stats_enabled]
       end
