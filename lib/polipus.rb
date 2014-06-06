@@ -334,7 +334,7 @@ module Polipus
     def add_url(url, params = {})
       page = Page.new(url, params)
       yield(page) if block_given?
-      url_tracker.visit(to_track(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,'')))
+      url_tracker.visit(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/,''))
       @internal_queue << page.to_json
     end
 
