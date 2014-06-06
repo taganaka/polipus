@@ -134,7 +134,8 @@ module Polipus
       @urls.each{ |url| url.path = '/' if url.path.empty? }
       @internal_queue = queue_factory
       @robots = Polipus::Robotex.new(@options[:user_agent]) if @options[:obey_robots_txt]
-
+      # Attach signal handling if enabled
+      SignalHandler.enable if @options[:enable_signal_handler]
       execute_plugin 'on_initialize'
 
       yield self if block_given?
@@ -146,8 +147,7 @@ module Polipus
     end
 
     def takeover
-      # Attach signal handling if enabled
-      SignalHandler.enable if @options[:enable_signal_handler]
+      
       overflow_items_controller if queue_overflow_adapter
 
       @urls.each do |u|
