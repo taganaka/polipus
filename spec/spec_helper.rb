@@ -26,6 +26,9 @@ RSpec.configure do |config|
       example.run
     end
   end
+  config.before(:each){
+    Polipus::SignalHandler.disable
+  }
 end
 require "vcr"
 require "polipus"
