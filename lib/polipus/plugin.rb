@@ -1,7 +1,6 @@
 # encoding: UTF-8
 module Polipus
   module Plugin
-
     @@plugins = {}
     def self.register(plugin, options = {})
       o = plugin.new(options)
@@ -13,7 +12,6 @@ module Polipus
     end
 
     module Base
-
       attr_reader :plugin_options
       def initialize(options = {})
         @plugin_options = options
@@ -26,7 +24,6 @@ module Polipus
       end
 
       module ClassMethods
-
         @@plugin_data = {}
 
         def plugin_data
@@ -65,8 +62,6 @@ module Polipus
           @@plugin_data[__callee__] = block
         end
       end
-
     end
-
   end
 end
