@@ -1,7 +1,7 @@
 require 'spec_helper'
-require "polipus/robotex"
+require 'polipus/robotex'
 describe Polipus::Robotex do
-  let(:spec_domain){"http://www.example.com/"}
+  let(:spec_domain) { 'http://www.example.com/' }
   before(:each) do
     robots = <<-END
 User-Agent: msnbot
@@ -18,9 +18,8 @@ Disallow: /locked
 Allow: /locked
 END
     stub_request(:get, 'http://www.example.com/robots.txt')
-    .to_return(:body => robots, :status => [200, "OK"], :headers => { "Content-Type" => 'text/plain' })
+    .to_return(body: robots, status: [200, 'OK'], headers: { 'Content-Type' => 'text/plain' })
   end
-  
 
   describe '#initialize' do
     context 'when no arguments are supplied' do
@@ -71,15 +70,15 @@ END
     context 'when no Crawl-Delay is specified for the user-agent' do
       it 'returns nil' do
         robotex = Polipus::Robotex.new
-        robotex.delay(spec_domain).should be_nil 
+        robotex.delay(spec_domain).should be_nil
       end
 
-    context 'when Crawl-Delay is specified for the user-agent' do
-      it 'returns the delay as a Fixnum' do
-        robotex = Polipus::Robotex.new('msnbot')
-        robotex.delay(spec_domain).should == 20
+      context 'when Crawl-Delay is specified for the user-agent' do
+        it 'returns the delay as a Fixnum' do
+          robotex = Polipus::Robotex.new('msnbot')
+          robotex.delay(spec_domain).should == 20
+        end
       end
-    end
     end
   end
 

@@ -1,5 +1,5 @@
-require "spec_helper"
-require "polipus/page"
+require 'spec_helper'
+require 'polipus/page'
 
 describe Polipus::Page do
   let(:page) do
@@ -14,29 +14,29 @@ describe Polipus::Page do
       </body>
     </html>
 EOF
-    Polipus::Page.new 'http://www.google.com/', 
-      code: 200, 
-      body: body, 
-      headers: {'content-type' => ['text/html']}, 
-      domain_aliases: %w(www.google.com google.com)
+    Polipus::Page.new 'http://www.google.com/',
+                      code: 200,
+                      body: body,
+                      headers: { 'content-type' => ['text/html'] },
+                      domain_aliases: %w(www.google.com google.com)
   end
 
   it 'should be fetched' do
     page.fetched?.should be_true
   end
-  
+
   it 'should honor domain_aliases attribute' do
     page.links.count.should be 4
   end
 
   context 'page expiring' do
     let(:page) do
-      Polipus::Page.new 'http://www.google.com/', 
-        code: 200, 
-        body: '', 
-        headers: {'content-type' => ['text/html']}, 
-        domain_aliases: %w(www.google.com google.com),
-        fetched_at: (Time.now.to_i - 30)
+      Polipus::Page.new 'http://www.google.com/',
+                        code: 200,
+                        body: '',
+                        headers: { 'content-type' => ['text/html'] },
+                        domain_aliases: %w(www.google.com google.com),
+                        fetched_at: (Time.now.to_i - 30)
     end
 
     it 'should be marked at expired' do
@@ -49,12 +49,12 @@ EOF
   end
 
   context 'page error' do
-    
+
     let(:page) do
       Polipus::Page.new 'http://www.google.com/', error: 'an error'
     end
 
-    it 'should serialize an error' do 
+    it 'should serialize an error' do
       page.to_hash['error'].should eq 'an error'
     end
 

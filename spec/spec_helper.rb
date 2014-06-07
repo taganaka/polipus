@@ -4,9 +4,9 @@
 # loaded once.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-require "digest/md5"
-require "coveralls"
-require "webmock/rspec"
+require 'digest/md5'
+require 'coveralls'
+require 'webmock/rspec'
 
 Coveralls.wear!
 
@@ -26,17 +26,15 @@ RSpec.configure do |config|
       example.run
     end
   end
-  config.before(:each){
-    Polipus::SignalHandler.disable
-  }
+  config.before(:each) { Polipus::SignalHandler.disable }
 end
-require "vcr"
-require "polipus"
+require 'vcr'
+require 'polipus'
 VCR.configure do |c|
   c.cassette_library_dir = "#{File.dirname(__FILE__)}/cassettes"
   c.hook_into :webmock
 end
 
-def page_factory url, params = {}
+def page_factory(url, params = {})
   Polipus::Page.new url, params
 end

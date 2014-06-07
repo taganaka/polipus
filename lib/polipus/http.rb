@@ -1,6 +1,6 @@
-require "net/https"
-require "polipus/page"
-require "zlib"
+require 'net/https'
+require 'polipus/page'
+require 'zlib'
 require 'http/cookie'
 
 module Polipus
@@ -46,14 +46,14 @@ module Polipus
       pages = []
       get(url, referer) do |response, code, location, redirect_to, response_time|
         handle_compression response
-        pages << Page.new(location, :body          => response.body,
-                                    :code          => code,
-                                    :headers       => response.to_hash,
-                                    :referer       => referer,
-                                    :depth         => depth,
-                                    :redirect_to   => redirect_to,
-                                    :response_time => response_time,
-                                    :fetched_at    => Time.now.to_i)
+        pages << Page.new(location, body: response.body,
+                                    code: code,
+                                    headers: response.to_hash,
+                                    referer: referer,
+                                    depth: depth,
+                                    redirect_to: redirect_to,
+                                    response_time: response_time,
+                                    fetched_at: Time.now.to_i)
       end
 
       pages
@@ -81,7 +81,6 @@ module Polipus
       @opts[:user_agent]
     end
 
-   
     #
     # The proxy address string
     #
@@ -141,17 +140,18 @@ module Polipus
     def get(url, referer = nil)
       limit = redirect_limit
       loc = url
-      begin
-          # if redirected to a relative url, merge it with the host of the original
-          # request url
-          loc = url.merge(loc) if loc.relative?
+      loop do
+        # if redirected to a relative url, merge it with the host of the original
+        # request url
+        loc = url.merge(loc) if loc.relative?
 
-          response, response_time = get_response(loc, referer)
-          code = Integer(response.code)
-          redirect_to = response.is_a?(Net::HTTPRedirection) ? URI(response['location']).normalize : nil
-          yield response, code, loc, redirect_to, response_time
-          limit -= 1
-      end while (loc = redirect_to) && allowed?(redirect_to, url) && limit > 0
+        response, response_time = get_response(loc, referer)
+        code = Integer(response.code)
+        redirect_to = response.is_a?(Net::HTTPRedirection) ? URI(response['location']).normalize : nil
+        yield response, code, loc, redirect_to, response_time
+        limit -= 1
+        break unless (loc = redirect_to) && allowed?(redirect_to, url) && limit > 0
+      end
     end
 
     #
@@ -166,25 +166,24 @@ module Polipus
       opts['Cookie']  = ::HTTP::Cookie.cookie_value(cookie_jar.cookies(url)) if accept_cookies?
       opts['Accept-Encoding'] = 'gzip,deflate'
 
-
       retries = 0
       begin
-        start = Time.now()
+        start = Time.now
         # format request
         req = Net::HTTP::Get.new(full_path, opts)
         # HTTP Basic authentication
         req.basic_auth url.user, url.password if url.user
         response = connection(url).request(req)
-        finish = Time.now()
+        finish = Time.now
         response_time = ((finish - start) * 1000).round
-        cookie_jar.parse(response["Set-Cookie"], url) if accept_cookies?
+        cookie_jar.parse(response['Set-Cookie'], url) if accept_cookies?
         return response, response_time
       rescue *RESCUABLE_ERRORS => e
         puts e.inspect if verbose?
         refresh_connection(url)
         retries += 1
-        unless retries > 3
-          retry 
+        if retries < 3
+          retry
         else
           raise e
         end
@@ -195,13 +194,13 @@ module Polipus
       @connections[url.host] ||= {}
       @connections_hits[url.host] ||= {}
 
-      if conn = @connections[url.host][url.port]
+      if @connections[url.host][url.port]
         if @opts[:connection_max_hits] && @connections_hits[url.host][url.port] >= @opts[:connection_max_hits]
-          @opts[:logger].debug {"Connection #{url.host}:#{url.port} is staled, refreshing"} if @opts[:logger]
+          @opts[:logger].debug { "Connection #{url.host}:#{url.port} is staled, refreshing" } if @opts[:logger]
           return refresh_connection url
         end
         @connections_hits[url.host][url.port] += 1
-        return conn
+        return @connections[url.host][url.port]
       end
 
       refresh_connection url
@@ -211,20 +210,20 @@ module Polipus
       proxy_host, proxy_port = proxy_host_port unless @opts[:proxy_host_port].nil?
 
       if @opts[:logger] && proxy_host && proxy_port
-        @opts[:logger].debug {"Request #{url} using proxy: #{proxy_host}:#{proxy_port}"}
+        @opts[:logger].debug { "Request #{url} using proxy: #{proxy_host}:#{proxy_port}" }
       end
 
       http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port)
 
-      http.read_timeout = read_timeout if !!read_timeout
-      http.open_timeout = open_timeout if !!open_timeout
+      http.read_timeout = read_timeout if read_timeout
+      http.open_timeout = open_timeout if open_timeout
 
       if url.scheme == 'https'
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
       @connections_hits[url.host][url.port] = 1
-      @connections[url.host][url.port] = http.start 
+      @connections[url.host][url.port] = http.start
     end
 
     def verbose?
@@ -238,15 +237,14 @@ module Polipus
       to_url.host.nil? || (to_url.host == from_url.host)
     end
 
-    def handle_compression response
-      case response["content-encoding"]
-      when "gzip", "x-gzip"
+    def handle_compression(response)
+      case response['content-encoding']
+      when 'gzip', 'x-gzip'
         body_io = StringIO.new(response.body)
         response.body.replace Zlib::GzipReader.new(body_io).read
-      when "deflate"
+      when 'deflate'
         response.body.replace Zlib::Inflate.inflate(response.body)
       end
     end
-
   end
 end

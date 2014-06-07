@@ -1,25 +1,25 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "polipus/version"
+$LOAD_PATH.push File.expand_path('../lib', __FILE__)
+require 'polipus/version'
 
 Gem::Specification.new do |s|
-  s.name        = "polipus"
+  s.name        = 'polipus'
   s.version     = Polipus::VERSION
-  s.authors     = ["Francesco Laurita"]
-  s.email       = ["francesco.laurita@gmail.com"]
+  s.authors     = ['Francesco Laurita']
+  s.email       = ['francesco.laurita@gmail.com']
   s.homepage    = Polipus::HOMEPAGE
-  s.summary     = %q{Polipus distributed web-crawler framework}
-  s.description = %q{
+  s.summary     = %q(Polipus distributed web-crawler framework)
+  s.description = %q(
     An easy to use distributed web-crawler framework based on Redis
-  }
-  s.licenses    = ["MIT"]
+  )
+  s.licenses    = ['MIT']
 
-  s.rubyforge_project = "polipus"
+  s.rubyforge_project = 'polipus'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib"]
+  s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
+  s.require_paths = ['lib']
 
   s.add_runtime_dependency 'redis-bloomfilter', '~> 0.0', '>= 0.0.1'
   s.add_runtime_dependency 'redis-queue', '~> 0.0', '>= 0.0.3'
@@ -42,6 +42,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'flexmock', '~> 1.3', '>= 1.3.2'
   s.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
   s.add_development_dependency 'coveralls'
-
 
 end
