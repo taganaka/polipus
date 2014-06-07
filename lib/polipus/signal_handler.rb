@@ -13,12 +13,18 @@ module Polipus
 
     def self.enable
       trap(:INT)  {
+        exit unless self.enabled?
         self.terminate
       }
       trap(:TERM) {
+        exit unless self.enabled?
         self.terminate
       }
       self.instance.enabled = true
+    end
+
+    def self.disable
+      self.instance.enabled = false
     end
 
     def self.terminate
