@@ -21,6 +21,15 @@ http://www.slideshare.net/francescolaurita/roll-your-own-web-crawler-rubyday
 * Focus crawling made easy
 * Heavily inspired to Anemone https://github.com/chriskite/anemone/
 
+## Supported Ruby Interpreters
+
+* MRI 1.9.x >= 1.9.1
+* MRI 2.0.0
+* MRI 2.1.2
+* JRuby 1.9 mode
+* Rubinius
+
+
 ## Survival code example
 
 ```ruby
