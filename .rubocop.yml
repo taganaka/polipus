@@ -1,0 +1,17 @@
+inherit_from: .rubocop_todo.yml
+AllCops:
+  Exclude:
+   - my_test/**/*
+   - examples/**/*
+
+Style/LineLength:
+  Enabled: false
+
+Style/TrivialAccessors:
+  Enabled: false
+
+Style/ClassLength:
+  Enabled: false
+
+Style/MethodLength:
+  Enabled: false

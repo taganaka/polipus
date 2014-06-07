@@ -1,21 +1,20 @@
 module Polipus
   module UrlTracker
     class RedisSet
-      
       def initialize(options = {})
         @redis    = options[:redis] || Redis.current
         @set_name = options[:key_name]
       end
 
       def visited?(url)
-        @redis.sismember(@set_name,url)
+        @redis.sismember(@set_name, url)
       end
 
-      def visit url
+      def visit(url)
         @redis.sadd(@set_name, url)
       end
 
-      def remove url
+      def remove(url)
         @redis.srem(@set_name, url, 0)
       end
 

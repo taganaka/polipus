@@ -1,7 +1,6 @@
-require "singleton"
+require 'singleton'
 module Polipus
   class SignalHandler
-
     include Singleton
     attr_accessor :terminated
     attr_accessor :enabled
@@ -12,32 +11,31 @@ module Polipus
     end
 
     def self.enable
-      trap(:INT)  {
+      trap(:INT)  do
         exit unless self.enabled?
-        self.terminate
-      }
-      trap(:TERM) {
+        terminate
+      end
+      trap(:TERM) do
         exit unless self.enabled?
-        self.terminate
-      }
-      self.instance.enabled = true
+        terminate
+      end
+      instance.enabled = true
     end
 
     def self.disable
-      self.instance.enabled = false
+      instance.enabled = false
     end
 
     def self.terminate
-      self.instance.terminated = true
+      instance.terminated = true
     end
 
     def self.terminated?
-      self.instance.terminated
+      instance.terminated
     end
 
     def self.enabled?
-      self.instance.enabled
+      instance.enabled
     end
-
   end
 end

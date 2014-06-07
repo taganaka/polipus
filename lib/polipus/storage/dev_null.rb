@@ -1,22 +1,21 @@
 module Polipus
   module Storage
     class DevNull < Base
-
-      def initialize(options = {})
+      def initialize(_options = {})
       end
 
-      def add page
+      def add(_page)
       end
 
-      def exists?(page)
+      def exists?(_page)
         false
       end
 
-      def get page
+      def get(_page)
         nil
       end
 
-      def remove page
+      def remove(_page)
         false
       end
 

@@ -6,7 +6,7 @@ options = {
 }
 
 Polipus.crawler('rubygems', 'http://rubygems.org/', options) do |crawler|
-  
+
   crawler.on_page_downloaded do |page|
     puts "Page title: '#{page.doc.at_css('title').content}' Page url: #{page.url}"
   end

@@ -1,4 +1,4 @@
-require "redis-bloomfilter"
+require 'redis-bloomfilter'
 module Polipus
   module UrlTracker
     class Bloomfilter
@@ -10,18 +10,17 @@ module Polipus
         @bf.include?(url)
       end
 
-      def visit url
+      def visit(url)
         @bf.insert url
       end
 
-      def remove url
+      def remove(url)
         @bf.remove url
       end
 
       def clear
         @bf.clear
       end
-
     end
   end
 end

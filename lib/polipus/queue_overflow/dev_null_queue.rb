@@ -1,4 +1,4 @@
-require "thread"
+require 'thread'
 module Polipus
   module QueueOverflow
     class DevNullQueue
@@ -16,18 +16,18 @@ module Polipus
       def clear
       end
 
-      def push data
+      def push(_data)
       end
 
       def pop(_ = false)
         nil
       end
-      
-      alias :size  :length
-      alias :dec   :pop
-      alias :shift :pop
-      alias :enc   :push
-      alias :<<    :push
+
+      alias_method :size,  :length
+      alias_method :dec,   :pop
+      alias_method :shift, :pop
+      alias_method :enc,   :push
+      alias_method :<<,    :push
     end
   end
 end

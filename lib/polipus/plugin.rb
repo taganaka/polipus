@@ -1,7 +1,7 @@
 module Polipus
   module Plugin
     @@plugins = {}
-    def self.register plugin, options = {}
+    def self.register(plugin, options = {})
       o = plugin.new(options)
       @@plugins[o.class.name] = o
     end

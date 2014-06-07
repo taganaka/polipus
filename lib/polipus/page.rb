@@ -4,7 +4,6 @@ require 'ostruct'
 require 'set'
 module Polipus
   class Page
-
     # The URL of the page
     attr_reader :url
     # The raw HTTP response body of the page
@@ -31,7 +30,7 @@ module Polipus
     attr_accessor :domain_aliases
 
     # Whether the current page should be stored
-    # Default: true  
+    # Default: true
     attr_accessor :storable
 
     attr_accessor :fetched_at
@@ -64,11 +63,11 @@ module Polipus
     def links
       return @links.to_a unless @links.nil?
       @links = Set.new
-      return [] if !doc
-      
-      doc.search("//a[@href]").each do |a|
+      return [] unless doc
+
+      doc.search('//a[@href]').each do |a|
         u = a['href']
-        next if u.nil? or u.empty?
+        next if u.nil? || u.empty?
         abs = to_absolute(u) rescue next
         @links << abs if in_domain?(abs)
       end
@@ -118,7 +117,7 @@ module Polipus
     # otherwise.
     #
     def html?
-      !!(content_type =~ %r{^(text/html|application/xhtml+xml)\b})
+      content_type =~ %r{^(text/html|application/xhtml+xml)\b}
     end
 
     #
@@ -151,11 +150,11 @@ module Polipus
     #
     def base
       @base = if doc
-        href = doc.search('//head/base/@href')
-        URI(href.to_s) unless href.nil? rescue nil
-      end unless @base
-      
-      return nil if @base && @base.to_s().empty?
+                href = doc.search('//head/base/@href')
+                URI(href.to_s) unless href.nil? rescue nil
+              end unless @base
+
+      return nil if @base && @base.to_s.empty?
       @base
     end
 
@@ -167,14 +166,14 @@ module Polipus
       return nil if link.nil?
 
       # remove anchor
-      link = URI.encode(URI.decode(link.to_s.gsub(/#[a-zA-Z0-9_-]*$/,'')))
+      link = URI.encode(URI.decode(link.to_s.gsub(/#[a-zA-Z0-9_-]*$/, '')))
 
       relative = URI(link)
       absolute = base ? base.merge(relative) : @url.merge(relative)
 
       absolute.path = '/' if absolute.path.empty?
 
-      return absolute
+      absolute
     end
 
     #
@@ -188,25 +187,25 @@ module Polipus
 
     def to_hash
       {
-       'url'           => @url.to_s,
-       'headers'       => Marshal.dump(@headers),
-       'body'          => @body,
-       'links'         => links.map(&:to_s), 
-       'code'          => @code,
-       'depth'         => @depth,
-       'referer'       => @referer.to_s,
-       'redirect_to'   => @redirect_to.to_s,
-       'response_time' => @response_time,
-       'fetched'       => @fetched,
-       'user_data'     => @user_data.nil? ? {} : @user_data.marshal_dump,
-       'fetched_at'    => @fetched_at,
-       'error'         => @error
-     }
+        'url'           => @url.to_s,
+        'headers'       => Marshal.dump(@headers),
+        'body'          => @body,
+        'links'         => links.map(&:to_s),
+        'code'          => @code,
+        'depth'         => @depth,
+        'referer'       => @referer.to_s,
+        'redirect_to'   => @redirect_to.to_s,
+        'response_time' => @response_time,
+        'fetched'       => @fetched,
+        'user_data'     => @user_data.nil? ? {} : @user_data.marshal_dump,
+        'fetched_at'    => @fetched_at,
+        'error'         => @error
+      }
     end
 
     def to_json
       th = to_hash.dup
-      th.each {|k,v| th.delete(k) if v.nil? || (v.respond_to?(:empty?) && v.empty?)}
+      th.each { |k, v| th.delete(k) if v.nil? || (v.respond_to?(:empty?) && v.empty?) }
       th.delete('headers') if content_type.empty?
       th.to_json
     end
@@ -220,21 +219,21 @@ module Polipus
       @storable
     end
 
-    def expired? ttl
+    def expired?(ttl)
       return false if fetched_at.nil?
       (Time.now.to_i - ttl) > fetched_at
     end
 
     def self.from_hash(hash)
-      page = self.new(URI(hash['url']))
+      page = new(URI(hash['url']))
       {
-        '@headers'       => hash['headers'] ? Marshal.load(hash['headers']) : {'content-type' => ['']},
+        '@headers'       => hash['headers'] ? Marshal.load(hash['headers']) : { 'content-type' => [''] },
         '@body'          => hash['body'],
         '@links'         => hash['links'] ? hash['links'].map { |link| URI(link) } : [],
         '@code'          => hash['code'].to_i,
         '@depth'         => hash['depth'].to_i,
         '@referer'       => hash['referer'],
-        '@redirect_to'   => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
+        '@redirect_to'   => (hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
         '@response_time' => hash['response_time'].to_i,
         '@fetched'       => hash['fetched'],
         '@user_data'     => hash['user_data'] ? OpenStruct.new(hash['user_data']) : nil,
@@ -248,7 +247,7 @@ module Polipus
 
     def self.from_json(json)
       hash = JSON.parse json
-      self.from_hash hash
+      from_hash hash
     end
   end
 end
