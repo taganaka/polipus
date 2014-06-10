@@ -1,4 +1,5 @@
 # encoding: UTF-8
+require 'forwardable'
 require 'redis'
 require 'redis/connection/hiredis'
 require 'redis-queue'
@@ -10,6 +11,7 @@ require 'polipus/plugin'
 require 'polipus/queue_overflow'
 require 'polipus/robotex'
 require 'polipus/signal_handler'
+require 'polipus/worker'
 require 'polipus/polipus_crawler'
 require 'thread'
 require 'logger'
