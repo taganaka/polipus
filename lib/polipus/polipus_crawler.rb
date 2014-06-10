@@ -106,7 +106,6 @@ module Polipus
 
       @urls = [urls].flatten.map { |url| URI(url) }
       @urls.each { |url| url.path = '/' if url.path.empty? }
-      @internal_queue = queue_factory
       @robots = Polipus::Robotex.new(@options[:user_agent]) if @options[:obey_robots_txt]
       # Attach signal handling if enabled
       SignalHandler.enable if @options[:enable_signal_handler]
@@ -125,7 +124,7 @@ module Polipus
       @urls.each do |u|
         add_url(u) { |page| page.user_data.p_seeded = true }
       end
-      return if @internal_queue.empty?
+      return if queue.empty?
 
       execute_plugin 'on_crawl_start'
       @options[:workers].times do |worker_number|
@@ -273,8 +272,12 @@ module Polipus
       @options[:redis_options]
     end
 
+    def queue
+      @queue ||= queue_factory
+    end
+
     def queue_size
-      @internal_queue.size
+      queue.size
     end
 
     def stats_reset!
@@ -310,14 +313,14 @@ module Polipus
     def add_url(url, params = {})
       page = Page.new(url, params)
       yield(page) if block_given?
-      @internal_queue << page.to_json
+      queue << page.to_json
     end
 
     # Request to Polipus to stop its work (gracefully)
-    # cler_queue = true if you want to delete all of the pending urls to visit
-    def stop!(cler_queue = false)
+    # clear_queue = true if you want to delete all of the pending urls to visit
+    def stop!(clear_queue = false)
       SignalHandler.terminate
-      @internal_queue.clear(true) if cler_queue
+      queue.clear(true) if clear_queue
     end
 
     # URLs enqueue policy
