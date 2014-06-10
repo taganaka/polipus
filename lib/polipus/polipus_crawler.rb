@@ -320,8 +320,6 @@ module Polipus
       @internal_queue.clear(true) if cler_queue
     end
 
-    private
-
     # URLs enqueue policy
     def should_be_visited?(url, with_tracker = true)
       case
