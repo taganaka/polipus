@@ -68,10 +68,10 @@ module Polipus
 
     OPTS.keys.each do |key|
       define_method "#{key}=" do |value|
-        @options[key.to_sym] = value
+        options[key.to_sym] = value
       end
       define_method "#{key}" do
-        @options[key.to_sym]
+        options[key.to_sym]
       end
     end
 
@@ -198,7 +198,7 @@ module Polipus
     end
 
     def redis_options
-      @options[:redis_options]
+      options[:redis_options]
     end
 
     def queue
@@ -220,7 +220,7 @@ module Polipus
 
     def url_tracker
       @url_tracker ||=
-        @options[:url_tracker] ||=
+        options[:url_tracker] ||=
           UrlTracker.bloomfilter(key_name: "polipus_bf_#{job_name}",
                                  redis: redis_factory_adapter,
                                  driver: 'lua')
@@ -268,7 +268,7 @@ module Polipus
       when page_expired?(Page.new(url))
         true
       # Check against url tracker
-      when with_tracker && url_tracker.visited?(@options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/, ''))
+      when with_tracker && url_tracker.visited?(options[:include_query_string_in_saved_page] ? url.to_s : url.to_s.gsub(/\?.*$/, ''))
         false
       else
         true
@@ -283,9 +283,9 @@ module Polipus
 
     # whether a page is expired or not
     def page_expired?(page)
-      return false if @options[:ttl_page].nil?
+      return false if options[:ttl_page].nil?
       stored_page = @storage.get(page)
-      r = stored_page && stored_page.expired?(@options[:ttl_page])
+      r = stored_page && stored_page.expired?(options[:ttl_page])
       @logger.debug { "Page #{page.url} marked as expired" } if r
       r
     end
@@ -303,14 +303,14 @@ module Polipus
     #
     def allowed_by_robot?(link)
       return true if @robots.nil?
-      @options[:obey_robots_txt] ? @robots.allowed?(link) : true
+      options[:obey_robots_txt] ? @robots.allowed?(link) : true
     end
 
     # The url is enqueued for a later visit
     def enqueue(url_to_visit, current_page, queue)
       page_to_visit = Page.new(url_to_visit.to_s, referer: current_page.url.to_s, depth: current_page.depth + 1)
       queue << page_to_visit.to_json
-      to_track = @options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/, '')
+      to_track = options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/, '')
       url_tracker.visit to_track
       @logger.debug { "Added [#{url_to_visit}] to the queue" }
     end
@@ -331,17 +331,17 @@ module Polipus
 
     # If stats enabled, it increments errors found
     def incr_error
-      redis.incr "polipus:#{@job_name}:errors" if @options[:stats_enabled]
+      redis.incr "polipus:#{@job_name}:errors" if options[:stats_enabled]
     end
 
     # If stats enabled, it increments pages downloaded
     def incr_pages
-      redis.incr "polipus:#{@job_name}:pages" if @options[:stats_enabled]
+      redis.incr "polipus:#{@job_name}:pages" if options[:stats_enabled]
     end
 
     # It handles the overflow item policy (if any)
     def overflow_items_controller
-      @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, @options[:queue_items_limit])
+      @overflow_manager = QueueOverflow::Manager.new(self, queue_factory, options[:queue_items_limit])
 
       # In the time, url policy may change so policy is re-evaluated
       @overflow_manager.url_filter do |page|
@@ -351,7 +351,7 @@ module Polipus
       Thread.new do
 
         redis_lock = redis_factory_adapter
-        op_timeout = @options[:queue_overflow_manager_check_time]
+        op_timeout = options[:queue_overflow_manager_check_time]
 
         loop do
           lock = redis_lock.setnx "polipus_queue_overflow-#{@job_name}.lock", 1
@@ -365,7 +365,7 @@ module Polipus
             @logger.info { 'Lock not acquired' }
           end
 
-          sleep @options[:queue_overflow_manager_check_time]
+          sleep options[:queue_overflow_manager_check_time]
         end
       end
     end
