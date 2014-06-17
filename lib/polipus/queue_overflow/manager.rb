@@ -45,7 +45,6 @@ module Polipus
             end
           end
           source.commit if source.respond_to? :commit
-          @redis.expire "polipus_queue_overflow-#{@polipus.job_name}.lock", 180
           break if !message || source.empty?
           break unless yield source, dest
         end
