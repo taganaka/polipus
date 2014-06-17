@@ -20,7 +20,8 @@ module Polipus
       Net::ProtocolError,
       SocketError,
       Timeout::Error,
-      Zlib::DataError
+      Zlib::DataError,
+      Zlib::GzipFile::Error
     ]
 
     def initialize(opts = {})
