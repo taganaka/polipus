@@ -439,15 +439,13 @@ module Polipus
 
       Thread.new do
 
-        op_timeout = @options[:queue_overflow_manager_check_time]
-
         loop do
-          redis_lock.expire "polipus_queue_overflow-#{@job_name}.lock", op_timeout + 350
+          @logger.info { "Overflow Manager: cycle started" }
           removed, restored = @overflow_manager.perform
           @logger.info { "Overflow Manager: items removed=#{removed}, items restored=#{restored}, items stored=#{queue_overflow_adapter.size}" }
           sleep @options[:queue_overflow_manager_check_time]
         end
-        
+
       end
     end
 
