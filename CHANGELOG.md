@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.1 (2015-06-17)
+
+[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.0...0.3.1)
+
+* Major Code-Style changes and cleanup
+  [#35](https://github.com/taganaka/polipus/pull/35)
+* BugFix: proper initialization of internal_queue
+  [#38](https://github.com/taganaka/polipus/pull/38)
+* Better INT / TERM Signal handling [#34](https://github.com/taganaka/polipus/pull/34)
+
+  New option added:
+    ```ruby
+    enable_signal_handler: true / false
+    ```
+  
+* Zlib::GzipFile::Error handling
+  [da3b927](https://github.com/taganaka/polipus/commit/da3b927acb1b50c26276ed458da0a365c22fd98b)
+* Faster and easier overflow management
+  [#39](https://github.com/taganaka/polipus/pull/39)
+
 ## 0.3.0 (2015-06-02)
 
 [Compare changes in gem](https://github.com/taganaka/polipus/compare/0.2.2...0.3.0)
