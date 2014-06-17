@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'mongo'
 require 'polipus/queue_overflow'
 require 'redis-queue'
 
@@ -15,6 +16,7 @@ describe Polipus::QueueOverflow::Manager do
     @polipus.should_receive(:storage).and_return(@storage)
     @polipus.should_receive(:redis).and_return(@redis)
     @polipus.should_receive(:job_name).and_return('___test')
+    @polipus.should_receive(:logger).and_return(Logger.new(nil))
     @manager = Polipus::QueueOverflow::Manager.new(@polipus, @redis_q, 10)
   end
 
