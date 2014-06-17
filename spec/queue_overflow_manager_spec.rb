@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'mongo'
 require 'polipus/queue_overflow'
 require 'redis-queue'
 

@@ -1,4 +1,5 @@
 require 'thread'
+require 'mongo'
 module Polipus
   module QueueOverflow
     class MongoQueue
