@@ -451,7 +451,7 @@ module Polipus
             @logger.info { "Overflow Manager: items removed=#{removed}, items restored=#{restored}, items stored=#{queue_overflow_adapter.size}" }
             redis_lock.del "polipus_queue_overflow-#{@job_name}.lock"
           else
-            @logger.info { 'Lock not acquired' }
+            @logger.info { 'Overflow Manager: Lock not acquired' }
           end
 
           sleep @options[:queue_overflow_manager_check_time]
