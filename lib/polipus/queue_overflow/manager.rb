@@ -17,10 +17,12 @@ module Polipus
       def perform
         removed  = 0
         restored = 0
-
-        if @main_q.size > @item_limit
+        main_q_size = @main_q.size
+        if main_q_size > @item_limit
+          @polipus.logger.info { "Overflow Manager: Going to offload items from redis: ~#{main_q_size - @item_limit}" }
           removed = rotate(@main_q, @adapter) { @main_q.size > @item_limit }
-        elsif @main_q.size < @item_limit && !@adapter.empty?
+        elsif main_q_size < @item_limit && !@adapter.empty?
+          @polipus.logger.info { "Overflow Manager: Going to restore items into redis: ~#{@item_limit - main_q_size}" }
           restored = rotate(@adapter, @main_q) { @main_q.size <= @item_limit }
         end
         [removed, restored]
