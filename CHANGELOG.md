@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 (2015-06-17)
+
+[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.1...0.3.2)
+
+* BugFix: When a page contains an error, Mongo trows `BSON::InvalidDocument`. `Excpetion` is not serializable
+  [31647cc](https://github.com/taganaka/polipus/commit/31647ccd8fe64247e4e6d75ced097607f1fb4b2d)
+
 ## 0.3.1 (2015-06-17)
 
 [Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.0...0.3.1)
