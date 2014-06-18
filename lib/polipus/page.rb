@@ -199,7 +199,7 @@ module Polipus
         'fetched'       => @fetched,
         'user_data'     => @user_data.nil? ? {} : @user_data.marshal_dump,
         'fetched_at'    => @fetched_at,
-        'error'         => @error
+        'error'         => @error.to_s
       }
     end
 
