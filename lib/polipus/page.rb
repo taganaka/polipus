@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'nokogiri'
 require 'json'
 require 'ostruct'
