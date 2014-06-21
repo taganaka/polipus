@@ -17,10 +17,6 @@ Style/CyclomaticComplexity:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 38
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/Encoding:
-  Enabled: false
 
 # Offense count: 2
 # Configuration parameters: EnforcedStyle, SupportedStyles.

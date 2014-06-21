@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'polipus'
 require 'mongo'
 require 'polipus/plugins/cleaner'

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'net/https'
 require 'polipus/page'
 require 'zlib'

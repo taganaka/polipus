@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'spec_helper'
 require 'polipus/robotex'
 describe Polipus::Robotex do

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'polipus'
 
 Polipus.crawler('rubygems', 'http://rubygems.org/') do |crawler|

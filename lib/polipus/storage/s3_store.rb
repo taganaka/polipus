@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'aws/s3'
 require 'zlib'
 require 'thread'
