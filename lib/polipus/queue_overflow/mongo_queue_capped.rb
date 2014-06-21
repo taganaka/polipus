@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'polipus/queue_overflow/mongo_queue'
 module Polipus
   module QueueOverflow

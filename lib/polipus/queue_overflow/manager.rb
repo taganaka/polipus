@@ -1,3 +1,4 @@
+# encoding: UTF-8
 module Polipus
   module QueueOverflow
     class Manager

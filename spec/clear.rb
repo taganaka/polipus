@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'yaml'
 Dir.glob('./cassettes/*.yml').each do|f|
   next unless f =~ /[a-f0-9]{32}/

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'mongo'
 require 'zlib'
 require 'thread'

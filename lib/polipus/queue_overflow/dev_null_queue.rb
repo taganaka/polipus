@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'thread'
 module Polipus
   module QueueOverflow

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'polipus/storage/base'
 module Polipus
   module Storage

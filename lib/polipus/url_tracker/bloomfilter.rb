@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'redis-bloomfilter'
 module Polipus
   module UrlTracker

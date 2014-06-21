@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'spec_helper'
 require 'aws/s3'
 require 'polipus/storage/s3_store'
