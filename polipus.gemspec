@@ -33,7 +33,7 @@ Gem::Specification.new do |s|
   else
     s.add_runtime_dependency 'bson_ext', '~> 1.9', '>= 1.9.2'
   end
-  s.add_runtime_dependency 'aws-s3', '~> 0.6', '>= 0.6.3'
+  
   s.add_runtime_dependency 'http-cookie', '~> 1.0', '>= 1.0.1'
 
   s.add_development_dependency 'rspec', '~> 2.14', '>= 2.14.1'

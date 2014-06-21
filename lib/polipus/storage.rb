@@ -9,21 +9,6 @@ module Polipus
       self::MongoStore.new(mongo: mongo, collection: collection_name, except: except)
     end
 
-    def self.s3_store(bucket_name = 'pages', aws_credential = {}, except = [])
-      require 'polipus/storage/s3_store'
-
-      if aws_credential[:access_key_id].nil? || aws_credential[:secret_access_key].nil?
-        fail 'You have to specify AWS crediantials: :access_key_id and :secret_access_key'
-      end
-
-      self::S3Store.new(
-        bucket: bucket_name,
-        access_key_id: aws_credential[:access_key_id],
-        secret_access_key: aws_credential[:secret_access_key],
-        except: except
-      )
-    end
-
     def self.dev_null
       require 'polipus/storage/dev_null'
       self::DevNull.new
