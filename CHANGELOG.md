@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3 (2015-06-26)
+
+[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.2...0.3.3)
+
+* BugFix: Better compatibility for mongo 2.6.x on index creation
+
 ## 0.3.2 (2015-06-17)
 
 [Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.1...0.3.2)
