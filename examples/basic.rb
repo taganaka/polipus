@@ -20,7 +20,14 @@ options = {
   user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9) AppleWebKit/537.71 (KHTML, like Gecko) Version/7.0 Safari/537.71',
   # Use 5 threads
   workers: 5,
-  # Logs goes to the crawler.log file
+  # Queue overflow settings:
+  #  * No more than 5000 elements on the Redis queue
+  #  * Exceeded Items will stored on Mongo into 'rubygems_queue_overflow' collection
+  #  * Check cycle is done every 60 sec
+  queue_items_limit: 5_000,
+  queue_overflow_adapter: Polipus::QueueOverflow.mongo_queue(mongo, 'rubygems_queue_overflow'),
+  queue_overflow_manager_check_time: 60,
+  # Logs goes to the stdout
   logger: Logger.new(STDOUT)
 }
 Polipus::Plugin.register Polipus::Plugin::Cleaner, reset: true
