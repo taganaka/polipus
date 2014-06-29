@@ -141,8 +141,7 @@ module Polipus
     end
 
     def takeover
-      overflow_items_controller if queue_overflow_adapter
-
+      
       @urls.each do |u|
         add_url(u) { |page| page.user_data.p_seeded = true }
       end
@@ -237,6 +236,14 @@ module Polipus
           end
         end
       end
+
+      if queue_overflow_adapter
+        mworker = Thread.new { overflow_items_controller.run }
+        @on_crawl_end << lambda do |_|
+          Thread.kill(mworker)
+        end
+      end
+
       @workers_pool.each { |w| w.join }
       @on_crawl_end.each { |e| e.call(self) }
       execute_plugin 'on_crawl_end'
@@ -439,17 +446,7 @@ module Polipus
         should_be_visited?(page.url, false)
       end
 
-      Thread.new do
-
-        loop do
-          @logger.info { 'Overflow Manager: cycle started' }
-          removed, restored = @overflow_manager.perform
-          @logger.info { "Overflow Manager: items removed=#{removed}, items restored=#{restored}, items stored=#{queue_overflow_adapter.size}" }
-          sleep @options[:queue_overflow_manager_check_time]
-          break if SignalHandler.terminated?
-        end
-
-      end
+      QueueOverflow::Worker.new(@overflow_manager)
     end
 
     def internal_queue

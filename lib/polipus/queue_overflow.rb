@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'polipus/queue_overflow/manager'
+require 'polipus/queue_overflow/worker'
 module Polipus
   module QueueOverflow
     def self.mongo_queue(mongo_db, queue_name, options = {})
