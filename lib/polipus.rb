@@ -106,9 +106,7 @@ module Polipus
 
       @storage      = @options[:storage] ||= Storage.dev_null
 
-      @http_pool    = []
       @workers_pool = []
-      @queues_pool  = []
 
       @follow_links_like  = []
       @skip_links_like    = []
@@ -150,8 +148,8 @@ module Polipus
       @options[:workers].times do |worker_number|
         @workers_pool << Thread.new do
           @logger.debug { "Start worker #{worker_number}" }
-          http  = @http_pool[worker_number]   ||= HTTP.new(@options)
-          queue = @queues_pool[worker_number] ||= queue_factory
+          http  =  HTTP.new(@options)
+          queue =  queue_factory
           queue.process(false, @options[:queue_timeout]) do |message|
 
             next if message.nil?
@@ -216,7 +214,7 @@ module Polipus
             if @options[:depth_limit] == false || @options[:depth_limit] > page.depth
               links_for(page).each do |url_to_visit|
                 next unless should_be_visited?(url_to_visit)
-                enqueue url_to_visit, page, queue
+                enqueue url_to_visit, page
               end
             else
               @logger.info { "[worker ##{worker_number}] Depth limit reached #{page.depth}" }
@@ -396,12 +394,12 @@ module Polipus
     end
 
     # The url is enqueued for a later visit
-    def enqueue(url_to_visit, current_page, queue)
+    def enqueue(url_to_visit, current_page)
       page_to_visit = Page.new(url_to_visit.to_s, referer: current_page.url.to_s, depth: current_page.depth + 1)
-      queue << page_to_visit.to_json
+      internal_queue << page_to_visit.to_json
       to_track = @options[:include_query_string_in_saved_page] ? url_to_visit.to_s : url_to_visit.to_s.gsub(/\?.*$/, '')
       url_tracker.visit to_track
-      @logger.debug { "Added [#{url_to_visit}] to the queue" }
+      @logger.debug { "Added (#{url_to_visit}) to the queue" }
     end
 
     # It creates a redis client
@@ -444,6 +442,7 @@ module Polipus
           removed, restored = @overflow_manager.perform
           @logger.info { "Overflow Manager: items removed=#{removed}, items restored=#{restored}, items stored=#{queue_overflow_adapter.size}" }
           sleep @options[:queue_overflow_manager_check_time]
+          break if SignalHandler.terminated?
         end
 
       end
