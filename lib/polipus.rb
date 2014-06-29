@@ -447,25 +447,23 @@ module Polipus
           sleep @options[:queue_overflow_manager_check_time]
           break if SignalHandler.terminated?
         end
-        
-      end
 
+      end
     end
 
-      # It invokes a plugin method if any
-      def execute_plugin(method)
-        method = method.to_sym
-        Polipus::Plugin.plugins.each do |k, plugin_instance|
-          if plugin_instance.class.plugin_data[method]
-            @logger.info { "Running plugin method #{method} on #{k}" }
-            instance_exec(plugin_instance, &plugin_instance.class.plugin_data[method])
-          end
+    # It invokes a plugin method if any
+    def execute_plugin(method)
+      method = method.to_sym
+      Polipus::Plugin.plugins.each do |k, plugin_instance|
+        if plugin_instance.class.plugin_data[method]
+          @logger.info { "Running plugin method #{method} on #{k}" }
+          instance_exec(plugin_instance, &plugin_instance.class.plugin_data[method])
         end
       end
+    end
 
     def internal_queue
       @internal_queue ||= queue_factory
     end
-
   end
 end
