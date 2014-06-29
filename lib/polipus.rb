@@ -141,7 +141,6 @@ module Polipus
     end
 
     def takeover
-      
       @urls.each do |u|
         add_url(u) { |page| page.user_data.p_seeded = true }
       end

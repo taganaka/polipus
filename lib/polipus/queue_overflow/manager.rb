@@ -3,7 +3,7 @@ module Polipus
   module QueueOverflow
     class Manager
       attr_accessor :url_filter
-      attr_reader   :polipus
+      attr_reader :polipus
       def initialize(polipus, main_q, item_limit)
         @polipus = polipus
         @main_q  = main_q
