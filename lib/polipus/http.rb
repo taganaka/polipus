@@ -209,13 +209,12 @@ module Polipus
     end
 
     def refresh_connection(url)
-      proxy_host, proxy_port = proxy_host_port unless @opts[:proxy_host_port].nil?
 
       if @opts[:logger] && proxy_host && proxy_port
         @opts[:logger].debug { "Request #{url} using proxy: #{proxy_host}:#{proxy_port}" }
       end
 
-      http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port)
+      http = Net::HTTP.new(url.host, url.port, self.proxy_host, self.proxy_port)
 
       http.read_timeout = read_timeout if read_timeout
       http.open_timeout = open_timeout if open_timeout
