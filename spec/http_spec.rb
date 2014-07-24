@@ -41,17 +41,11 @@ describe Polipus::HTTP do
     it 'should set proxy correctly using shorthand method' do
       http = Polipus::HTTP.new(proxy_host_port: -> _con { ['127.0.0.0', 8080] })
       http.proxy_host_port.should eq ['127.0.0.0', 8080]
-      http.proxy_port.should be 8080
-      http.proxy_host.should eq '127.0.0.0'
     end
 
     it 'should set proxy w/ auth correctly using shorthand method' do
       http = Polipus::HTTP.new(proxy_host_port: -> _con { ['127.0.0.0', 8080, 'a', 'b'] })
       http.proxy_host_port.should eq ['127.0.0.0', 8080, 'a', 'b']
-      http.proxy_port.should be 8080
-      http.proxy_host.should eq '127.0.0.0'
-      http.proxy_user.should eq 'a'
-      http.proxy_pass.should eq 'b'
     end
 
     it 'should set proxy settings' do
