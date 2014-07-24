@@ -95,13 +95,29 @@ module Polipus
     # The proxy port
     #
     def proxy_port
-      return proxy_host_port.last unless @opts[:proxy_host_port].nil?
+      return proxy_host_port[1] unless @opts[:proxy_host_port].nil?
       @opts[:proxy_port].respond_to?(:call) ? @opts[:proxy_port].call(self) : @opts[:proxy_port]
     end
 
     #
+    # The proxy username
+    #
+    def proxy_user
+      return proxy_host_port[2] unless @opts[:proxy_host_port].nil?
+      @opts[:proxy_user].respond_to?(:call) ? @opts[:proxy_user].call(self) : @opts[:proxy_user]
+    end
+
+    #
+    # The proxy password
+    #
+    def proxy_pass
+      return proxy_host_port[3] unless @opts[:proxy_host_port].nil?
+      @opts[:proxy_pass].respond_to?(:call) ? @opts[:proxy_pass].call(self) : @opts[:proxy_pass]
+    end
+
+    #
     # Shorthand to get proxy info with a single call
-    # It returns an array of ['addr', port]
+    # It returns an array of ['addr', port, 'user', 'pass']
     #
     def proxy_host_port
       @opts[:proxy_host_port].respond_to?(:call) ? @opts[:proxy_host_port].call(self) : @opts[:proxy_host_port]
@@ -175,6 +191,11 @@ module Polipus
         req = Net::HTTP::Get.new(full_path, opts)
         # HTTP Basic authentication
         req.basic_auth url.user, url.password if url.user
+        if @opts[:http_user]
+          req.basic_auth @opts[:http_user], @opts[:http_password]
+        end
+        # urls auth schema has higher priority
+        req.basic_auth url.user, url.password if url.user
         response = connection(url).request(req)
         finish = Time.now
         response_time = ((finish - start) * 1000).round
@@ -213,7 +234,7 @@ module Polipus
         @opts[:logger].debug { "Request #{url} using proxy: #{proxy_host}:#{proxy_port}" }
       end
 
-      http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port)
+      http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port, proxy_user, proxy_pass)
 
       http.read_timeout = read_timeout if read_timeout
       http.open_timeout = open_timeout if open_timeout

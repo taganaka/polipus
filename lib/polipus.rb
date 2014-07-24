@@ -35,6 +35,10 @@ module Polipus
       proxy_host: nil,
       # proxy server port number
       proxy_port: false,
+      # proxy server username
+      proxy_user: nil,
+      # proxy server password
+      proxy_pass: nil,
       # HTTP read timeout in seconds
       read_timeout: 30,
       # HTTP open connection timeout in seconds
