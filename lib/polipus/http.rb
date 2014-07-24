@@ -87,7 +87,6 @@ module Polipus
     # The proxy address string
     #
     def proxy_host
-      return proxy_host_port.first unless @opts[:proxy_host_port].nil?
       @opts[:proxy_host].respond_to?(:call) ? @opts[:proxy_host].call(self) : @opts[:proxy_host]
     end
 
@@ -95,7 +94,6 @@ module Polipus
     # The proxy port
     #
     def proxy_port
-      return proxy_host_port[1] unless @opts[:proxy_host_port].nil?
       @opts[:proxy_port].respond_to?(:call) ? @opts[:proxy_port].call(self) : @opts[:proxy_port]
     end
 
@@ -103,7 +101,6 @@ module Polipus
     # The proxy username
     #
     def proxy_user
-      return proxy_host_port[2] unless @opts[:proxy_host_port].nil?
       @opts[:proxy_user].respond_to?(:call) ? @opts[:proxy_user].call(self) : @opts[:proxy_user]
     end
 
@@ -111,7 +108,7 @@ module Polipus
     # The proxy password
     #
     def proxy_pass
-      return proxy_host_port[3] unless @opts[:proxy_host_port].nil?
+      #return proxy_host_port[3] unless @opts[:proxy_host_port].nil?
       @opts[:proxy_pass].respond_to?(:call) ? @opts[:proxy_pass].call(self) : @opts[:proxy_pass]
     end
 
@@ -234,7 +231,17 @@ module Polipus
         @opts[:logger].debug { "Request #{url} using proxy: #{proxy_host}:#{proxy_port}" }
       end
 
-      http = Net::HTTP.new(url.host, url.port, proxy_host, proxy_port, proxy_user, proxy_pass)
+      # Block has higher priority
+      unless @opts[:proxy_host_port].nil?
+        p_host, p_port, p_user, p_pass = proxy_host_port 
+      else
+        p_host = proxy_host
+        p_port = proxy_port
+        p_user = proxy_user
+        p_pass = proxy_pass
+      end
+
+      http = Net::HTTP.new(url.host, url.port, p_host, p_port, p_user, p_pass)
 
       http.read_timeout = read_timeout if read_timeout
       http.open_timeout = open_timeout if open_timeout
