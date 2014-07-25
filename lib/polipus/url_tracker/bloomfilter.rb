@@ -4,11 +4,21 @@ module Polipus
   module UrlTracker
     class Bloomfilter
       def initialize(options = {})
+        @mutex = Mutex.new
         @bf = Redis::Bloomfilter.new options
       end
 
       def visited?(url)
-        @bf.include?(url)
+        @mutex.synchronize do
+          r = false
+          loop do 
+            @bf.options[:redis].watch("#{@bf.options[:key_name]}:count")
+            @bf.options[:redis].multi
+            r = @bf.include?(url)
+            break if @bf.options[:redis].exec
+          end
+          r
+        end
       end
 
       def visit(url)
