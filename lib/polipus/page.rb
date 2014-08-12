@@ -126,7 +126,7 @@ module Polipus
     # otherwise.
     #
     def redirect?
-      (300..307).include?(@code)
+      (300...400).include?(@code)
     end
 
     #
