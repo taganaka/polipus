@@ -196,7 +196,7 @@ module Polipus
         response = connection(url).request(req)
         finish = Time.now
         response_time = ((finish - start) * 1000).round
-        cookie_jar.parse(response['Set-Cookie'], url) if accept_cookies?
+        cookie_jar.parse(response['Set-Cookie'], url) if accept_cookies? && response['Set-Cookie']
         return response, response_time
       rescue *RESCUABLE_ERRORS => e
         puts e.inspect if verbose?
