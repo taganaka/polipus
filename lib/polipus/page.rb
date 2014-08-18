@@ -228,7 +228,7 @@ module Polipus
     def self.from_hash(hash)
       page = new(URI(hash['url']))
       {
-        '@headers'       => hash['headers'] ? Marshal.load(hash['headers']) : { 'content-type' => [''] },
+        '@headers'       => hash['headers'] && !hash['headers'].empty? ? Marshal.load(hash['headers']) : { 'content-type' => [''] },
         '@body'          => hash['body'],
         '@links'         => hash['links'] ? hash['links'].map { |link| URI(link) } : [],
         '@code'          => hash['code'].to_i,
