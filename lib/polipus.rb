@@ -118,6 +118,7 @@ module Polipus
       @on_before_save     = []
       @on_page_error      = []
       @focus_crawl_block  = nil
+      @on_crawl_start     = []
       @on_crawl_end       = []
       @redis_factory      = nil
 
@@ -131,6 +132,20 @@ module Polipus
       @robots = Polipus::Robotex.new(@options[:user_agent]) if @options[:obey_robots_txt]
       # Attach signal handling if enabled
       SignalHandler.enable if @options[:enable_signal_handler]
+
+      if queue_overflow_adapter
+        @on_crawl_start << lambda do |_|
+          Thread.new do
+            Thread.current[:name] = :overflow_items_controller
+            overflow_items_controller.run
+          end
+        end
+      end
+
+      @on_crawl_end << lambda do |_|
+        Thread.list.select { |thread| thread.status && Thread.current[:name] == :overflow_items_controller }.each(&:kill)
+      end
+
       execute_plugin 'on_initialize'
 
       yield self if block_given?
@@ -146,9 +161,7 @@ module Polipus
       end
       return if internal_queue.empty?
 
-      if queue_overflow_adapter
-        Thread.new { overflow_items_controller.run }
-      end
+      @on_crawl_start.each { |e| e.call(self) }
 
       execute_plugin 'on_crawl_start'
       @options[:workers].times do |worker_number|
@@ -269,6 +282,12 @@ module Polipus
     # A block of code will be executed when crawl session is over
     def on_crawl_end(&block)
       @on_crawl_end << block
+      self
+    end
+
+    # A block of code will be executed when crawl session is starting
+    def on_crawl_start(&block)
+      @on_crawl_start << block
       self
     end
 
