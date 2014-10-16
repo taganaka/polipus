@@ -10,7 +10,11 @@ module Polipus
         @mongo      = options[:mongo]
         @collection = options[:collection]
         @mongo.create_collection(@collection)
-        @mongo[@collection].ensure_index(:uuid, unique: true, dropDups: true, background: true)
+        begin
+          @mongo[@collection].ensure_index(:uuid, unique: true, dropDups: true, background: true)  
+        rescue Exception
+        end
+        
         @compress_body = options[:compress_body] ||= true
         @except = options[:except] ||= []
         @semaphore = Mutex.new
