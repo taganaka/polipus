@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   
   s.add_runtime_dependency 'http-cookie', '~> 1.0', '>= 1.0.1'
 
-  s.add_development_dependency 'rspec', '~> 2.14', '>= 2.14.1'
+  s.add_development_dependency 'rspec', '~> 2.14.1'
   s.add_development_dependency 'vcr', '~> 2.5', '>= 2.5.0'
   s.add_development_dependency 'webmock', '>= 1.8.0', '< 1.12'
   s.add_development_dependency 'flexmock', '~> 1.3', '>= 1.3.2'
