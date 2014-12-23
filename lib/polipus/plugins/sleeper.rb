@@ -2,20 +2,19 @@
 module Polipus
   module Plugin
     class Sleeper
-      def initialize(options = {})
-        @delay = options[:delay] ||= 1
+      include Polipus::Plugin::Base
+
+      on_initialize do |plugin_instance|
+        @options[:workers] = 1
+        @logger.info { "#{self.class.name}: options: #{plugin_instance.plugin_options}" }
       end
 
-      def on_initialize(crawler)
-        crawler.logger.info { "Sleeper plugin loaded, sleep for #{@delay} after each request" }
-        proc do
-          # Set to 1 the number of threads
-          @options[:workers] = 1
-        end
+      on_message_processed do |plugin_instance|
+        sleep plugin_instance.plugin_options[:delay]
       end
 
-      def on_message_processed(_crawler)
-        sleep @delay
+      def plugin_registered
+        puts "Plugin #{self.class.name} registered with options: #{plugin_options}"
       end
     end
   end
