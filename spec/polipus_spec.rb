@@ -28,29 +28,29 @@ describe Polipus::PolipusCrawler do
   context 'polipus' do
 
     it 'should create a polipus instance' do
-      polipus.should be_an_instance_of Polipus::PolipusCrawler
+      expect(polipus).to be_an_instance_of Polipus::PolipusCrawler
     end
 
     it 'should execute a crawling session' do
       polipus.takeover
-      polipus.storage.exists?(init_page).should be_true
-      polipus.storage.get(init_page).links.count.should be polipus.storage.count
+      expect(polipus.storage.exists?(init_page)).to be_truthy
+      expect(polipus.storage.get(init_page).links.count).to be polipus.storage.count
     end
 
     it 'should filter unwanted urls' do
       polipus.skip_links_like(/\/pages\//)
       polipus.takeover
-      polipus.storage.get(init_page).links
-        .reject { |e| e.path.to_s =~ /\/pages\// }.count.should be polipus.storage.count
+      expect(polipus.storage.get(init_page).links
+        .reject { |e| e.path.to_s =~ /\/pages\// }.count).to be polipus.storage.count
     end
 
     it 'should follow only wanted urls' do
       polipus.follow_links_like(/\/pages\//)
       polipus.follow_links_like(/\/gems$/)
       polipus.takeover
-      polipus.storage.get(init_page).links
+      expect(polipus.storage.get(init_page).links
         .reject { |e| ![/\/pages\//, /\/gems$/].any? { |p| e.path =~ p } }
-        .count.should be polipus.storage.count
+        .count).to be polipus.storage.count
     end
 
     it 'should refresh expired pages' do
@@ -60,9 +60,9 @@ describe Polipus::PolipusCrawler do
         page.fetched_at = page.fetched_at - 3600
         polipus.storage.add(page)
       end
-      polipus.storage.each { |_id, page| page.expired?(3600).should be_true }
+      polipus.storage.each { |_id, page| expect(page.expired?(3600)).to be_truthy }
       polipus.takeover
-      polipus.storage.each { |_id, page| page.expired?(3600).should be_false }
+      polipus.storage.each { |_id, page| expect(page.expired?(3600)).to be_falsey }
     end
 
     it 'should re-download seeder urls no matter what' do
@@ -74,7 +74,7 @@ describe Polipus::PolipusCrawler do
       end
       polipus.takeover
       polipus.takeover
-      cache_hit['http://rubygems.org/gems'].should be 2
+      expect(cache_hit['http://rubygems.org/gems']).to be 2
     end
 
     it 'should call on_page_error code blocks when a page has error' do
@@ -82,8 +82,8 @@ describe Polipus::PolipusCrawler do
       a_page = nil
       p.on_page_error { |page| a_page = page }
       p.takeover
-      a_page.should_not be_nil
-      a_page.error.should_not be_nil
+      expect(a_page).not_to be_nil
+      expect(a_page.error).not_to be_nil
     end
 
     it 'should obey to the robots.txt file' do
@@ -92,7 +92,7 @@ describe Polipus::PolipusCrawler do
       polipus = Polipus::PolipusCrawler.new('polipus-rspec', ['https://rubygems.org/gems/polipus'], lopt)
       polipus.depth_limit = 1
       polipus.takeover
-      polipus.storage.each { |_id, page| (page.url.path =~ /$\/downloads\//).should be_false }
+      polipus.storage.each { |_id, page| expect(page.url.path =~ /$\/downloads\//).to be_falsey }
     end
 
   end

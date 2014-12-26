@@ -23,11 +23,11 @@ EOF
   end
 
   it 'should be fetched' do
-    page.fetched?.should be_true
+    expect(page.fetched?).to be_truthy
   end
 
   it 'should honor domain_aliases attribute' do
-    page.links.count.should be 4
+    expect(page.links.count).to be 4
   end
 
   context 'page expiring' do
@@ -41,11 +41,11 @@ EOF
     end
 
     it 'should be marked at expired' do
-      page.expired?(20).should be_true
+      expect(page.expired?(20)).to be_truthy
     end
 
     it 'should NOT be marked at expired' do
-      page.expired?(60).should be_false
+      expect(page.expired?(60)).to be_falsey
     end
   end
 
@@ -56,15 +56,15 @@ EOF
     end
 
     it 'should serialize an error' do
-      page.to_hash['error'].should eq 'an error'
+      expect(page.to_hash['error']).to eq 'an error'
     end
 
   end
 
   context 'page code' do
     it 'should identify HTTPSuccess code' do
-      Polipus::Page.new('http://www.google.com/', code: 201).success?.should be_true
-      Polipus::Page.new('http://www.google.com/', code: 404).success?.should be_false
+      expect(Polipus::Page.new('http://www.google.com/', code: 201).success?).to be_truthy
+      expect(Polipus::Page.new('http://www.google.com/', code: 404).success?).to be_falsey
     end
 
   end

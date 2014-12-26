@@ -10,10 +10,10 @@ describe Polipus::HTTP do
     VCR.use_cassette('http_test') do
       http = Polipus::HTTP.new
       page = http.fetch_page('http://sfbay.craigslist.org/apa/')
-      page.should be_an_instance_of(Polipus::Page)
-      page.doc.search('title').text.strip.should eq 'SF bay area apts/housing for rent classifieds  - craigslist'
-      page.fetched_at.should_not be_nil
-      page.fetched?.should be_true
+      expect(page).to be_an_instance_of(Polipus::Page)
+      expect(page.doc.search('title').text.strip).to eq 'SF bay area apts/housing for rent classifieds  - craigslist'
+      expect(page.fetched_at).not_to be_nil
+      expect(page.fetched?).to be_truthy
     end
   end
 
@@ -23,10 +23,10 @@ describe Polipus::HTTP do
       http = Polipus::HTTP.new
       page = http.fetch_page('http://greenbytes.de/tech/tc/httpredirects/t300bodyandloc.asis')
 
-      page.should be_an_instance_of(Polipus::Page)
-      page.code.should be 200
-      page.url.to_s.should eq 'http://greenbytes.de/tech/tc/httpredirects/300.txt'
-      page.body.strip.should eq "You have reached the target\r\nof a 300 redirect."
+      expect(page).to be_an_instance_of(Polipus::Page)
+      expect(page.code).to be 200
+      expect(page.url.to_s).to eq 'http://greenbytes.de/tech/tc/httpredirects/300.txt'
+      expect(page.body.strip).to eq "You have reached the target\r\nof a 300 redirect."
     end
   end
 
@@ -34,26 +34,26 @@ describe Polipus::HTTP do
 
     it 'should set proxy correctly using a procedure' do
       http = Polipus::HTTP.new(proxy_host: -> _con { '127.0.0.0' }, proxy_port: -> _con { 8080 })
-      http.proxy_host.should eq '127.0.0.0'
-      http.proxy_port.should be 8080
+      expect(http.proxy_host).to eq '127.0.0.0'
+      expect(http.proxy_port).to be 8080
     end
 
     it 'should set proxy correctly using shorthand method' do
       http = Polipus::HTTP.new(proxy_host_port: -> _con { ['127.0.0.0', 8080] })
-      http.proxy_host_port.should eq ['127.0.0.0', 8080]
+      expect(http.proxy_host_port).to eq ['127.0.0.0', 8080]
     end
 
     it 'should set proxy w/ auth correctly using shorthand method' do
       http = Polipus::HTTP.new(proxy_host_port: -> _con { ['127.0.0.0', 8080, 'a', 'b'] })
-      http.proxy_host_port.should eq ['127.0.0.0', 8080, 'a', 'b']
+      expect(http.proxy_host_port).to eq ['127.0.0.0', 8080, 'a', 'b']
     end
 
     it 'should set proxy settings' do
       http = Polipus::HTTP.new(proxy_host: '127.0.0.0', proxy_port:  8080, proxy_user: 'a', proxy_pass: 'b')
-      http.proxy_port.should be 8080
-      http.proxy_host.should eq '127.0.0.0'
-      http.proxy_user.should eq 'a'
-      http.proxy_pass.should eq 'b'
+      expect(http.proxy_port).to be 8080
+      expect(http.proxy_host).to eq '127.0.0.0'
+      expect(http.proxy_user).to eq 'a'
+      expect(http.proxy_pass).to eq 'b'
     end
 
   end
@@ -64,15 +64,15 @@ describe Polipus::HTTP do
       VCR.use_cassette('gzipped_on') do
         http = Polipus::HTTP.new(logger: Logger.new(STDOUT))
         page = http.fetch_page('http://www.whatsmyip.org/http-compression-test/')
-        page.doc.css('.gzip_yes').should_not be_empty
+        expect(page.doc.css('.gzip_yes')).not_to be_empty
       end
     end
 
     it 'should decode deflate content' do
       http = Polipus::HTTP.new(logger: Logger.new(STDOUT))
       page = http.fetch_page('http://david.fullrecall.com/browser-http-compression-test?compression=deflate-http')
-      page.headers.fetch('content-encoding').first.should eq 'deflate'
-      page.body.include?('deflate-http').should be_true
+      expect(page.headers.fetch('content-encoding').first).to eq 'deflate'
+      expect(page.body.include?('deflate-http')).to be_truthy
     end
 
   end
@@ -85,13 +85,13 @@ describe Polipus::HTTP do
         http.class.__send__(:attr_reader, :connections)
         http.class.__send__(:attr_reader, :connections_hits)
         http.fetch_page('https://www.yahoo.com/')
-        http.connections['www.yahoo.com'][443].should_not be_nil
+        expect(http.connections['www.yahoo.com'][443]).not_to be_nil
         old_conn = http.connections['www.yahoo.com'][443]
-        http.connections_hits['www.yahoo.com'][443].should be 1
+        expect(http.connections_hits['www.yahoo.com'][443]).to be 1
 
         http.fetch_page('https://www.yahoo.com/tech/expectant-parents-asked-the-internet-to-name-their-83416450388.html')
-        http.connections_hits['www.yahoo.com'][443].should be 1
-        http.connections['www.yahoo.com'][443].should_not be old_conn
+        expect(http.connections_hits['www.yahoo.com'][443]).to be 1
+        expect(http.connections['www.yahoo.com'][443]).not_to be old_conn
       end
     end
 
@@ -103,8 +103,8 @@ describe Polipus::HTTP do
       VCR.use_cassette('http_cookies') do
         http = Polipus::HTTP.new(accept_cookies: true)
         http.fetch_page 'http://www.whatarecookies.com/cookietest.asp'
-        http.accept_cookies?.should be_true
-        http.cookie_jar.cookies(URI('http://www.whatarecookies.com/cookietest.asp')).should_not be_empty
+        expect(http.accept_cookies?).to be_truthy
+        expect(http.cookie_jar.cookies(URI('http://www.whatarecookies.com/cookietest.asp'))).not_to be_empty
       end
     end
 
@@ -114,7 +114,7 @@ describe Polipus::HTTP do
     it 'should handle net errors correctly' do
       VCR.use_cassette('http_errors') do
         http = Polipus::HTTP.new(open_timeout: 1, read_timeout: 1)
-        http.fetch_page('http://www.wrong-domain.lol/').error.should_not be_nil
+        expect(http.fetch_page('http://www.wrong-domain.lol/').error).not_to be_nil
       end
     end
   end
