@@ -94,6 +94,5 @@ describe Polipus::PolipusCrawler do
       polipus.takeover
       polipus.storage.each { |_id, page| expect(page.url.path =~ /$\/downloads\//).to be_falsey }
     end
-
   end
 end

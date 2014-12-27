@@ -1,6 +1,6 @@
-# encoding: UTF-8
 require 'spec_helper'
 require 'polipus/robotex'
+
 describe Polipus::Robotex do
   let(:spec_domain) { 'http://www.example.com/' }
   before(:each) do
@@ -82,5 +82,4 @@ END
       end
     end
   end
-
 end
