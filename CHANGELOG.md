@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.4 (2015-06-26)
+
+[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.3...0.3.4)
+
+* BugFix: Update and fix mongo driver v1.11.1 'upsert: 1' -> 'upsert: true'
+* Organize and update specs to rspec 3
+
 ## 0.3.3 (2015-06-26)
 
 [Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.2...0.3.3)
@@ -27,7 +34,7 @@
     ```ruby
     enable_signal_handler: true / false
     ```
-  
+
 * Zlib::GzipFile::Error handling
   [da3b927](https://github.com/taganaka/polipus/commit/da3b927acb1b50c26276ed458da0a365c22fd98b)
 * Faster and easier overflow management
