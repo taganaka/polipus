@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
     An easy to use distributed web-crawler framework based on Redis
   )
   s.licenses    = ['MIT']
+  s.platform    = Gem::Platform::RUBY
 
   s.rubyforge_project = 'polipus'
 
@@ -29,11 +30,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'redis-queue', '~> 0.0', '>= 0.0.4'
   s.add_runtime_dependency 'redis-bloomfilter', '~> 0.0', '>= 0.0.3'
 
-  if defined?(JRUBY_VERSION)
-    s.add_development_dependency 'bson', '~> 2.2'
-  else
-    s.add_development_dependency 'bson_ext', '~> 1.11'
-  end
+  s.add_development_dependency 'mongo', '~>1.11.0'
 
   s.add_development_dependency 'rake', '~> 10.3'
   s.add_development_dependency 'rspec', '~> 3.1.0'
@@ -41,9 +38,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'vcr', '~> 2.9.0'
   s.add_development_dependency 'webmock', '~> 1.20.0'
-
-  s.add_development_dependency 'mongo', '~>1.11.0'
-  s.add_development_dependency 'rethinkdb', '~>1.15.0'
 
   s.add_development_dependency 'coveralls'
 end
