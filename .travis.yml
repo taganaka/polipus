@@ -3,10 +3,11 @@ rvm:
   - jruby
   - 1.9.3
   - 2.0.0
-  - 2.1.2
+  - 2.1.5
+  - 2.2.0
   - rbx-2
 
-services: 
-  - mongodb
+services:
   - redis
-
+  - mongodb
+  - rethinkdb
