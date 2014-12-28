@@ -1,9 +1,10 @@
 # Changelog
 
-## 0.3.4 (2015-06-26)
+## 0.4.0 (2015-01-12)
 
-[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.3...0.3.4)
+[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.3...0.4.0)
 
+* Adds RethinkDB Storage
 * BugFix: Update and fix mongo driver v1.11.1 'upsert: 1' -> 'upsert: true'
 * Organize and update specs to rspec 3
 
