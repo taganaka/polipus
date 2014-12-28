@@ -11,11 +11,10 @@ module Polipus
         @r       = RethinkDB::RQL.new
         @rethink = options[:conn]
         @table   = options[:table]
-        @r.table_create(@table).run(@rethink) unless @r.table_list.run(@rethink).include?(@table)
 
-        begin
-          @r.get(@table).ensure_index(:uuid, unique: true, dropDups: true, background: true)
-        rescue Exception
+        if !@r.table_list.run(@rethink).include?(@table)
+          @r.table_create(@table).run(@rethink)
+          @r.table(@table).index_create('created_at')
         end
 
         @compress_body = options[:compress_body] ||= true
@@ -83,9 +82,7 @@ module Polipus
         end
         hash['body'] = Zlib::Inflate.inflate(hash['body']) if @compress_body && hash['body'] && !hash['body'].empty?
         page = Page.from_hash(hash)
-        if page.fetched_at.nil?
-          page.fetched_at = hash['created_at']
-        end
+        page.fetched_at ||= hash['created_at']
         page
       end
     end
