@@ -67,12 +67,12 @@ module Polipus
       def each
         @r.table(@table).run(@rethink).each do |doc|
           page = load_page(doc)
-          yield doc.id, page
+          yield doc[:id], page
         end
       end
 
       def clear
-        @r.table_drop(@table).run(@rethink)
+        @r.table(@table).delete.run(@rethink)
       end
 
       private

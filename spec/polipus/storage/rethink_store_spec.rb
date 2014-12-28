@@ -6,15 +6,13 @@ describe Polipus::Storage::RethinkStore do
   before(:all)do
     @r = RethinkDB::RQL.new
     @rethink = @r.connect(host: 'localhost', port: 28_015, db: 'polipus_spec')
-    @r.db_drop('polipus_spec').run(@rethink) if @r.db_list.run(@rethink).include?('polipus_spec')
-    @r.db_create('polipus_spec').run(@rethink)
+    @r.db_create('polipus_spec').run(@rethink) unless @r.db_list.run(@rethink).include?('polipus_spec')
     @table = 'test_pages'
     @storage = Polipus::Storage.rethink_store(@rethink, @table)
   end
 
   after(:each) do
-    @r.table_drop(@table).run(@rethink)
-    @r.table_create(@table).run(@rethink)
+    @r.table(@table).delete.run(@rethink)
   end
 
   it 'should store a page' do
@@ -79,7 +77,7 @@ describe Polipus::Storage::RethinkStore do
   end
 
   it 'should honor the except parameters' do
-    storage = Polipus::Storage.rethink_store(@rethink, '_test_pages', ['body'])
+    storage = Polipus::Storage.rethink_store(@rethink, @table, ['body'])
     p = page_factory 'http://www.user-doo.com',  code: 200, body: '<html></html>'
     storage.add p
     p = storage.get p
@@ -101,7 +99,7 @@ describe Polipus::Storage::RethinkStore do
   end
 
   it 'should set page.fetched_at based on the id creation' do
-    storage = Polipus::Storage.rethink_store(@rethink, '_test_pages')
+    storage = Polipus::Storage.rethink_store(@rethink, @table)
     p = page_factory 'http://www.user-doojo.com',  code: 200, body: '<html></html>'
     storage.add p
     expect(p.fetched_at).to be_nil
@@ -110,7 +108,7 @@ describe Polipus::Storage::RethinkStore do
   end
 
   it 'should NOT set page.fetched_at if already present' do
-    storage = Polipus::Storage.rethink_store(@rethink, '_test_pages')
+    storage = Polipus::Storage.rethink_store(@rethink, @table)
     p = page_factory 'http://www.user-doojooo.com',  code: 200, body: '<html></html>'
     p.fetched_at = 10
     storage.add p
