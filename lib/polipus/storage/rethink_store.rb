@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require 'rethinkdb'
-require 'zlib'
 require 'thread'
+require 'zlib'
 
 module Polipus
   module Storage
@@ -76,7 +76,6 @@ module Polipus
       end
 
       private
-
 
       def load_page(hash)
         BINARY_FIELDS.each do |field|
