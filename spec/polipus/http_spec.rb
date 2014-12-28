@@ -5,7 +5,6 @@ require 'polipus/http'
 require 'polipus/page'
 
 describe Polipus::HTTP do
-
   it 'should download a page' do
     VCR.use_cassette('http_test') do
       http = Polipus::HTTP.new
@@ -19,7 +18,6 @@ describe Polipus::HTTP do
 
   it 'should follow a redirect' do
     VCR.use_cassette('http_test_redirect') do
-
       http = Polipus::HTTP.new
       page = http.fetch_page('http://greenbytes.de/tech/tc/httpredirects/t300bodyandloc.asis')
 
@@ -31,7 +29,6 @@ describe Polipus::HTTP do
   end
 
   describe 'proxy settings' do
-
     it 'should set proxy correctly using a procedure' do
       http = Polipus::HTTP.new(proxy_host: -> _con { '127.0.0.0' }, proxy_port: -> _con { 8080 })
       expect(http.proxy_host).to eq '127.0.0.0'
@@ -55,11 +52,9 @@ describe Polipus::HTTP do
       expect(http.proxy_user).to eq 'a'
       expect(http.proxy_pass).to eq 'b'
     end
-
   end
 
   describe 'compressed content handling' do
-
     it 'should decode gzip content' do
       VCR.use_cassette('gzipped_on') do
         http = Polipus::HTTP.new(logger: Logger.new(STDOUT))
@@ -74,11 +69,9 @@ describe Polipus::HTTP do
       expect(page.headers.fetch('content-encoding').first).to eq 'deflate'
       expect(page.body.include?('deflate-http')).to be_truthy
     end
-
   end
 
   describe 'staled connections' do
-
     it 'should refresh a staled connection' do
       VCR.use_cassette('http_tconnection_max_hits') do
         http = Polipus::HTTP.new(connection_max_hits: 1, logger: Logger.new(STDOUT))
@@ -94,11 +87,9 @@ describe Polipus::HTTP do
         expect(http.connections['www.yahoo.com'][443]).not_to be old_conn
       end
     end
-
   end
 
   describe 'cookies' do
-
     it 'should handle cookies correctly' do
       VCR.use_cassette('http_cookies') do
         http = Polipus::HTTP.new(accept_cookies: true)
@@ -107,7 +98,6 @@ describe Polipus::HTTP do
         expect(http.cookie_jar.cookies(URI('http://www.whatarecookies.com/cookietest.asp'))).not_to be_empty
       end
     end
-
   end
 
   describe 'net errors' do
@@ -118,5 +108,4 @@ describe Polipus::HTTP do
       end
     end
   end
-
 end

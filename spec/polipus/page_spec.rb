@@ -50,7 +50,6 @@ EOF
   end
 
   context 'page error' do
-
     let(:page) do
       Polipus::Page.new 'http://www.google.com/', error: 'an error'
     end
@@ -58,7 +57,6 @@ EOF
     it 'should serialize an error' do
       expect(page.to_hash['error']).to eq 'an error'
     end
-
   end
 
   context 'page code' do
@@ -66,7 +64,5 @@ EOF
       expect(Polipus::Page.new('http://www.google.com/', code: 201).success?).to be_truthy
       expect(Polipus::Page.new('http://www.google.com/', code: 404).success?).to be_falsey
     end
-
   end
-
 end

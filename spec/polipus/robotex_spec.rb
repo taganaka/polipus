@@ -19,7 +19,7 @@ Disallow: /locked
 Allow: /locked
 END
     stub_request(:get, 'http://www.example.com/robots.txt')
-    .to_return(body: robots, status: [200, 'OK'], headers: { 'Content-Type' => 'text/plain' })
+      .to_return(body: robots, status: [200, 'OK'], headers: { 'Content-Type' => 'text/plain' })
   end
 
   describe '#initialize' do

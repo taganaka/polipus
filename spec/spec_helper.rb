@@ -15,8 +15,6 @@ VCR.configure do |c|
   c.hook_into :webmock
 end
 
-WebMock.disable_net_connect! #(:allow_localhost => true)
-
 require 'polipus'
 
 RSpec.configure do |config|

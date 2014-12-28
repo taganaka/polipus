@@ -26,7 +26,6 @@ describe Polipus::PolipusCrawler do
   let(:logger) { Logger.new(nil) }
 
   context 'polipus' do
-
     it 'should create a polipus instance' do
       expect(polipus).to be_an_instance_of Polipus::PolipusCrawler
     end

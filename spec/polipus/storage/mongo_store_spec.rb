@@ -97,7 +97,6 @@ describe Polipus::Storage::MongoStore do
     expect(@storage.exists?(p_other)).to be_truthy
     @storage.include_query_string_in_uuid = true
     expect(@storage.exists?(p_other)).to be_falsey
-
   end
 
   it 'should set page.fetched_at based on the id creation' do
@@ -117,5 +116,4 @@ describe Polipus::Storage::MongoStore do
     p = storage.get p
     expect(p.fetched_at).to be 10
   end
-
 end

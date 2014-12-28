@@ -3,7 +3,6 @@ require 'spec_helper'
 require 'mongo'
 require 'polipus/storage/memory_store'
 describe Polipus::Storage::MemoryStore do
-
   let(:storage) { Polipus::Storage.memory_store }
 
   it 'should store a page' do
@@ -84,7 +83,5 @@ describe Polipus::Storage::MemoryStore do
     expect(storage.exists?(p_other)).to be_truthy
     storage.include_query_string_in_uuid = true
     expect(storage.exists?(p_other)).to be_falsey
-
   end
-
 end

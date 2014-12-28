@@ -10,7 +10,7 @@ Style/ClassVars:
   Enabled: false
 
 # Offense count: 10
-Style/CyclomaticComplexity:
+Metrics/CyclomaticComplexity:
   Max: 16
 
 # Offense count: 26

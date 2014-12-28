@@ -3,12 +3,10 @@ require 'spec_helper'
 require 'polipus/queue_overflow'
 
 describe Polipus::QueueOverflow do
-
   before(:all) do
     @queue_overflow        = Polipus::QueueOverflow.mongo_queue(nil, 'queue_test')
     @queue_overflow_capped = Polipus::QueueOverflow.mongo_queue_capped(nil, 'queue_test_c', max: 20)
     @queue_overflow_uniq   = Polipus::QueueOverflow.mongo_queue(nil, 'queue_test_u', ensure_uniq: true)
-
   end
 
   before(:each) do
@@ -35,7 +33,6 @@ describe Polipus::QueueOverflow do
       expect(q.size).to eq(0)
       expect(q.empty?).to be_truthy
     end
-
   end
 
   it 'should act as a queue' do
@@ -44,7 +41,6 @@ describe Polipus::QueueOverflow do
       expect(q.size).to eq(10)
       expect(q.pop).to eq('message_0')
     end
-
   end
 
   it 'should work with complex paylod' do
@@ -54,7 +50,6 @@ describe Polipus::QueueOverflow do
       b = q.pop
       expect(JSON.parse(b)).to eq(a)
     end
-
   end
 
   it 'should honor max items if it is capped' do
@@ -68,5 +63,4 @@ describe Polipus::QueueOverflow do
     20.times { @queue_overflow_uniq << 'B' }
     expect(@queue_overflow_uniq.size).to eq(2)
   end
-
 end

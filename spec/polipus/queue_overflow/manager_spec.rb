@@ -47,22 +47,18 @@ describe Polipus::QueueOverflow::Manager do
     expect(@queue_overflow.size).to eq(0)
     expect(@redis_q.size).to eq(10)
     expect(@manager.perform).to eq([0, 0])
-
   end
 
   it 'should restore 3 items' do
-
     expect(@manager.perform).to eq([0, 0])
     3.times { |i| @queue_overflow << page_factory("http://www.user-doo-bu.com/page_#{i}",  code: 200, body: '<html></html>').to_json }
     expect(@manager.perform).to eq([0, 3])
     expect(@queue_overflow.size).to eq(0)
     expect(@redis_q.size).to eq(3)
     expect(@manager.perform).to eq([0, 0])
-
   end
 
   it 'should restore 0 items' do
-
     expect(@manager.perform).to eq([0, 0])
     10.times do|i|
       p = page_factory("http://www.user-doo-bu.com/page_#{i}",  code: 200, body: '<html></html>')
@@ -73,7 +69,6 @@ describe Polipus::QueueOverflow::Manager do
     expect(@queue_overflow.size).to eq(0)
     expect(@redis_q.size).to eq(0)
     expect(@manager.perform).to eq([0, 0])
-
   end
 
   it 'should filter an url based on the spec' do
@@ -89,7 +84,5 @@ describe Polipus::QueueOverflow::Manager do
     @manager.url_filter do |_page|
       true
     end
-
   end
-
 end
