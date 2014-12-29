@@ -28,7 +28,7 @@ module Polipus
 
       def push(data)
         if @options[:ensure_uniq]
-          @mongo_db[@collection_name].update({ payload: data }, { payload: data }, { upsert: 1, w: 1 })
+          @mongo_db[@collection_name].update({ payload: data }, { payload: data }, { upsert: true, w: 1 })
         else
           @mongo_db[@collection_name].insert(payload: data)
         end

@@ -4,14 +4,14 @@ AllCops:
    - my_test/**/*
    - examples/**/*
 
-Style/LineLength:
+Metrics/LineLength:
   Enabled: false
 
 Style/TrivialAccessors:
   Enabled: false
 
-Style/ClassLength:
+Metrics/ClassLength:
   Enabled: false
 
-Style/MethodLength:
+Metrics/MethodLength:
   Enabled: false

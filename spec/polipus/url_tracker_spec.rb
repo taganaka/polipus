@@ -16,14 +16,14 @@ describe Polipus::UrlTracker do
   it 'should work (bf)' do
     url = 'http://www.asd.com/asd/lol'
     @bf.visit url
-    @bf.visited?(url).should be_true
-    @bf.visited?('http://www.google.com').should be_false
+    expect(@bf.visited?(url)).to be_truthy
+    expect(@bf.visited?('http://www.google.com')).to be_falsey
   end
 
   it 'should work (redis_set)' do
     url = 'http://www.asd.com/asd/lol'
     @set.visit url
-    @set.visited?(url).should be_true
-    @set.visited?('http://www.google.com').should be_false
+    expect(@set.visited?(url)).to be_truthy
+    expect(@set.visited?('http://www.google.com')).to be_falsey
   end
 end

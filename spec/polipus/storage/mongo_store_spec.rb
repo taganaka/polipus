@@ -20,34 +20,34 @@ describe Polipus::Storage::MongoStore do
   it 'should store a page' do
     p = page_factory 'http://www.google.com', code: 200, body: '<html></html>'
     uuid = @storage.add p
-    uuid.should be == 'ed646a3334ca891fd3467db131372140'
-    @storage.count.should be 1
-    @mongo['_test_pages'].count.should be 1
+    expect(uuid).to eq('ed646a3334ca891fd3467db131372140')
+    expect(@storage.count).to be 1
+    expect(@mongo['_test_pages'].count).to be 1
     p = @storage.get p
-    p.url.to_s.should be == 'http://www.google.com'
-    p.body.should be == '<html></html>'
+    expect(p.url.to_s).to eq('http://www.google.com')
+    expect(p.body).to eq('<html></html>')
   end
 
   it 'should update a page' do
     p = page_factory 'http://www.google.com', code: 301, body: '<html></html>'
     @storage.add p
     p = @storage.get p
-    p.code.should be == 301
-    @mongo['_test_pages'].count.should be 1
+    expect(p.code).to eq(301)
+    expect(@mongo['_test_pages'].count).to be 1
   end
 
   it 'should iterate over stored pages' do
     @storage.each do |k, page|
-      k.should be == 'ed646a3334ca891fd3467db131372140'
-      page.url.to_s.should be == 'http://www.google.com'
+      expect(k).to eq('ed646a3334ca891fd3467db131372140')
+      expect(page.url.to_s).to eq('http://www.google.com')
     end
   end
 
   it 'should delete a page' do
     p = page_factory 'http://www.google.com', code: 301, body: '<html></html>'
     @storage.remove p
-    @storage.get(p).should be_nil
-    @storage.count.should be 0
+    expect(@storage.get(p)).to be_nil
+    expect(@storage.count).to be 0
   end
 
   it 'should store a page removing a query string from the uuid generation' do
@@ -55,7 +55,7 @@ describe Polipus::Storage::MongoStore do
     p_no_query = page_factory 'http://www.asd.com/?asdas=dasda&adsda=1', code: 200, body: '<html></html>'
     @storage.include_query_string_in_uuid = false
     @storage.add p
-    @storage.exists?(p_no_query).should be_true
+    expect(@storage.exists?(p_no_query)).to be_truthy
     @storage.remove p
   end
 
@@ -64,7 +64,7 @@ describe Polipus::Storage::MongoStore do
     p_no_query = page_factory 'http://www.asd.com', code: 200, body: '<html></html>'
     @storage.include_query_string_in_uuid = false
     @storage.add p
-    @storage.exists?(p_no_query).should be_true
+    expect(@storage.exists?(p_no_query)).to be_truthy
     @storage.remove p
   end
 
@@ -72,9 +72,9 @@ describe Polipus::Storage::MongoStore do
     p = page_factory 'http://www.user.com',  code: 200, body: '<html></html>'
     p.user_data.name = 'Test User Data'
     @storage.add p
-    @storage.exists?(p).should be_true
+    expect(@storage.exists?(p)).to be_truthy
     p = @storage.get(p)
-    p.user_data.name.should be == 'Test User Data'
+    expect(p.user_data.name).to eq('Test User Data')
     @storage.remove p
   end
 
@@ -83,30 +83,29 @@ describe Polipus::Storage::MongoStore do
     p = page_factory 'http://www.user-doo.com',  code: 200, body: '<html></html>'
     storage.add p
     p = storage.get p
-    p.body.should be_empty
+    expect(p.body).to be_empty
     storage.clear
   end
 
   it 'should return false if a doc not exists' do
     @storage.include_query_string_in_uuid = false
     p_other  = page_factory 'http://www.asdrrrr.com', code: 200, body: '<html></html>'
-    @storage.exists?(p_other).should be_false
+    expect(@storage.exists?(p_other)).to be_falsey
     @storage.add p_other
-    @storage.exists?(p_other).should be_true
+    expect(@storage.exists?(p_other)).to be_truthy
     p_other  = page_factory 'http://www.asdrrrr.com?trk=asd-lol', code: 200, body: '<html></html>'
-    @storage.exists?(p_other).should be_true
+    expect(@storage.exists?(p_other)).to be_truthy
     @storage.include_query_string_in_uuid = true
-    @storage.exists?(p_other).should be_false
-
+    expect(@storage.exists?(p_other)).to be_falsey
   end
 
   it 'should set page.fetched_at based on the id creation' do
     storage = Polipus::Storage.mongo_store(@mongo, '_test_pages')
     p = page_factory 'http://www.user-doojo.com',  code: 200, body: '<html></html>'
     storage.add p
-    p.fetched_at.should be_nil
+    expect(p.fetched_at).to be_nil
     p = storage.get p
-    p.fetched_at.should_not be_nil
+    expect(p.fetched_at).not_to be_nil
   end
 
   it 'should NOT set page.fetched_at if already present' do
@@ -115,7 +114,6 @@ describe Polipus::Storage::MongoStore do
     p.fetched_at = 10
     storage.add p
     p = storage.get p
-    p.fetched_at.should be 10
+    expect(p.fetched_at).to be 10
   end
-
 end

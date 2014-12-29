@@ -33,47 +33,42 @@ describe Polipus::QueueOverflow::Manager do
   end
 
   it 'should remove 10 items' do
-    @manager.perform.should be == [0, 0]
+    expect(@manager.perform).to eq([0, 0])
     20.times { |i| @redis_q << page_factory("http://www.user-doo.com/page_#{i}",  code: 200, body: '<html></html>').to_json  }
-    @manager.perform.should be == [10, 0]
-    @queue_overflow.size.should be == 10
-    @redis_q.size.should be == 10
+    expect(@manager.perform).to eq([10, 0])
+    expect(@queue_overflow.size).to eq(10)
+    expect(@redis_q.size).to eq(10)
   end
 
   it 'should restore 10 items' do
-    @manager.perform.should be == [0, 0]
+    expect(@manager.perform).to eq([0, 0])
     10.times { |i| @queue_overflow << page_factory("http://www.user-doo-bla.com/page_#{i}",  code: 200, body: '<html></html>').to_json }
-    @manager.perform.should be == [0, 10]
-    @queue_overflow.size.should be == 0
-    @redis_q.size.should be == 10
-    @manager.perform.should be == [0, 0]
-
+    expect(@manager.perform).to eq([0, 10])
+    expect(@queue_overflow.size).to eq(0)
+    expect(@redis_q.size).to eq(10)
+    expect(@manager.perform).to eq([0, 0])
   end
 
   it 'should restore 3 items' do
-
-    @manager.perform.should be == [0, 0]
+    expect(@manager.perform).to eq([0, 0])
     3.times { |i| @queue_overflow << page_factory("http://www.user-doo-bu.com/page_#{i}",  code: 200, body: '<html></html>').to_json }
-    @manager.perform.should be == [0, 3]
-    @queue_overflow.size.should be == 0
-    @redis_q.size.should be == 3
-    @manager.perform.should be == [0, 0]
-
+    expect(@manager.perform).to eq([0, 3])
+    expect(@queue_overflow.size).to eq(0)
+    expect(@redis_q.size).to eq(3)
+    expect(@manager.perform).to eq([0, 0])
   end
 
   it 'should restore 0 items' do
-
-    @manager.perform.should be == [0, 0]
+    expect(@manager.perform).to eq([0, 0])
     10.times do|i|
       p = page_factory("http://www.user-doo-bu.com/page_#{i}",  code: 200, body: '<html></html>')
       @storage.add p
       @queue_overflow << p.to_json
     end
-    @manager.perform.should be == [0, 0]
-    @queue_overflow.size.should be == 0
-    @redis_q.size.should be == 0
-    @manager.perform.should be == [0, 0]
-
+    expect(@manager.perform).to eq([0, 0])
+    expect(@queue_overflow.size).to eq(0)
+    expect(@redis_q.size).to eq(0)
+    expect(@manager.perform).to eq([0, 0])
   end
 
   it 'should filter an url based on the spec' do
@@ -83,13 +78,11 @@ describe Polipus::QueueOverflow::Manager do
     @manager.url_filter do |page|
       page.url.to_s.end_with?('page_0') ? false : true
     end
-    @manager.perform.should be == [0, 9]
-    @queue_overflow.size.should be == 0
-    @redis_q.size.should be == 9
+    expect(@manager.perform).to eq([0, 9])
+    expect(@queue_overflow.size).to eq(0)
+    expect(@redis_q.size).to eq(9)
     @manager.url_filter do |_page|
       true
     end
-
   end
-
 end

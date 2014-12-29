@@ -2,6 +2,7 @@
 require 'mongo'
 require 'zlib'
 require 'thread'
+
 module Polipus
   module Storage
     class MongoStore < Base
@@ -11,10 +12,10 @@ module Polipus
         @collection = options[:collection]
         @mongo.create_collection(@collection)
         begin
-          @mongo[@collection].ensure_index(:uuid, unique: true, dropDups: true, background: true)  
+          @mongo[@collection].ensure_index(:uuid, unique: true, dropDups: true, background: true)
         rescue Exception
         end
-        
+
         @compress_body = options[:compress_body] ||= true
         @except = options[:except] ||= []
         @semaphore = Mutex.new
