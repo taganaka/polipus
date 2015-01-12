@@ -4,7 +4,6 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require 'digest/md5'
 require 'coveralls'
-require 'pry'
 require 'vcr'
 require 'webmock/rspec'
 
