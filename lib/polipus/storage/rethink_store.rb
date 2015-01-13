@@ -33,8 +33,8 @@ module Polipus
             # Use some marshalling?
             obj[field] = @r.binary(obj[field]) unless obj[field].nil?
           end
-          # @r.table(@table).get(id).update(obj).run(@rethink)
-          @r.table(@table).insert(obj).run(@rethink)
+
+          @r.table(@table).insert(obj).run(@rethink, durability: 'soft')
           obj[:id]
         end
       end

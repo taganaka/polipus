@@ -13,8 +13,8 @@ module Polipus
 
     def self.rethink_store(conn = nil, table = COLLECTION, except = [])
       require 'polipus/storage/rethink_store'
-      fail "First argument must be a RethinkDB::Connection, got `#{conn.class}`" unless conn.is_a?(RethinkDB::Connection)
       conn ||= RethinkDB::RQL.new.connect(host: 'localhost', port: 28_015, db: 'polipus' )
+      fail "First argument must be a RethinkDB::Connection, got `#{conn.class}`" unless conn.is_a?(RethinkDB::Connection)
       self::RethinkStore.new(conn: conn, table: table,  except: except)
     end
 
