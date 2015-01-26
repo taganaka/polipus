@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'redis-bloomfilter', '~> 0.0', '>= 0.0.3'
 
   s.add_development_dependency 'mongo', '~>1.11.0'
+  s.add_development_dependency 'rethinkdb', '~>1.15.0'
 
   s.add_development_dependency 'rake', '~> 10.3'
   s.add_development_dependency 'rspec', '~> 3.1.0'

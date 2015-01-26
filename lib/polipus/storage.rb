@@ -1,12 +1,21 @@
-# encoding: UTF-8
 require 'polipus/storage/base'
+
 module Polipus
   module Storage
-    def self.mongo_store(mongo = nil, collection_name = 'pages', except = [])
+    COLLECTION = 'pages'
+
+    def self.mongo_store(mongo = nil, collection = COLLECTION, except = [])
       require 'polipus/storage/mongo_store'
       mongo ||= Mongo::Connection.new('localhost', 27_017, pool_size: 15, pool_timeout: 5).db('polipus')
       fail 'First argument must be an instance of Mongo::DB' unless mongo.is_a?(Mongo::DB)
-      self::MongoStore.new(mongo: mongo, collection: collection_name, except: except)
+      self::MongoStore.new(mongo: mongo, collection: collection, except: except)
+    end
+
+    def self.rethink_store(conn = nil, table = COLLECTION, except = [])
+      require 'polipus/storage/rethink_store'
+      conn ||= RethinkDB::RQL.new.connect(host: 'localhost', port: 28_015, db: 'polipus' )
+      fail "First argument must be a RethinkDB::Connection, got `#{conn.class}`" unless conn.is_a?(RethinkDB::Connection)
+      self::RethinkStore.new(conn: conn, table: table,  except: except)
     end
 
     def self.dev_null
