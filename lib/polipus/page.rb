@@ -3,6 +3,8 @@ require 'nokogiri'
 require 'json'
 require 'ostruct'
 require 'set'
+require 'kconv'
+
 module Polipus
   class Page
     # The URL of the page
@@ -80,7 +82,7 @@ module Polipus
     #
     def doc
       return @doc if @doc
-      @doc = Nokogiri::HTML(@body) if @body && html? rescue nil
+      @doc = Nokogiri::HTML(@body.toutf8, nil, 'utf-8') if @body && html? rescue nil
     end
 
     #
