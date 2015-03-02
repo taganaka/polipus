@@ -82,15 +82,7 @@ module Polipus
     #
     def doc
       return @doc if @doc
-      noko_en_id = {
-        Kconv::UTF8 => 'UTF-8',
-        Kconv::EUC => 'EUC-JP',
-        Kconv::SJIS => 'SHIFT-JIS',
-        Kconv::ASCII => 'ASCII',
-        Kconv::JIS => 'ISO-2022-JP'
-      }[Kconv.guess(@body || '')]
-
-      @doc = Nokogiri::HTML(@body, nil, noko_en_id) if @body && html? rescue nil
+      @doc = Nokogiri::HTML(@body.toutf8, nil, 'utf-8') if @body && html? rescue nil
     end
 
     #
