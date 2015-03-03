@@ -170,10 +170,20 @@ module Polipus
 
       valid_link = link.to_s.encode('utf-8', 'binary', :invalid => :replace,
                                     :undef => :replace, :replace => '')
-      # remove anchor
-      link = URI.encode(URI.decode(valid_link.gsub(/#[a-zA-Z0-9_-]*$/, '')))
 
-      relative = URI(link)
+      # remove anchor
+      link =
+        begin
+          URI.encode(URI.decode(valid_link.gsub(/#[a-zA-Z0-9_-]*$/, '')))
+        rescue URI::Error
+          return nil
+        end
+
+      relative = begin
+                   URI(link)
+                 rescue URI::Error
+                   return nil
+                 end
       absolute = base ? base.merge(relative) : @url.merge(relative)
 
       absolute.path = '/' if absolute.path.empty?
