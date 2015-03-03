@@ -72,7 +72,7 @@ module Polipus
         u = a['href']
         next if u.nil? || u.empty?
         abs = to_absolute(u) rescue next
-        @links << abs if in_domain?(abs)
+        @links << abs if abs && in_domain?(abs)
       end
       @links.to_a
     end
@@ -168,8 +168,10 @@ module Polipus
     def to_absolute(link)
       return nil if link.nil?
 
+      valid_link = link.to_s.encode('utf-8', 'binary', :invalid => :replace,
+                                    :undef => :replace, :replace => '')
       # remove anchor
-      link = URI.encode(URI.decode(link.to_s.gsub(/#[a-zA-Z0-9_-]*$/, '')))
+      link = URI.encode(URI.decode(valid_link.gsub(/#[a-zA-Z0-9_-]*$/, '')))
 
       relative = URI(link)
       absolute = base ? base.merge(relative) : @url.merge(relative)
