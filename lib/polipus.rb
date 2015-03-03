@@ -129,7 +129,14 @@ module Polipus
 
       @urls = [urls].flatten.map { |url| URI(url) }
       @urls.each { |url| url.path = '/' if url.path.empty? }
-      @robots = Polipus::Robotex.new(@options[:user_agent]) if @options[:obey_robots_txt]
+      if @options[:obey_robots_txt]
+        @robots =
+          if @options[:user_agent].respond_to?(:sample)
+            Polipus::Robotex.new(@options[:user_agent].sample)
+          else
+            Polipus::Robotex.new(@options[:user_agent])
+          end
+      end
       # Attach signal handling if enabled
       SignalHandler.enable if @options[:enable_signal_handler]
 
