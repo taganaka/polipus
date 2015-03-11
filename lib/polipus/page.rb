@@ -72,7 +72,7 @@ module Polipus
         u = a['href']
         next if u.nil? || u.empty?
         abs = to_absolute(u) rescue next
-        @links << abs if in_domain?(abs)
+        @links << abs if abs && in_domain?(abs)
       end
       @links.to_a
     end
@@ -82,7 +82,10 @@ module Polipus
     #
     def doc
       return @doc if @doc
-      @doc = Nokogiri::HTML(@body.toutf8, nil, 'utf-8') if @body && html? rescue nil
+      @body ||= ''
+      @body = @body.encode('utf-8', 'binary', :invalid => :replace,
+                           :undef => :replace, :replace => '')
+      @doc = Nokogiri::HTML(@body.toutf8, nil, 'utf-8') if @body && html?
     end
 
     #
@@ -168,10 +171,22 @@ module Polipus
     def to_absolute(link)
       return nil if link.nil?
 
-      # remove anchor
-      link = URI.encode(URI.decode(link.to_s.gsub(/#[a-zA-Z0-9_-]*$/, '')))
+      valid_link = link.to_s.encode('utf-8', 'binary', :invalid => :replace,
+                                    :undef => :replace, :replace => '')
 
-      relative = URI(link)
+      # remove anchor
+      link =
+        begin
+          URI.encode(URI.decode(valid_link.gsub(/#[a-zA-Z0-9_-]*$/, '')))
+        rescue URI::Error
+          return nil
+        end
+
+      relative = begin
+                   URI(link)
+                 rescue URI::Error
+                   return nil
+                 end
       absolute = base ? base.merge(relative) : @url.merge(relative)
 
       absolute.path = '/' if absolute.path.empty?
