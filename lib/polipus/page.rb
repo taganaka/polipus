@@ -82,7 +82,10 @@ module Polipus
     #
     def doc
       return @doc if @doc
-      @doc = Nokogiri::HTML(@body.toutf8, nil, 'utf-8') if @body && html? rescue nil
+      @body ||= ''
+      @body = @body.encode('utf-8', 'binary', :invalid => :replace,
+                           :undef => :replace, :replace => '')
+      @doc = Nokogiri::HTML(@body.toutf8, nil, 'utf-8') if @body && html?
     end
 
     #
