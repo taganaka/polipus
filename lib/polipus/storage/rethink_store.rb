@@ -12,6 +12,9 @@ module Polipus
         @rethink = options[:conn]
         @table   = options[:table]
 
+        unless @r.db_list.run(@rethink).include?(@rethink.default_db)
+          @r.db_create(@rethink.default_db).run(@rethink)
+        end
         unless @r.table_list.run(@rethink).include?(@table)
           @r.table_create(@table).run(@rethink)
           @r.table(@table).index_create('created_at')
