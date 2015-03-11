@@ -80,7 +80,11 @@ module Polipus
     # or nil if no such option is set
     #
     def user_agent
-      @opts[:user_agent]
+      if @opts[:user_agent].respond_to?(:sample)
+        @opts[:user_agent].sample
+      else
+        @opts[:user_agent]
+      end
     end
 
     #
@@ -233,7 +237,7 @@ module Polipus
 
       # Block has higher priority
       unless @opts[:proxy_host_port].nil?
-        p_host, p_port, p_user, p_pass = proxy_host_port 
+        p_host, p_port, p_user, p_pass = proxy_host_port
       else
         p_host = proxy_host
         p_port = proxy_port
