@@ -162,7 +162,13 @@ module Polipus
 
         response, response_time = get_response(loc, referer)
         code = Integer(response.code)
-        redirect_to = response.is_a?(Net::HTTPRedirection) ? URI(response['location']).normalize : nil
+        redirect_to =
+          begin
+            response.is_a?(Net::HTTPRedirection) ? URI(response['location']).normalize : nil
+          rescue URI::InvalidURIError => e
+            @opts[:logger].debug { "Request #{url} got #{e}" } if @opts[:logger]
+            nil
+          end
         yield response, code, loc, redirect_to, response_time
         limit -= 1
         break unless (loc = redirect_to) && allowed?(redirect_to, url) && limit > 0
