@@ -6,7 +6,7 @@ require 'redis-queue'
 
 describe Polipus::QueueOverflow::Manager do
   before(:all) do
-    @mongo = Mongo::Connection.new('localhost', 27_017, pool_size: 15, pool_timeout: 5).db('_test_polipus')
+    @mongo = Mongo::Client.new(['localhost:27_017'], database: '_test_polipus')
     @mongo['_test_pages'].drop
     @storage = Polipus::Storage.mongo_store(@mongo, '_test_pages')
     @redis_q = Redis::Queue.new('queue_test', 'bp_queue_test', redis: Redis.new)

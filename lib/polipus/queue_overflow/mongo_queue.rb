@@ -14,7 +14,7 @@ module Polipus
       end
 
       def length
-        @mongo_db[@collection_name].count
+        @mongo_db[@collection_name].find.count
       end
 
       def empty?
@@ -28,18 +28,18 @@ module Polipus
 
       def push(data)
         if @options[:ensure_uniq]
-          @mongo_db[@collection_name].update({ payload: data }, { payload: data }, { upsert: true, w: 1 })
+          @mongo_db[@collection_name].find(payload: data ).replace_one({payload: data}, {upsert: true})
         else
-          @mongo_db[@collection_name].insert(payload: data)
+          @mongo_db[@collection_name].insert_one(payload: data)
         end
         true
       end
 
       def pop(_ = false)
         @semaphore.synchronize do
-          doc = @mongo_db[@collection_name].find({}, sort: { _id: 1 }).limit(1).first
+          doc = @mongo_db[@collection_name].find.sort(_id: 1).limit(1).first
           return nil if doc.nil?
-          @mongo_db[@collection_name].remove(_id: doc['_id'])
+          @mongo_db[@collection_name].find(_id: doc['_id']).delete_one
           doc && doc['payload'] ? doc['payload'] : nil
         end
       end
@@ -53,7 +53,8 @@ module Polipus
       protected
 
       def ensure_index
-        @mongo_db[@collection_name].ensure_index({ payload: 1 }, { background: 1, unique: 1, drop_dups: 1 })
+        #@TODO: Drop dups option was removed. We may want to add something here to remove duplications
+        @mongo_db[@collection_name].indexes.create_one({ payload: 1 }, { background: true, unique: true })
       end
     end
   end
