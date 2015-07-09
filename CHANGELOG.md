@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 (2015-07-08)
+
+[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.4.0...0.5.0)
+
+* Support for MongoDB driver ~> 2.0.6 has been added
+* Minor code cleanup
+
 ## 0.4.0 (2015-01-12)
 
 [Compare changes in gem](https://github.com/taganaka/polipus/compare/0.3.3...0.4.0)
