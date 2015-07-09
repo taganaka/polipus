@@ -2,6 +2,7 @@
 require 'mongo'
 require 'zlib'
 require 'thread'
+require 'pry'
 
 module Polipus
   module Storage
@@ -10,7 +11,6 @@ module Polipus
       def initialize(options = {})
         @mongo      = options[:mongo]
         @collection = options[:collection]
-        @mongo.create_collection(@collection)
         begin
           @mongo[@collection].ensure_index(:uuid, unique: true, dropDups: true, background: true)
         rescue Exception
@@ -28,16 +28,20 @@ module Polipus
           obj['uuid'] = uuid(page)
           obj['body'] = Zlib::Deflate.deflate(obj['body']) if @compress_body && obj['body']
           BINARY_FIELDS.each do |field|
-            obj[field] = BSON::Binary.new(obj[field]) unless obj[field].nil?
+            obj[field] = BSON::Binary.new(obj[field].force_encoding("UTF-8").encode("UTF-8")) unless obj[field].nil?
           end
-          @mongo[@collection].update({ uuid: obj['uuid'] }, obj, upsert: true, w: 1)
+
+          # We really need 2.0.6+ version for this to work
+          #https://jira.mongodb.org/browse/RUBY-881
+          @mongo[@collection].find(uuid: uuid(page)).replace_one(obj, {upsert: true})
+
           obj['uuid']
         end
       end
 
       def exists?(page)
         @semaphore.synchronize do
-          doc = @mongo[@collection].find({ uuid: uuid(page) }, { fields: [:_id] }).limit(1).first
+          doc = @mongo[@collection].find(uuid: uuid(page)).projection(_id: 1).limit(1).first
           !doc.nil?
         end
       end
@@ -51,16 +55,16 @@ module Polipus
 
       def remove(page)
         @semaphore.synchronize do
-          @mongo[@collection].remove(uuid: uuid(page))
+          @mongo[@collection].find(uuid: uuid(page)).delete_one
         end
       end
 
       def count
-        @mongo[@collection].count
+        @mongo[@collection].find.count
       end
 
       def each
-        @mongo[@collection].find({}, timeout: false) do |cursor|
+        @mongo[@collection].find.no_cursor_timeout do |cursor|
           cursor.each do |doc|
             page = load_page(doc)
             yield doc['uuid'], page
@@ -76,7 +80,7 @@ module Polipus
 
       def load_page(hash)
         BINARY_FIELDS.each do |field|
-          hash[field] = hash[field].to_s
+          hash[field] = hash[field].data unless hash[field].nil?
         end
         hash['body'] = Zlib::Inflate.inflate(hash['body']) if @compress_body && hash['body'] && !hash['body'].empty?
         page = Page.from_hash(hash)

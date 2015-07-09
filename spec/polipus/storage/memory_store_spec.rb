@@ -69,7 +69,7 @@ describe Polipus::Storage::MemoryStore do
     p = page_factory 'http://www.user-doo.com',  code: 200, body: '<html></html>'
     storage.add p
     p = storage.get p
-    expect(p.body).to be_empty
+    expect(p.body).to be_nil
     storage.clear
   end
 

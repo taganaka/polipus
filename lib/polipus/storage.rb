@@ -6,8 +6,8 @@ module Polipus
 
     def self.mongo_store(mongo = nil, collection = COLLECTION, except = [])
       require 'polipus/storage/mongo_store'
-      mongo ||= Mongo::Connection.new('localhost', 27_017, pool_size: 15, pool_timeout: 5).db('polipus')
-      fail 'First argument must be an instance of Mongo::DB' unless mongo.is_a?(Mongo::DB)
+      mongo ||= Mongo::Client.new(['localhost:27_017'], database: 'polipus')
+      fail 'First argument must be an instance of Mongo::Client' unless mongo.is_a?(Mongo::Client)
       self::MongoStore.new(mongo: mongo, collection: collection, except: except)
     end
 

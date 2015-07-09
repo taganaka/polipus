@@ -4,7 +4,7 @@ require 'mongo'
 require 'polipus/storage/mongo_store'
 describe Polipus::Storage::MongoStore do
   before(:all)do
-    @mongo = Mongo::Connection.new('localhost', 27_017, pool_size: 15, pool_timeout: 5).db('_test_polipus')
+    @mongo = Mongo::Client.new(['localhost:27_017'], database: '_test_polipus')
     @mongo['_test_pages'].drop
     @storage = Polipus::Storage.mongo_store(@mongo, '_test_pages')
   end
@@ -21,8 +21,8 @@ describe Polipus::Storage::MongoStore do
     p = page_factory 'http://www.google.com', code: 200, body: '<html></html>'
     uuid = @storage.add p
     expect(uuid).to eq('ed646a3334ca891fd3467db131372140')
-    expect(@storage.count).to be 1
-    expect(@mongo['_test_pages'].count).to be 1
+    expect(@storage.count.to_i).to be 1
+    expect(@mongo['_test_pages'].find.count.to_i).to be 1
     p = @storage.get p
     expect(p.url.to_s).to eq('http://www.google.com')
     expect(p.body).to eq('<html></html>')
@@ -33,7 +33,7 @@ describe Polipus::Storage::MongoStore do
     @storage.add p
     p = @storage.get p
     expect(p.code).to eq(301)
-    expect(@mongo['_test_pages'].count).to be 1
+    expect(@mongo['_test_pages'].find.count.to_i).to be 1
   end
 
   it 'should iterate over stored pages' do
@@ -47,7 +47,7 @@ describe Polipus::Storage::MongoStore do
     p = page_factory 'http://www.google.com', code: 301, body: '<html></html>'
     @storage.remove p
     expect(@storage.get(p)).to be_nil
-    expect(@storage.count).to be 0
+    expect(@storage.count.to_i).to be 0
   end
 
   it 'should store a page removing a query string from the uuid generation' do
@@ -83,7 +83,7 @@ describe Polipus::Storage::MongoStore do
     p = page_factory 'http://www.user-doo.com',  code: 200, body: '<html></html>'
     storage.add p
     p = storage.get p
-    expect(p.body).to be_empty
+    expect(p.body).to be_nil
     storage.clear
   end
 
