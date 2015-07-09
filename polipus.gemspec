@@ -8,10 +8,10 @@ Gem::Specification.new do |s|
   s.authors     = ['Francesco Laurita']
   s.email       = ['francesco.laurita@gmail.com']
   s.homepage    = Polipus::HOMEPAGE
-  s.summary     = %q(Polipus distributed web-crawler framework)
-  s.description = %q(
+  s.summary     = 'Polipus distributed web-crawler framework'
+  s.description = '
     An easy to use distributed web-crawler framework based on Redis
-  )
+  '
   s.licenses    = ['MIT']
   s.platform    = Gem::Platform::RUBY
 

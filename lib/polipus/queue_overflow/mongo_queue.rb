@@ -28,7 +28,7 @@ module Polipus
 
       def push(data)
         if @options[:ensure_uniq]
-          @mongo_db[@collection_name].find(payload: data ).replace_one({payload: data}, {upsert: true})
+          @mongo_db[@collection_name].find(payload: data).replace_one({ payload: data }, upsert: true)
         else
           @mongo_db[@collection_name].insert_one(payload: data)
         end
@@ -53,8 +53,8 @@ module Polipus
       protected
 
       def ensure_index
-        #@TODO: Drop dups option was removed. We may want to add something here to remove duplications
-        @mongo_db[@collection_name].indexes.create_one({ payload: 1 }, { background: true, unique: true })
+        # @TODO: Drop dups option was removed. We may want to add something here to remove duplications
+        @mongo_db[@collection_name].indexes.create_one({ payload: 1 }, background: true, unique: true)
       end
     end
   end

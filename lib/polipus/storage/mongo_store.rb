@@ -28,12 +28,12 @@ module Polipus
           obj['uuid'] = uuid(page)
           obj['body'] = Zlib::Deflate.deflate(obj['body']) if @compress_body && obj['body']
           BINARY_FIELDS.each do |field|
-            obj[field] = BSON::Binary.new(obj[field].force_encoding("UTF-8").encode("UTF-8")) unless obj[field].nil?
+            obj[field] = BSON::Binary.new(obj[field].force_encoding('UTF-8').encode('UTF-8')) unless obj[field].nil?
           end
 
           # We really need 2.0.6+ version for this to work
-          #https://jira.mongodb.org/browse/RUBY-881
-          @mongo[@collection].find(uuid: uuid(page)).replace_one(obj, {upsert: true})
+          # https://jira.mongodb.org/browse/RUBY-881
+          @mongo[@collection].find(uuid: uuid(page)).replace_one(obj, upsert: true)
 
           obj['uuid']
         end

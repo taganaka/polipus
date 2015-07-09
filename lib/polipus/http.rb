@@ -112,7 +112,7 @@ module Polipus
     # The proxy password
     #
     def proxy_pass
-      #return proxy_host_port[3] unless @opts[:proxy_host_port].nil?
+      # return proxy_host_port[3] unless @opts[:proxy_host_port].nil?
       @opts[:proxy_pass].respond_to?(:call) ? @opts[:proxy_pass].call(self) : @opts[:proxy_pass]
     end
 

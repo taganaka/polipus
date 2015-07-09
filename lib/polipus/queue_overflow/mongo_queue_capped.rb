@@ -14,7 +14,7 @@ module Polipus
           s = size
           if s > @max
             docs = @mongo_db[@collection_name].find.sort(_id: 1).projection(_id: 1).limit(s - @max).map { |e| e['_id'] }
-            @mongo_db[@collection_name].find(_id: {'$in' => docs} ).delete_many
+            @mongo_db[@collection_name].find(_id: { '$in' => docs }).delete_many
           end
         end
       end

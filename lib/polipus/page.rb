@@ -83,8 +83,8 @@ module Polipus
     def doc
       return @doc if @doc
       @body ||= ''
-      @body = @body.encode('utf-8', 'binary', :invalid => :replace,
-                           :undef => :replace, :replace => '')
+      @body = @body.encode('utf-8', 'binary', invalid: :replace,
+                                              undef: :replace, replace: '')
       @doc = Nokogiri::HTML(@body.toutf8, nil, 'utf-8') if @body && html?
     end
 
@@ -171,8 +171,8 @@ module Polipus
     def to_absolute(link)
       return nil if link.nil?
 
-      valid_link = link.to_s.encode('utf-8', 'binary', :invalid => :replace,
-                                    :undef => :replace, :replace => '')
+      valid_link = link.to_s.encode('utf-8', 'binary', invalid: :replace,
+                                                       undef: :replace, replace: '')
 
       # remove anchor
       link =

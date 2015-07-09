@@ -95,13 +95,12 @@ describe Polipus::PolipusCrawler do
     end
 
     it 'should obey to the robots.txt file with list user_agent' do
-      user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; tr; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8 ( .NET CLR 3.5.30729; .NET4.0E)"
+      user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; tr; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8 ( .NET CLR 3.5.30729; .NET4.0E)'
       lopt = p_options
       lopt[:obey_robots_txt] = true
       lopt[:user_agent] = [user_agent]
       flexmock(Polipus::Robotex).should_receive(:new).with(user_agent)
       Polipus::PolipusCrawler.new('polipus-rspec', ['https://rubygems.org/gems/polipus'], lopt)
-
     end
   end
 end

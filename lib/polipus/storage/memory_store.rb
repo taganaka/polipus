@@ -48,7 +48,7 @@ module Polipus
 
       def clear
         @semaphore.synchronize do
-          @store = Hash.new
+          @store = {}
         end
       end
     end
