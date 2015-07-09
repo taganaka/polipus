@@ -13,7 +13,7 @@ module Polipus
         @collection = options[:collection]
         begin
           @mongo[@collection].ensure_index(:uuid, unique: true, dropDups: true, background: true)
-        rescue Exception
+        rescue StandardError
         end
 
         @compress_body = options[:compress_body] ||= true
