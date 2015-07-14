@@ -200,7 +200,7 @@ module Polipus
 
             execute_plugin 'on_before_download'
 
-            pages = http.fetch_pages(url, page.referer, page.depth)
+            pages = http.fetch_pages(url, page.referer, page.depth, page.user_data)
             if pages.count > 1
               rurls = pages.map { |e| e.url.to_s }.join(' --> ')
               @logger.info { "Got redirects! #{rurls}" }

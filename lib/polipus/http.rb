@@ -35,37 +35,39 @@ module Polipus
     # Fetch a single Page from the response of an HTTP request to *url*.
     # Just gets the final destination page.
     #
-    def fetch_page(url, referer = nil, depth = nil)
-      fetch_pages(url, referer, depth).last
+    def fetch_page(url, referer = nil, depth = nil, user_data = nil)
+      fetch_pages(url, referer, depth, user_data).last
     end
 
     #
     # Create new Pages from the response of an HTTP request to *url*,
     # including redirects
     #
-    def fetch_pages(url, referer = nil, depth = nil)
+    def fetch_pages(url, referer = nil, depth = nil, user_data = nil)
       url = URI(url)
       pages = []
       get(url, referer) do |response, code, location, redirect_to, response_time|
         handle_compression response
-        pages << Page.new(location, body: response.body,
-                                    code: code,
-                                    headers: response.to_hash,
-                                    referer: referer,
-                                    depth: depth,
-                                    redirect_to: redirect_to,
-                                    response_time: response_time,
-                                    fetched_at: Time.now.to_i)
+        page = Page.new(location, body: response.body,
+                                  code: code,
+                                  headers: response.to_hash,
+                                  referer: referer,
+                                  depth: depth,
+                                  redirect_to: redirect_to,
+                                  response_time: response_time,
+                                  fetched_at: Time.now.to_i)
+        page.user_data = user_data unless user_data.nil?
+        pages << page
       end
-
       pages
     rescue *RESCUABLE_ERRORS => e
       if verbose?
         puts e.inspect
         puts e.backtrace
       end
-
-      [Page.new(url, error: e, referer: referer, depth: depth)]
+      page = Page.new(url, error: e, referer: referer, depth: depth)
+      page.user_data = user_data unless user_data.nil?
+      [page]
     end
 
     #

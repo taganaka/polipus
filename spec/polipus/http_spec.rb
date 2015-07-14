@@ -8,11 +8,15 @@ describe Polipus::HTTP do
   it 'should download a page' do
     VCR.use_cassette('http_test') do
       http = Polipus::HTTP.new
-      page = http.fetch_page('http://sfbay.craigslist.org/apa/')
+      user_data = {
+        'mydata' => 'myvalue'
+      }
+      page = http.fetch_page('http://sfbay.craigslist.org/apa/', '', 0, user_data)
       expect(page).to be_an_instance_of(Polipus::Page)
       expect(page.doc.search('title').text.strip).to eq 'SF bay area apts/housing for rent classifieds  - craigslist'
       expect(page.fetched_at).not_to be_nil
       expect(page.fetched?).to be_truthy
+      expect(page.user_data).to eq user_data
     end
   end
 
