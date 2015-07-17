@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1 (2015-07-17)
+
+[Compare changes in gem](https://github.com/taganaka/polipus/compare/0.5.0...0.5.1)
+
+* Propagate user_data values from Redis message to fetched pages
+
 ## 0.5.0 (2015-07-08)
 
 [Compare changes in gem](https://github.com/taganaka/polipus/compare/0.4.0...0.5.0)
