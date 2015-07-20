@@ -177,7 +177,7 @@ module Polipus
       # remove anchor
       link =
         begin
-          URI.encode(URI.decode(valid_link.gsub(/#[a-zA-Z0-9_-]*$/, '')))
+          URI.encode(URI.decode(valid_link.gsub(/#[a-zA-Z0-9_:-]*$/, '')))
         rescue URI::Error
           return nil
         end
